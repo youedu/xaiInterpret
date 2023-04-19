@@ -1,9 +1,9 @@
 import {useState, useEffect} from 'react';
-import {Radar, Column} from '@ant-design/plots';
+import {Column} from '@ant-design/plots';
 import {ProTable} from "@ant-design/pro-components";
 import type {ProColumns} from "@ant-design/pro-components";
-import {Space, message, Modal, Typography} from 'antd';
-import {ProCard, Statistic} from '@ant-design/pro-components';
+import {message, Modal, Typography} from 'antd';
+import {ProCard} from '@ant-design/pro-components';
 import {evaluateResult, evaluateConfigResult} from "@/services/ant-design-pro/api";
 import {history} from "umi";
 
@@ -129,10 +129,8 @@ const robustColumns: ProColumns<robustTableListItem>[] = [
 
 
 export default (params) => {
-  var obj;
-  var consistency2;
-  const [objResult, setObjResult] = useState();
-  const [evaluateType, setEvaluateType] = useState();
+  let obj;
+  const [evaluateType, setEvaluateType] = useState('');
   const [adaptData2, setAdaptData2] = useState({});
   const [robustData2, setRobustData2] = useState();
   const [interpretData2, setInterpretData2] = useState(null);
@@ -140,17 +138,15 @@ export default (params) => {
   //文本参数
   const [textParam, setTextParam] = useState();
 
-  //表2权重数据
+  //可解释性测评结果表2的权重数据
   const [tableData, setTableData] = useState([]);
 
-  //鲁棒性扰动大小柱状图最大值
-  const [epsilon, setEpsilon] = useState(0);
   //鲁棒性失真度大小柱状图最大值
   const [distortionFactor, setDistortionFactor] = useState(0);
   //鲁棒性失真度柱状图新组织
-  const [newDistortionFactor, setNewDistortionFactor] = useState();
+  const [newDistortionFactor, setNewDistortionFactor] = useState([]);
   //鲁棒性平均扰动大小柱状图数据
-  const [avgEpsilon, setAvgEpsilon] = useState();
+  const [avgEpsilon, setAvgEpsilon] = useState([]);
 
   //可解释性展示类型
   const [interpretType, setInterpretType] = useState('');
@@ -171,12 +167,7 @@ export default (params) => {
     data.data.resultStr = data.data.resultStr.replaceAll('Infinity', '0');
     data.data.resultStr = data.data.resultStr.replaceAll('NaN', '0');
 
-    /*    data.data.resultStr =  data.data.resultStr.replaceAll('Infinity', '0');
-        data.data.reusltStr =  data.data.resultStr.replaceAll('NaN', '0');*/
 
-    /*    obj = data.data;
-        //console.log(obj.resultStr);
-        //console.log(JSON.parse(obj.resultStr));*/
     try {
       if (data.code === "00000" && data.data.resultStr !== '') {
         // //console.log(data.data.resultStr);
@@ -184,14 +175,6 @@ export default (params) => {
 
         //console.log(obj);
 
-        /*      if(obj.resultStr.indexOf('Infinity') !== -1)
-              {
-                history.push('/404');
-                message.error("结果错误");
-                return;
-              }*/
-        //console.log(JSON.parse(obj.resultStr));
-        /*      //console.log(obj.resultStr);*/
         if (obj.evaluateType === '鲁棒性') {
           const res = JSON.parse(obj.resultStr);
           let max = 0;
@@ -228,7 +211,7 @@ export default (params) => {
           })
           console.log(res);
           setRobustData2(res);
-          res.attacks.forEach((item, index) => {
+          res.attacks.forEach((item: object, index: number) => {
             item.config = configData[index].config;
             newDistortionFactor.push({
               distortionType: "L1失真度",
@@ -272,12 +255,10 @@ export default (params) => {
               epsilon: item.epsilon,
               config: configData[index].config,
             });
-
           });
           //setRobustData2(JSON.parse(obj.resultStr));
           setNewDistortionFactor(newDistortionFactor);
           setAvgEpsilon(avgEpsilon);
-          setEpsilon(max);
           setDistortionFactor(maxFactor);
           //console.log(max);
           //console.log(res);
@@ -292,9 +273,9 @@ export default (params) => {
           //console.log(evaluateType);
         }
         if (obj.evaluateType === '适应性') {
-          let res = JSON.parse(obj.resultStr);
-          let avgDec = 0;
-          res.noiseMethodList.forEach((item, index) => {
+          const res = JSON.parse(obj.resultStr);
+          let avgDec: string;
+          res.noiseMethodList.forEach((item: object, index: number) => {
             item.config = configData[index].config;
             avgDec = avgDec + res.clean_acc - item.change_clean_acc;
             item.change_clean_acc = parseFloat((item.change_clean_acc * 100).toFixed(2));
@@ -315,7 +296,7 @@ export default (params) => {
           setTextParam(first[5]);
 
           //设置表格数据
-          let newTableData = [];
+          const newTableData = [];
           // @ts-ignore
           if (first[0].proxy_type === 'rule') {
             setProxyType('rule');

@@ -644,7 +644,6 @@ export default (params) => {
     },
   };
   // 雷达图)
-  const [responsive, setResponsive] = useState(false);
 
   const [modal, contextHolder] = Modal.useModal();
 

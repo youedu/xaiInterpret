@@ -120,9 +120,9 @@ export default () => {
   //当前时间转为时间戳
   const [percent, setPercent] = useState<number>((new Date()).valueOf());
 
-  //每1s刷新时间
+  //每1s刷新时间戳
   setInterval( () => {setPercent((prevPercent) => {
-    const newPercent = prevPercent + 10000;
+    const newPercent = prevPercent + 1000;
     return newPercent;
   })}, 1000);
 
@@ -211,6 +211,7 @@ export default () => {
       valueType: 'dateTime',
       dataIndex: 'createTime',
       ellipsis: true,
+      width: '200px',
       // sorter: (a, b) => a.createdAt - b.createdAt,
     },
     {
@@ -224,10 +225,9 @@ export default () => {
           return <><CloseCircleOutlined/>测评失败</>;
         else if (row.evaluateState === 1)
           //return <><SyncOutlined spin/>测评中</>;
-          return <Progress percent={ 31.1 } />
+          return <Progress percent={ Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) / 1000), 90) } />
         else
-          //return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString()}>测评成功</Link></>;
-          return <Progress percent={ (percent - (new Date(row.updateTime)).valueOf() - 300000) / 10000 } />
+          return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString()}>测评成功</Link></>;
       }
     },
   ];

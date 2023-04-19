@@ -103,7 +103,7 @@ const columns: ProColumns<TableListItem>[] = [
     // sorter: (a, b) => parseFloat(a.size) - parseFloat(b.size),
   },
   {
-    title: <b>创建方式</b>,
+    title: <b>创建者</b>,
     dataIndex: 'belong',
     ellipsis: true,
     width: '11%',

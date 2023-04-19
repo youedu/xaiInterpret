@@ -748,7 +748,7 @@ export default (params) => {
                         data1[key] = Number(data1[key]).toFixed(2);
                     if (key !== 'BATCH_SIZE' && key !== 'F1_SCORE')
                       data1[key] = data1[key] * 100;
-                      //data1[key] = 94.00;
+                    //data1[key] = 94.00;
                     console.log(data1[key]);
                     console.log(94.00);
                   })
@@ -768,8 +768,8 @@ export default (params) => {
           </ProCard>)}
 
         {evaluateType === "ADAPT" && (
-          <ProCard title={<Typography.Title level={3} >适应性</Typography.Title>} layout={"center"} split={"horizontal"}>
-            <ProCard colSpan={12}>
+          <ProCard title={<Typography.Title level={3}>适应性</Typography.Title>} layout={"center"} split={"horizontal"}>
+            <ProCard colSpan={16}>
               <Column
                 autoFit={true}
                 data={adaptData2.noiseMethodList}
@@ -794,6 +794,10 @@ export default (params) => {
                   });
                 }}
                 isGroup={true}
+                legend={{
+                  layout: 'horizontal',
+                  flipPage: false
+                }}
                 xField={'methodName'}
                 yField={'change_clean_acc'}
                 seriesField={'methodName'}
@@ -862,7 +866,10 @@ export default (params) => {
                       });
                     }}
                     //isGroup={true}
-                    legend={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     data={robustData2.attacks}
                     xField={'methodName'}
                     yField={'success_attack_rate'}
@@ -874,7 +881,7 @@ export default (params) => {
                       label: {rotate: -0.4, style: {fontWeight: 'bolder', fontSize: 10}},
                     }}
                     yAxis={{
-                      title: {text: '攻击成功率(%)', position: 'end'},
+                      title: {text: '攻击成功率(%)'},
                       min: 0,
                       max: 100,
                     }}
@@ -945,7 +952,10 @@ export default (params) => {
                       });
                     }}
                     isGroup={true}
-                    legend={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     xField={'methodName'}
                     yField={'ssim'}
                     seriesField={'methodName'}
@@ -1008,13 +1018,17 @@ export default (params) => {
                       });
                     }}
                     isGroup={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     xField={'distortionType'}
                     yField={'index'}
                     maxColumnWidth={40}
                     minColumnWidth={15}
                     xAxis={{
                       title: {text: '失真度类型'},
-                      label: {rotate: -0.4, style: {fontWeight: 'bolder', fontSize: 10}},
+                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
                     }}
                     yAxis={{
                       title: {text: '平均失真度'},
@@ -1067,6 +1081,10 @@ export default (params) => {
                     xField={'methodName'}
                     yField={'psnr'}
                     isGroup={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     seriesField={'methodName'}
                     xAxis={{
                       title: {text: '攻击方法'},
@@ -1109,11 +1127,15 @@ export default (params) => {
                 xField={'epsilonType'}
                 yField={'index'}
                 isGroup={true}
+                legend={{
+                  layout: 'horizontal',
+                  flipPage: false
+                }}
                 seriesField={'methodName'}
                 maxColumnWidth={40}
                 xAxis={{
                   title: {text: '扰动类型'},
-                  label: {rotate: -0.4, style: {fontWeight: 'bolder', fontSize: 10}},
+                  label: {style: {fontWeight: 'bolder', fontSize: 10}},
                 }}
                 yAxis={{
                   title: {text: '平均扰动大小'},
@@ -1148,7 +1170,7 @@ export default (params) => {
                 columns={robustColumns}
                 search={false}
                 options={false}
-                scroll={{ x: 1500 }}
+                scroll={{x: 1500}}
                 request={async () => {
                   const data = robustData2.attacks;
 

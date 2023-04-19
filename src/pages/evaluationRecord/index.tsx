@@ -76,7 +76,6 @@ const tableListDataSource: TableListItem[] = [];
 
 export default () => {
 
-
   const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
@@ -87,40 +86,33 @@ export default () => {
     setEvaConfig: ret.setEvaluationConfig,
   }));
 
-  const [data, setData] = useState();
 
   useEffect(() => {
     setEvaConfig({});
     setRobustEvaluationConfig({});
-    setData(['图像分类', '文本分类', '表格分类']);
   }, []);
 
-  //保存数据类型
-  const [first, setFirst] = useState(1);
 
+  //表格查询栏选项与输入
   const ref = useRef<ActionType>();
   const formRef = useRef<ProFormInstance>();
   const [queryType, setQueryType] = useState('');
   const [queryContent, setQueryContent] = useState('');
-  const [columnsStateMap, setColumnsStateMap] = useState<Record<string, ColumnsState>>({
-    name: {
-      show: false,
-      order: 2,
-    },
-  });
 
+  //测评数据类型
   const [dataType, setDataType] = useState(1);
 
-  //第一层modalform
+  //外层modalForm
   const [modalForm] = Form.useForm();
   const modalRef = useRef<ProFormInstance>();
+
   //30s自动刷新当前表格数据
   setInterval( () => ref.current?.reload(), 30000);
 
   //当前时间转为时间戳
   const [percent, setPercent] = useState<number>((new Date()).valueOf());
 
-  //每1s刷新时间戳
+  //每1s刷新时间戳,更新进度条
   setInterval( () => {setPercent((prevPercent) => {
     const newPercent = prevPercent + 1000;
     return newPercent;
@@ -390,7 +382,8 @@ export default () => {
               formRef={modalRef}
               title="测评类型"
               trigger={<Button type="primary" onClick={() => {
-                setFirst(1);
+                setDataType(1);
+                //setFirst(1);
               }
               }>新建测评</Button>}
               submitter={{
@@ -421,7 +414,7 @@ export default () => {
             >
               <ProFormRadio.Group
                 onChange={() => {
-                  setFirst(modalForm.getFieldValue('dataType'));
+                  //setFirst(modalForm.getFieldValue('dataType'));
                   setDataType(modalForm.getFieldValue('dataType'));
                 }}
                 initialValue={1}
@@ -437,13 +430,13 @@ export default () => {
                     label: '文本',
                     value: 2,
                   },
-                  {
+/*                  {
                     label: '表格',
                     value: 3,
-                  },
+                  },*/
                 ]}
               />
-              {(first === 1) && (
+              {(dataType === 1) && (
                 <ProFormRadio.Group
                   name="taskType1"
                   label="任务类型"
@@ -457,7 +450,7 @@ export default () => {
                   }}
                 />
               )}
-              {first === 2 && (
+              {dataType === 2 && (
                 <ProFormRadio.Group
                   name="taskType2"
                   label="任务类型"
@@ -471,7 +464,7 @@ export default () => {
                   }}
                 />
               )}
-              {first === 3 && (
+{/*              {dataType === 3 && (
                 <ProFormRadio.Group
                   name="taskType3"
                   label="任务类型"
@@ -484,7 +477,7 @@ export default () => {
                     ];
                   }}
                 />
-              )}
+              )}*/}
               {/*          <ProFormRadio.Group
             onChange={()=>{setDataType(modalForm.getFieldValue('dataType'));}}
             initialValue={1}

@@ -8,7 +8,6 @@ import {history, Link} from 'umi';
 import defaultSettings from '../config/defaultSettings';
 import {currentUser as queryCurrentUser} from './services/ant-design-pro/api';
 import {ErrorShowType, RequestConfig} from "@@/plugin-request/request";
-//import logo from '../public/ai.svg'
 import logo from '../public/ai.png'
 import token from "@/utils/token";
 import userinfo from "@/utils/userinfo";

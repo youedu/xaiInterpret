@@ -120,15 +120,11 @@ const robustColumns: ProColumns<robustTableListItem>[] = [
     dataIndex: 'L_infinity_avg_epsilon',
     valueType: 'digit',
   },
-  /*  {
-      title: '扰动大小',
-      dataIndex: 'epsilon',
-    },*/
 ];
 //鲁棒性表格)
 
 
-export default (params) => {
+export default (params: object) => {
   let obj;
   const [evaluateType, setEvaluateType] = useState('');
   const [adaptData2, setAdaptData2] = useState({});
@@ -154,7 +150,8 @@ export default (params) => {
   //设置评估模型类型
   const [proxyType, setProxyType] = useState('');
 
-  const config = async () => {
+  //初始化评测结果的展示数据
+  const presentResult = async () => {
     const data = await evaluateResult(params.location.query.resultId);
     const configRes = await evaluateConfigResult(params.location.query.resultId);
     /*    configRes.data.resultStr =  data.data.resultStr.replaceAll('Infinity', '0');
@@ -606,109 +603,19 @@ export default (params) => {
           message.error("结果错误");
         }*/
   }
-  // config();
-
-  //(雷达图)
-  const [radarData, setRadarData] = useState([]);
 
   useEffect(() => {
-    //asyncFetch();
-    config();
+    presentResult();
   }, []);
 
-  const radarConfig = {
-    data: radarData,
-    xField: 'item',
-    yField: 'score',
-    meta: {
-      score: {
-        alias: '分数',
-        min: 0,
-        max: 10,
-      },
-    },
-    xAxis: {
-      line: null,
-      tickLine: null,
-      grid: {
-        line: {
-          style: {
-            lineDash: null,
-          },
-        },
-      },
-    },
-    // 开启辅助点
-    point: {
-      size: 2,
-    },
-  };
-  // 雷达图)
 
   const [modal, contextHolder] = Modal.useModal();
 
-  // @ts-ignore
   return (
     <>
       <ProCard split="horizontal">
 
-        {/*        <RcResizeObserver
-          key="resize-observer"
-          onResize={(offset) => {
-            setResponsive(offset.width < 596);
-          }}
-        >
-          <ProCard.Group title="核心指标" direction={responsive ? 'column' : 'row'} >
-            <ProCard colSpan={2} size={'default'}>
-              <Statistic title="今日UV" value={79.0} precision={2} />
-            </ProCard>
-            <Divider type={responsive ? 'horizontal' : 'vertical'} />
-            <ProCard>
-              <Statistic title="冻结金额" value={112893.0} precision={2} />
-            </ProCard>
-            <Divider type={responsive ? 'horizontal' : 'vertical'} />
-            <ProCard>
-              <Statistic title="信息完整度" value={93} suffix="/ 100" />
-            </ProCard>
-            <Divider type={responsive ? 'horizontal' : 'vertical'} />
-            <ProCard>
-              <Statistic title="冻结金额" value={112893.0} />
-            </ProCard>
-          </ProCard.Group>
-        </RcResizeObserver>*/}
-        {/*        <ProCard split="vertical" title="综合评测">
-          <ProCard><Radar {...radarConfig} /></ProCard>
-          <ProCard>
-            <Space direction={"vertical"} size={"middle"}>
-            <div>模型评分详情</div>
-
-              {evaluateType === "ACC" && (<>
-            <div>正确性</div>
-            在200张测试图片上，准确率达到XXX，召回率达到XXX，精确率达到XXX，f1分数达到XXX
-              </>)}
-
-              {evaluateType === "ADAPT" && (<>
-            <div>适应性</div>
-            在少量普通噪声干扰下能保持XXX的top-1分类准确率
-              </>
-              )}
-
-              {evaluateType === "ROBUST" && (<>
-            <div>鲁棒性</div>
-            在少量对抗噪声干扰下能保持XXX的top-1分类准确率，鲁棒性下界epsilon达到8/255
-                </>
-                )}
-
-              {evaluateType === "INTERPRET" && (<>
-            <div>可解释性</div>
-            该XAI的综合可解释性评分为6.5
-              </>
-                )}
-            </Space>
-          </ProCard>
-
-        </ProCard>*/}
-
+        {/*正确性评测结果内容*/}
         {evaluateType === "ACC" && (
           <ProCard title={<Typography.Title level={3}>正确性</Typography.Title>}>
             <ProCard>
@@ -747,6 +654,7 @@ export default (params) => {
             </ProCard>
           </ProCard>)}
 
+        {/*适应性评测结果内容*/}
         {evaluateType === "ADAPT" && (
           <ProCard title={<Typography.Title level={3}>适应性</Typography.Title>} layout={"center"} split={"horizontal"}>
             <ProCard colSpan={16}>
@@ -820,6 +728,7 @@ export default (params) => {
             </ProCard>
           </ProCard>)}
 
+        {/*鲁棒性评测结果内容*/}
         {evaluateType === "ROBUST" && (
           <ProCard split={"horizontal"} title={<Typography.Title level={3}>鲁棒性</Typography.Title>} layout={"center"}
                    bodyStyle={{padding: '80px'}}>
@@ -1187,6 +1096,7 @@ export default (params) => {
           </ProCard>*/}
           </ProCard>)}
 
+        {/*可解释性评测结果内容*/}
         {evaluateType === "INTERPRET" && (
           <>
             {/*          <ProCard  title={"可解释性(决策树代理模型)"}></ProCard>

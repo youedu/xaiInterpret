@@ -875,7 +875,7 @@ export default () => {
                   }}
                 />
               )}
-              <ProFormSelect
+              {/*<ProFormSelect
                 width="sm"
                 name="modelType"
                 initialValue={0}
@@ -901,7 +901,7 @@ export default () => {
                     label: '代理模型',
                   },
                 ]
-                }/>
+                }/>*/}
               {/*<ProFormRadio.Group
             name="taskType"
             label="任务类型"

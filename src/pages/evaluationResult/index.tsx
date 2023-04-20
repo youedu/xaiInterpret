@@ -271,14 +271,13 @@ export default (params: object) => {
         }
         if (obj.evaluateType === '适应性') {
           const res = JSON.parse(obj.resultStr);
-          let avgDec: string;
+          let avgDec = 0;
           res.noiseMethodList.forEach((item: object, index: number) => {
             item.config = configData[index].config;
             avgDec = avgDec + res.clean_acc - item.change_clean_acc;
             item.change_clean_acc = parseFloat((item.change_clean_acc * 100).toFixed(2));
-            console.log(parseFloat('1400.00'));
           });
-          avgDec = ((avgDec / res.noiseMethodList.length) * 100).toFixed(2);
+          avgDec = Number(((avgDec / res.noiseMethodList.length) * 100).toFixed(2));
           res.avgDec = avgDec;
           res.noiseMethodList.unshift({'methodName': '原始情况', 'change_clean_acc': res.clean_acc * 100});
           setAdaptData2(res);

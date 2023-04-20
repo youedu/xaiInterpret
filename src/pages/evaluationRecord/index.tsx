@@ -211,13 +211,13 @@ export default () => {
       dataIndex: 'id',
       ellipsis: true,
       render: (_, row) => {
-        console.log(row.updateTime);
-        console.log(((new Date()).valueOf() - (new Date(row.updateTime)).valueOf()) / 10000);
         if (row.evaluateState === 0)
           return <><CloseCircleOutlined/>测评失败</>;
-        else if (row.evaluateState === 1)
+        else if (row.evaluateState === 1){
           //return <><SyncOutlined spin/>测评中</>;
+          //console.log(((percent - (new Date(row.updateTime)).valueOf()) / 1000));
           return <Progress percent={ Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) / 1000), 90) } />
+        }
         else
           return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString()}>测评成功</Link></>;
       }

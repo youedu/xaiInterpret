@@ -758,6 +758,16 @@ export default forwardRef((props, ref, params: any) => {
             <ProCard>
               <ProForm submitter={false}>
                 <ProFormCheckbox.Group
+                  label={<div style={{
+                    fontSize: '18px',
+                    height: '30px',
+                    fontWeight: 'normal',
+                    lineHeight: '30px',
+                    //backgroundImage: 'linear-gradient(135deg,  #fdfcfb 0% ,#e2d1c3 100% )',
+                    width: 'auto',
+                    //position: 'absolute',
+                    left: "0"
+                  }}>测评指标选择</div>}
                   fieldProps={{
                     onChange: (event) => {
                       //console.log(event);
@@ -788,7 +798,16 @@ export default forwardRef((props, ref, params: any) => {
                 />
                 <ProFormDigit
                   width={'200px'}
-                  label={"数据集评测数据量"}
+                  label={<div style={{
+                    fontSize: '18px',
+                    height: '30px',
+                    fontWeight: 'normal',
+                    lineHeight: '30px',
+                    //backgroundImage: 'linear-gradient(135deg,  #fdfcfb 0% ,#e2d1c3 100% )',
+                    width: 'auto',
+                    //position: 'absolute',
+                    //left: "0"
+                  }}>数据集评测数量</div>}
                   tooltip={"最大可选数量为当前数据集的数据总量" + dataSetNumber.toString()}
                   name="inputNumber"
                   initialValue={100}
@@ -802,7 +821,16 @@ export default forwardRef((props, ref, params: any) => {
                 ></ProFormDigit>
                 <ProFormSelect
                   allowClear={false}
-                  label={"运行设备"}
+                  label={<div style={{
+                    fontSize: '18px',
+                    height: '30px',
+                    fontWeight: 'normal',
+                    lineHeight: '30px',
+                    //backgroundImage: 'linear-gradient(135deg,  #fdfcfb 0% ,#e2d1c3 100% )',
+                    width: 'auto',
+                    //position: 'absolute',
+                    //left: "0"
+                  }}>运行设备</div>}
                   tooltip={"可选运行设备为cpu与gpu"}
                   width={'200px'}
                   name="deviceType"

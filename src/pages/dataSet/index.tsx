@@ -378,18 +378,10 @@ export default () => {
                       value: 2,
                       label: '文本分类',
                     },
-                    {
+/*                    {
                       value: 3,
                       label: '表格分类',
-                    },
-                    /*              {
-                                    value: 3,
-                                    label: '表格分类',
-                                  },
-                                  {
-                                    value: 4,
-                                    label: '图像识别',
-                                  },*/
+                    },*/
                   ]
                   }/>
               </Form.Item>
@@ -398,7 +390,7 @@ export default () => {
                 <ProFormDigit
                   //initialValue={2}
                   width="md"
-                  label="数据总量"
+                  label="样本量"
                   tooltip={'图片数据请输入图片数量，文本数据请输入文本长度'}
                   name="dataLength"
                   rules={[{required: true}]}
@@ -542,13 +534,13 @@ export default () => {
                             if (index === 0) {
                               return (
                                 <div className="row">
-                                  zip压缩文件内应包含test文件夹,train文件夹,test.txt文件,train.txt文件
+                                  zip压缩文件内应包含test文件夹,train文件夹,test.txt文件,train.txt文件,如右图所示
                                 </div>
                               )
                             } else if (index === 1) {
                               return (
                                 <div className="row">
-                                  txt文件应说明数据集文件与标签的对应关系，每一行对应文件夹内的一条数据文件名，以及对应的分类标签
+                                  txt文件应说明数据集文件与标签的对应关系，每一行对应文件夹内的一条数据文件名，以及对应的分类标签,如右图所示
                                 </div>
                               )
                             }

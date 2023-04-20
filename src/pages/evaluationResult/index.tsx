@@ -38,22 +38,22 @@ const accuracyColumns: ProColumns[] = [
   {
     title: <b>测试集准确率(%)</b>,
     dataIndex: 'ACC',
-    valueType: "digit"
+    valueType: "text"
   },
   {
     title: <b>测试集召回率(%)</b>,
     dataIndex: 'RECALL',
-    valueType: "digit"
+    valueType: "text"
   },
   {
     title: <b>测试集精确率(%)</b>,
     dataIndex: 'PRECISION',
-    valueType: "digit"
+    valueType: "text"
   },
   {
     title: <b>F1分数</b>,
     dataIndex: 'F1_SCORE',
-    valueType: "digit"
+    valueType: "text"
   },
 ];
 //正确性表格)
@@ -128,9 +128,13 @@ const robustColumns: ProColumns<robustTableListItem>[] = [
 export default (params: object) => {
   let obj;
   const [evaluateType, setEvaluateType] = useState('');
+  //适应性柱状图数据
   const [adaptData2, setAdaptData2] = useState({});
+  //鲁棒性柱状图数据
   const [robustData2, setRobustData2] = useState({});
-  const [robustDataAttack, setRobustDataAttack] = useState([]);
+  //鲁棒性表格数据
+  const [robustDataTable, setRobustDataTable] = useState({});
+
   const [interpretData2, setInterpretData2] = useState(null);
 
   //文本参数
@@ -156,36 +160,44 @@ export default (params: object) => {
   const presentResult = async () => {
     const data = await evaluateResult(params.location.query.resultId);
     const configRes = await evaluateConfigResult(params.location.query.resultId);
-    /*    configRes.data.resultStr =  data.data.resultStr.replaceAll('Infinity', '0');
-        configRes.data.resultStr =  data.data.resultStr.replaceAll('NaN', '0');*/
 
-    ////console.log(configRes);
+
     const configData = configRes.data;
-    //console.log(configData);
-    //console.log(data.data);
     data.data.resultStr = data.data.resultStr.replaceAll('Infinity', '0');
     data.data.resultStr = data.data.resultStr.replaceAll('NaN', '0');
 
 
-    //try {
+    try {
       if (data.code === "00000" && data.data.resultStr !== '') {
-        // //console.log(data.data.resultStr);
         obj = data.data;
-
-        //console.log(obj);
-
         if (obj.evaluateType === '鲁棒性') {
           const res = JSON.parse(obj.resultStr);
+          const res2 = JSON.parse(obj.resultStr)
           let max = 0;
           let maxFactor = 0;
           let newDistortionFactor = [];
           let avgEpsilon = [];
-          res.attacks.forEach((item) => {
+          res.attacks.forEach((item: any) => {
             if (max < item.epsilon)
               max = item.epsilon;
-            /*          if (maxFactor < item.distortion_factor[0])
-                        maxFactor = item.distortion_factor;*/
             maxFactor = Math.max(maxFactor, item.distortion_factor[0], item.distortion_factor[1], item.distortion_factor[2])
+            item.distortion_factor[0] = Number(item.distortion_factor[0].toFixed(2));
+            item.distortion_factor[1] = Number(item.distortion_factor[1].toFixed(2));
+            item.distortion_factor[2] = Number(item.distortion_factor[2].toFixed(2));
+
+            item.avg_epsilon[0] = Number(item.avg_epsilon[0].toFixed(2));
+            item.avg_epsilon[1] = Number(item.avg_epsilon[1].toFixed(2));
+            item.avg_epsilon[2] = Number(item.avg_epsilon[2].toFixed(2));
+
+            if (typeof item.ssim === 'number' && !isNaN(item.ssim))
+              item.ssim = Number((Number(item.ssim.toFixed(3)) * 100).toFixed(1));
+            if (typeof item.psnr === 'number' && !isNaN(item.psnr))
+              item.psnr = Number(item.psnr.toFixed(3));
+            item.success_attack_rate = parseFloat((item.success_attack_rate * 100).toFixed(2));
+
+            return item;
+          })
+          res2.attacks.forEach((item) => {
             item.distortion_factor[0] = Number(item.distortion_factor[0].toFixed(3));
             item.distortion_factor[1] = Number(item.distortion_factor[1].toFixed(3));
             item.distortion_factor[2] = Number(item.distortion_factor[2].toFixed(3));
@@ -198,23 +210,9 @@ export default (params: object) => {
               item.ssim = Number((Number(item.ssim.toFixed(3)) * 100).toFixed(1));
             if (typeof item.psnr === 'number' && !isNaN(item.psnr))
               item.psnr = Number(item.psnr.toFixed(3));
-            //console.log(Number(item.success_attack_rate * 100).toFixed(1));
             item.success_attack_rate = parseFloat((item.success_attack_rate * 100).toFixed(2));
-            //item.success_attack_rate = Number((item.success_attack_rate * 100).toFixed(1));
-            ////console.log(typeof item.success_attack_rate, item.success_attack_rate);
-            //console.log(item.success_attack_rate);
-            //item.success_attack_rate = Number(item.success_attack_rate);
-            //console.log(typeof(item.success_attack_rate));
-
-            /*//console.log(typeof(item.distortion_factor));*/
-            /*        if(item.distortion_factor < 0.001)
-                      item.distortion_factor = 0.00001;*/
             return item;
           })
-          //console.log(typeof attack[0].success_attack_rate);
-          //console.log(typeof res.attacks[0].success_attack_rate);
-
-
 
           res.attacks.forEach((item: object, index: number) => {
             item.config = configData[index].config;
@@ -261,25 +259,17 @@ export default (params: object) => {
               config: configData[index].config,
             });
           });
-          //setRobustData2(JSON.parse(obj.resultStr));
-
           setRobustData2(res);
+          setRobustDataTable(res2);
 
           setNewDistortionFactor(newDistortionFactor);
           setAvgEpsilon(avgEpsilon);
           setDistortionFactor(maxFactor);
-          //console.log(max);
-          //console.log(res);
-          //setRobustData2(res);
-          //console.log(res.attacks);
-          //console.log(robustData2);
           setEvaluateType('ROBUST');
-          //console.log(evaluateType);
 
         }
         if (obj.evaluateType === '正确性') {
           setEvaluateType('ACC');
-          //console.log(evaluateType);
         }
         if (obj.evaluateType === '适应性') {
           const res = JSON.parse(obj.resultStr);
@@ -604,19 +594,14 @@ export default (params: object) => {
                   },]);*/
         }
       }
-    /*} catch {
-      //console.log("1");
+    } catch {
       history.push('/404');
       message.error("结果错误");
-    }*/
-    /*    else{
-          history.push('/404');
-          message.error("结果错误");
-        }*/
+    }
   }
 
   useEffect(() => {
-    presentResult();
+    presentResult().then();
   }, []);
 
 
@@ -645,10 +630,7 @@ export default (params: object) => {
                       else
                         data1[key] = Number(data1[key]).toFixed(2);
                     if (key !== 'BATCH_SIZE' && key !== 'F1_SCORE')
-                      data1[key] = data1[key] * 100;
-                    //data1[key] = 94.00;
-                    console.log(data1[key]);
-                    console.log(94.00);
+                      data1[key] = (data1[key] * 100).toFixed(2);
                   })
                   //console.log(data1);
                   data[0] = data1;
@@ -705,7 +687,7 @@ export default (params: object) => {
                   label: {style: {fontWeight: 'bolder', fontSize: 10}},
                 }}
                 yAxis={{
-                  title: {text: '正确率(%)'},
+                  title: {text: '准确率(%)'},
                   tickCount: 6,
                   min: 0,
                   max: 100,
@@ -728,14 +710,14 @@ export default (params: object) => {
                     alias: '方法',
                   },
                   change_clean_acc: {
-                    alias: '正确率',
+                    alias: '准确率',
                   },
                 }}
               />
               {contextHolder}
             </ProCard>
             <ProCard colSpan={10}>
-              <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，正确率平均下降{adaptData2.avgDec}%</div>
+              <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，准确率平均下降{adaptData2.avgDec}%</div>
             </ProCard>
           </ProCard>)}
 
@@ -744,8 +726,8 @@ export default (params: object) => {
           <ProCard split={"horizontal"} title={<Typography.Title level={3}>鲁棒性</Typography.Title>} layout={"center"}
                    bodyStyle={{padding: '80px'}}>
             {/*<ProCard split={"vertical"}>*/}
-              <ProCard split={"horizontal"}>
-                <ProCard title={"攻击成功率"}>
+              <ProCard split={"horizontal"} layout={"center"}>
+                <ProCard title={"攻击成功率"} colSpan={16}>
                   <Column
                     data={robustData2.attacks}
                     autoFit={true}
@@ -809,7 +791,7 @@ export default (params: object) => {
                                       }
                                   }}*/
                     maxColumnWidth={40}
-                    minColumnWidth={20}
+                    minColumnWidth={40}
                     label={undefined}
                     /*                label={{
                                       // 可手动配置 label 数据标签位置
@@ -832,7 +814,7 @@ export default (params: object) => {
                   />
                   {contextHolder}
                 </ProCard>
-                <ProCard title={"平均结构相似度"}>
+                <ProCard title={"平均结构相似度"} colSpan={16}>
                   <Column
                     data={robustData2.attacks}
                     onReady={(plot) => {
@@ -854,10 +836,7 @@ export default (params: object) => {
                       });
                     }}
                     isGroup={true}
-                    legend={{
-                      layout: 'horizontal',
-                      flipPage: false
-                    }}
+                    legend={false}
                     xField={'methodName'}
                     yField={'ssim'}
                     seriesField={'methodName'}
@@ -872,7 +851,7 @@ export default (params: object) => {
                       max: 100,
                     }}
                     maxColumnWidth={40}
-                    minColumnWidth={20}
+                    minColumnWidth={40}
                     label={undefined}
                     /*                  label={{
                                         // 可手动配置 label 数据标签位置
@@ -896,8 +875,8 @@ export default (params: object) => {
                   {contextHolder}
                 </ProCard>
               </ProCard>
-              <ProCard split={"horizontal"}>
-                <ProCard title={"平均失真度"}>
+              <ProCard split={"horizontal"} layout={"center"}>
+                <ProCard title={"平均失真度"} colSpan={16}>
                   <Column
                     /*                data={robustData2.attacks}*/
                     data={newDistortionFactor}
@@ -920,10 +899,7 @@ export default (params: object) => {
                       });
                     }}
                     isGroup={true}
-                    legend={{
-                      layout: 'horizontal',
-                      flipPage: false
-                    }}
+                    legend={false}
                     xField={'distortionType'}
                     yField={'index'}
                     maxColumnWidth={40}
@@ -959,7 +935,7 @@ export default (params: object) => {
                     }}
                   />
                 </ProCard>
-                <ProCard title={"峰值信噪比"}>
+                <ProCard title={"峰值信噪比"} colSpan={16}>
                   <Column
                     data={robustData2.attacks}
                     onReady={(plot) => {
@@ -983,10 +959,7 @@ export default (params: object) => {
                     xField={'methodName'}
                     yField={'psnr'}
                     isGroup={true}
-                    legend={{
-                      layout: 'horizontal',
-                      flipPage: false
-                    }}
+                    legend={false}
                     seriesField={'methodName'}
                     xAxis={{
                       title: {text: '攻击方法'},
@@ -999,7 +972,7 @@ export default (params: object) => {
                       max: 160,
                     }}
                     maxColumnWidth={40}
-                    minColumnWidth={20}
+                    minColumnWidth={40}
                     annotations={[]}
                     /*                label={{
                                       // 可手动配置 label 数据标签位置
@@ -1023,18 +996,16 @@ export default (params: object) => {
                 </ProCard>
               </ProCard>
             {/*</ProCard>*/}
-            <ProCard title={"平均扰动大小"}>
+            <ProCard title={"平均扰动大小"} colSpan={16}>
               <Column
                 data={avgEpsilon}
                 xField={'epsilonType'}
                 yField={'index'}
                 isGroup={true}
-                legend={{
-                  layout: 'horizontal',
-                  flipPage: false
-                }}
+                legend={false}
                 seriesField={'methodName'}
                 maxColumnWidth={40}
+                minColumnWidth={15}
                 xAxis={{
                   title: {text: '扰动类型'},
                   label: {style: {fontWeight: 'bolder', fontSize: 10}},
@@ -1074,8 +1045,7 @@ export default (params: object) => {
                 options={false}
                 scroll={{x: 1500}}
                 request={async () => {
-                  let data = robustData2.attacks;
-
+                  const data = robustDataTable.attacks;
                   for (let attack of data) {
                     attack.batch_size = robustData2.batch_size;
                     //attack.distortion_factor = attack.distortion_factor.toExponential();
@@ -1095,7 +1065,6 @@ export default (params: object) => {
                       attack.success_attack_rate = attack.success_attack_rate.toFixed(2);
                   }
                   ;
-                  //console.log(data);
                   return {
                     data: data,
                     success: true,

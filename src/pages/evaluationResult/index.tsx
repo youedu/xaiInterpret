@@ -79,46 +79,47 @@ const robustColumns: ProColumns<robustTableListItem>[] = [
   {
     title: <b>攻击成功率(%)</b>,
     dataIndex: 'success_attack_rate',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>平均结构相似度(%)</b>,
     dataIndex: 'ssim',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>峰值信噪比</b>,
     dataIndex: 'psnr',
+    valueType: 'text',
   },
   {
     title: <b>L1失真度</b>,
     dataIndex: 'L1_distortion_factor',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>L2失真度</b>,
     dataIndex: 'L2_distortion_factor',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>L∞失真度</b>,
     dataIndex: 'L_infinity_distortion_factor',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>平均扰动大小（L1范数）</b>,
     dataIndex: 'L1_avg_epsilon',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>平均扰动大小（L2范数）</b>,
     dataIndex: 'L2_avg_epsilon',
-    valueType: 'digit',
+    valueType: 'text',
   },
   {
     title: <b>平均扰动大小（L∞范数）</b>,
     dataIndex: 'L_infinity_avg_epsilon',
-    valueType: 'digit',
+    valueType: 'text',
   },
 ];
 //鲁棒性表格)
@@ -262,10 +263,6 @@ export default (params: object) => {
           });
           //setRobustData2(JSON.parse(obj.resultStr));
 
-/*          const attack = res.attacks.pop();
-          console.log(attack);
-          res.attacks.unshift(attack);*/
-          res.attacks.unshift({success_attack_rate: 0, psnr: 0, ssim: 0});
           setRobustData2(res);
 
           setNewDistortionFactor(newDistortionFactor);
@@ -1077,26 +1074,25 @@ export default (params: object) => {
                 options={false}
                 scroll={{x: 1500}}
                 request={async () => {
-                  const data = robustData2.attacks;
+                  let data = robustData2.attacks;
 
                   for (let attack of data) {
                     attack.batch_size = robustData2.batch_size;
                     //attack.distortion_factor = attack.distortion_factor.toExponential();
-                    attack.L1_distortion_factor = attack.distortion_factor[0].toExponential();
-                    attack.L2_distortion_factor = attack.distortion_factor[1].toExponential();
-                    attack.L_infinity_distortion_factor = attack.distortion_factor[2].toExponential();
+                    attack.L1_distortion_factor = attack.distortion_factor[0].toFixed(2);
+                    attack.L2_distortion_factor = attack.distortion_factor[1].toFixed(2);
+                    attack.L_infinity_distortion_factor = attack.distortion_factor[2].toFixed(2);
 
-                    attack.L1_avg_epsilon = attack.avg_epsilon[0].toExponential();
-                    attack.L2_avg_epsilon = attack.avg_epsilon[1].toExponential();
-                    attack.L_infinity_avg_epsilon = attack.avg_epsilon[2].toExponential();
+                    attack.L1_avg_epsilon = attack.avg_epsilon[0].toFixed(2);
+                    attack.L2_avg_epsilon = attack.avg_epsilon[1].toFixed(2);
+                    attack.L_infinity_avg_epsilon = attack.avg_epsilon[2].toFixed(2);
 
                     if (typeof attack.ssim === 'number' && !isNaN(attack.ssim))
-                      attack.ssim = attack.ssim.toFixed(1);
+                      attack.ssim = attack.ssim.toFixed(2);
                     if (typeof attack.psnr === 'number' && !isNaN(attack.psnr))
-                      attack.psnr = attack.psnr.toFixed(1);
+                      attack.psnr = attack.psnr.toFixed(2);
                     if (typeof attack.success_attack_rate === 'number' && !isNaN(attack.success_attack_rate))
-                      attack.success_attack_rate = attack.success_attack_rate.toFixed(1);
-
+                      attack.success_attack_rate = attack.success_attack_rate.toFixed(2);
                   }
                   ;
                   //console.log(data);

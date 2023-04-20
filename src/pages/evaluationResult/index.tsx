@@ -238,21 +238,21 @@ export default (params: object) => {
               config: configData[index].config,
             });
             avgEpsilon.push({
-              epsilonType: "L1平均扰动大小",
+              epsilonType: "L1扰动",
               methodName: item.methodName,
               index: item.avg_epsilon[0],
               epsilon: item.epsilon,
               config: configData[index].config,
             });
             avgEpsilon.push({
-              epsilonType: "L2平均扰动大小",
+              epsilonType: "L2扰动",
               methodName: item.methodName,
               index: item.avg_epsilon[1],
               epsilon: item.epsilon,
               config: configData[index].config,
             });
             avgEpsilon.push({
-              epsilonType: "L∞平均扰动大小",
+              epsilonType: "L∞扰动",
               methodName: item.methodName,
               index: item.avg_epsilon[2],
               epsilon: item.epsilon,
@@ -761,7 +761,7 @@ export default (params: object) => {
                     //seriesField={'methodName'}
                     xAxis={{
                       title: {text: '攻击方法'},
-                      label: {rotate: -0.4, style: {fontWeight: 'bolder', fontSize: 10}},
+                      label: null,
                     }}
                     yAxis={{
                       title: {text: '攻击成功率(%)'},
@@ -842,7 +842,7 @@ export default (params: object) => {
                     seriesField={'methodName'}
                     xAxis={{
                       title: {text: '攻击方法'},
-                      label: {rotate: -0.4, style: {fontWeight: 'bold', fontSize: 10}}
+                      label: null,
                     }}
                     yAxis={{
                       title: {text: '平均结构相似度(%)'},
@@ -963,7 +963,7 @@ export default (params: object) => {
                     seriesField={'methodName'}
                     xAxis={{
                       title: {text: '攻击方法'},
-                      label: {rotate: -0.4, style: {fontWeight: 'bolder', fontSize: 10}}
+                      label: null,
                     }}
                     tooltip={{}}
                     yAxis={{

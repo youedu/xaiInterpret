@@ -64,7 +64,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu}) => {
           marginRight: 8,
         }}
       />*/}
-      <Avatar size={30} className={styles.avatar} style={{backgroundColor: '#87d068'}}
+      <Avatar size={50} className={styles.avatar} style={{backgroundColor: '#87d068'}}
               icon={<UserOutlined/>} alt="avatar" />
     </span>
   );

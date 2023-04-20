@@ -215,6 +215,7 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     onPageChange: () => {
       const {location} = history;
       // 如果没有登录，重定向到 login(且当前页面不是首页或重置密码页面)
+      console.log(location.pathname);
       if (location.pathname !== '/user/pwdReset')
         if (!initialState?.currentUser && location.pathname !== loginPath) {
           if (location.pathname != '/welcome')

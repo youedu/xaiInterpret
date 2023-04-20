@@ -134,8 +134,8 @@ const columns: ProColumns<TableListItem>[] = [
 
 export default () => {
 
-  const [screenWidth, screenHeight] = [window.screen.width, window.screen.height];
-  console.log(screenWidth, screenHeight)
+/*  const [screenWidth, screenHeight] = [window.screen.width, window.screen.height];
+  console.log(screenWidth, screenHeight)*/
 
   const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
@@ -487,7 +487,7 @@ export default () => {
                               controller = new AbortController();
                               signal = controller.signal;
                             },
-                            width: 1000 * screenWidth / 1536 ,
+                            width: "70%" ,
                           }}
                           title="上传模型"
                           trigger={<Button type="primary" onClick={() => {

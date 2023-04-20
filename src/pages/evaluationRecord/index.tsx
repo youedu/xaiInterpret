@@ -111,10 +111,11 @@ export default () => {
 
   //当前时间转为时间戳
   const [percent, setPercent] = useState<number>((new Date()).valueOf());
-
+  console.log(percent);
   //每1s刷新时间戳,更新进度条
   setInterval( () => {setPercent((prevPercent) => {
-    const newPercent = prevPercent + 1000;
+    //console.log(prevPercent);
+    const newPercent = prevPercent + 100;
     return newPercent;
   })}, 1000);
 
@@ -215,8 +216,7 @@ export default () => {
           return <><CloseCircleOutlined/>测评失败</>;
         else if (row.evaluateState === 1){
           //return <><SyncOutlined spin/>测评中</>;
-          //console.log(((percent - (new Date(row.updateTime)).valueOf()) / 1000));
-          return <Progress percent={ Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) / 1000), 90) } />
+          return <Progress percent={ Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) /100 ), 60) } />
         }
         else
           return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString()}>测评成功</Link></>;

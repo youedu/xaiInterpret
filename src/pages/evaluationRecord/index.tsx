@@ -111,7 +111,6 @@ export default () => {
 
   //当前时间转为时间戳
   const [percent, setPercent] = useState<number>((new Date()).valueOf());
-  console.log(percent);
   //每1s刷新时间戳,更新进度条
   setInterval( () => {setPercent((prevPercent) => {
     //console.log(prevPercent);

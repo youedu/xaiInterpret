@@ -23,7 +23,6 @@ export const loginOut = async () => {
     message.success('退出登录成功');
   }
   token.save(null);
-
   const {query = {}, search, pathname} = history.location;
   const {redirect} = query;
   // Note: There may be security issues, please note
@@ -31,22 +30,43 @@ export const loginOut = async () => {
   if (window.location.pathname !== '/user/login' && !redirect) {
     history.replace({
       pathname: '/user/login',
-      search: stringify({
+/*      search: stringify({
         redirect: pathname + search,
-      }),
+      }),*/
     });
   }
 };
 
 const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu}) => {
   const {initialState, setInitialState} = useModel('@@initialState');
+  const logOut = async () => {
+    const data = await outLogin();
+    if (data.code = '00000') {
+      message.success('退出登录成功');
+    }
+    token.save(null);
+    await setInitialState((s) => ({
+    }));
+    const {query = {}, search, pathname} = history.location;
+    const {redirect} = query;
+    // Note: There may be security issues, please note
 
-  const onMenuClick = useCallback(
+    if (window.location.pathname !== '/user/login' && !redirect) {
+      history.replace({
+        pathname: '/user/login',
+        /*      search: stringify({
+                redirect: pathname + search,
+              }),*/
+      });
+    }
+  };
+  const onMenuClick =  useCallback(
     (event: MenuInfo) => {
       const {key} = event;
+
       if (key === 'logout') {
-        setInitialState((s) => ({...s, currentUser: undefined}));
-        loginOut();
+        console.log(initialState);
+        logOut().then();
         return;
       }
 

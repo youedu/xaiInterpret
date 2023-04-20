@@ -44,24 +44,11 @@ const LoginMessage: React.FC<{
 
 const Login: React.FC = () => {
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
-  const {initialState, setInitialState} = useModel('@@initialState');
 
   //表单数据
   const [form] = Form.useForm();
 
   const intl = useIntl();
-
-  const fetchUserInfo = async () => {
-    const userInfo = await initialState?.fetchUserInfo?.();
-    //console.log("userInfo:", userInfo);
-    if (userInfo) {
-      // console.log("用户信息获取成功");
-      await setInitialState((s) => ({
-        ...s,
-        currentUser: userInfo,
-      }));
-    }
-  };
 
   const handleSubmit = async (values: API.LoginParams) => {
     try {

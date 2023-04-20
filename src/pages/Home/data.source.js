@@ -2,7 +2,7 @@ import React from 'react';
 import token from "@/utils/token";
 import dataset from "/public/dataset.png"
 
-const url = (token.get() !== null) ? './dataset' : './user/login';
+const url = (token.get() !== null && token.get() !== 'null') ? './dataset' : './user/login';
 export const Banner51DataSource = {
   wrapper: {className: 'home-page-wrapper banner5'},
   title: {

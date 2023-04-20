@@ -57,7 +57,9 @@ const Login: React.FC = () => {
     const userInfo = await initialState?.fetchUserInfo?.();
     //console.log("userInfo:", userInfo);
     if (userInfo) {
+      console.log(3);
       //console.log("用户信息获取成功");
+      console.log(userInfo);
       await setInitialState((s) => ({
         ...s,
         currentUser: userInfo,
@@ -96,7 +98,7 @@ const Login: React.FC = () => {
         userInfo_obj.name = userInfo_obj.user_name;
         userInfo_obj.userid = userInfo_obj.id;
         // 设置用户信息
-        //console.log(setInitialState);
+        console.log(userInfo_obj);
         await setInitialState((s) => ({
           ...s,
           currentUser: userInfo_obj,
@@ -106,9 +108,8 @@ const Login: React.FC = () => {
         /** 此方法会跳转到 redirect 参数所在的位置 */
         if (!history) return;
         const {query} = history.location;
-        const {redirect} = query as { redirect: string };
         //history.push(redirect || '/');
-        history.push("/welcome");
+        history.push("/dataset");
         return;
       } else {
         message.error(data.message);

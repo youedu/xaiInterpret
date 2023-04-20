@@ -1,19 +1,14 @@
-import Footer from '@/components/Footer';
 import RightContent from '@/components/RightContent';
-import {BookOutlined, LinkOutlined} from '@ant-design/icons';
 import type {Settings as LayoutSettings} from '@ant-design/pro-components';
-import {PageLoading, SettingDrawer} from '@ant-design/pro-components';
+import {PageLoading} from '@ant-design/pro-components';
 import type {RunTimeLayoutConfig} from 'umi';
-import {history, Link} from 'umi';
+import {history,} from 'umi';
 import defaultSettings from '../config/defaultSettings';
 import {currentUser as queryCurrentUser} from './services/ant-design-pro/api';
 import {ErrorShowType, RequestConfig} from "@@/plugin-request/request";
 import logo from '../public/ai.png'
 import token from "@/utils/token";
-import userinfo from "@/utils/userinfo";
-import {loginOut} from "@/components/RightContent/AvatarDropdown";
 import {message, notification} from "antd";
-import {useModel} from "@@/plugin-model/useModel";
 import {stringify} from "querystring";
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -37,17 +32,16 @@ export async function getInitialState(): Promise<{
   const fetchUserInfo = async () => {
     try {
       const msg = await queryCurrentUser();
-      //console.log("hello world")
       return msg.data;
     } catch (error) {
-      //console.log(history.location.pathname);
       history.push(loginPath);
     }
     return undefined;
   };
   // 如果不是登录页面且不是welcome界面，执行
-  if (history.location.pathname !== loginPath && history.location.pathname !== '/welcome') {
-    if (token.get() !== null) {
+  if (history.location.pathname !== loginPath /*&& history.location.pathname !== '/welcome'*/) {
+    const tokenValue = token.get();
+    if (tokenValue !== null && tokenValue !== 'null') {
       //代替下方的获取用户信息函数
       const userInfo = token.get();
       const userInfo_base64 = userInfo.split('.')[1];
@@ -59,12 +53,18 @@ export async function getInitialState(): Promise<{
       userInfo_obj.userid = userInfo_obj.id;
 
       // const currentUser = await fetchUserInfo();
+      console.log(userInfo_obj);
       return {
         fetchUserInfo,
         currentUser: userInfo_obj,
         settings: defaultSettings,
       };
-    }
+    };
+    return {
+      fetchUserInfo,
+      currentUser: undefined,
+      settings: defaultSettings,
+    };
 
   }
   return {
@@ -99,9 +99,9 @@ const demoResponseInterceptors = (response: Response, options: RequestConfig) =>
     if (window.location.pathname !== '/user/login' && !redirect) {
       history.replace({
         pathname: '/user/login',
-        search: stringify({
+/*        search: stringify({
           redirect: pathname + search,
-        }),
+        }),*/
       });
     }
   }
@@ -216,6 +216,7 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
       const {location} = history;
       // 如果没有登录，重定向到 login(且当前页面不是首页或重置密码页面)
       console.log(location.pathname);
+      console.log(initialState);
       if (location.pathname !== '/user/pwdReset')
         if (!initialState?.currentUser && location.pathname !== loginPath) {
           if (location.pathname != '/welcome')

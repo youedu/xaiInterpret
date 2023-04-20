@@ -95,7 +95,7 @@ export async function pwdReset(values: API.pwdResetParams) {
 export async function dataSetFile(file, signal) {
   let data = new FormData();
   data.append('file', file);
-  return request('/api/file/micro-model-dataset-service/minio/dataset/upload', {
+  return request('/api/micro-model-dataset-service/minio/dataset/upload', {
     method: 'POST',
     timeout: 0,
     headers: {
@@ -185,7 +185,7 @@ export async function dataSetUrlQueryById(id: number) {
 export async function modelFile(file, signal) {
   let data = new FormData();
   data.append('file', file);
-  return request('/api/file/micro-model-dataset-service/minio/model/upload', {
+  return request('/api/micro-model-dataset-service/minio/model/upload', {
     method: 'POST',
     timeout: 0,
     headers: {

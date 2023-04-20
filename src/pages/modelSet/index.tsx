@@ -499,7 +499,6 @@ export default () => {
                             },
                           }
                           }
-
                           onFinish={async (values) => {
                             //console.log(modelUpload);
                             if (!modelUpload.hasOwnProperty('url')) {

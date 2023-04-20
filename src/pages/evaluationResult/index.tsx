@@ -128,7 +128,8 @@ export default (params: object) => {
   let obj;
   const [evaluateType, setEvaluateType] = useState('');
   const [adaptData2, setAdaptData2] = useState({});
-  const [robustData2, setRobustData2] = useState();
+  const [robustData2, setRobustData2] = useState({});
+  const [robustDataAttack, setRobustDataAttack] = useState([]);
   const [interpretData2, setInterpretData2] = useState(null);
 
   //文本参数
@@ -165,7 +166,7 @@ export default (params: object) => {
     data.data.resultStr = data.data.resultStr.replaceAll('NaN', '0');
 
 
-    try {
+    //try {
       if (data.code === "00000" && data.data.resultStr !== '') {
         // //console.log(data.data.resultStr);
         obj = data.data;
@@ -178,7 +179,7 @@ export default (params: object) => {
           let maxFactor = 0;
           let newDistortionFactor = [];
           let avgEpsilon = [];
-          res.attacks = res.attacks.map((item) => {
+          res.attacks.forEach((item) => {
             if (max < item.epsilon)
               max = item.epsilon;
             /*          if (maxFactor < item.distortion_factor[0])
@@ -197,17 +198,23 @@ export default (params: object) => {
             if (typeof item.psnr === 'number' && !isNaN(item.psnr))
               item.psnr = Number(item.psnr.toFixed(3));
             //console.log(Number(item.success_attack_rate * 100).toFixed(1));
-            item.success_attack_rate = Number((Number(item.success_attack_rate.toFixed(3)) * 100).toFixed(1));
+            item.success_attack_rate = parseFloat((item.success_attack_rate * 100).toFixed(2));
+            //item.success_attack_rate = Number((item.success_attack_rate * 100).toFixed(1));
             ////console.log(typeof item.success_attack_rate, item.success_attack_rate);
-            console.log(item);
+            //console.log(item.success_attack_rate);
+            //item.success_attack_rate = Number(item.success_attack_rate);
+            //console.log(typeof(item.success_attack_rate));
 
             /*//console.log(typeof(item.distortion_factor));*/
             /*        if(item.distortion_factor < 0.001)
                       item.distortion_factor = 0.00001;*/
             return item;
           })
-          console.log(res);
-          setRobustData2(res);
+          //console.log(typeof attack[0].success_attack_rate);
+          //console.log(typeof res.attacks[0].success_attack_rate);
+
+
+
           res.attacks.forEach((item: object, index: number) => {
             item.config = configData[index].config;
             newDistortionFactor.push({
@@ -254,6 +261,13 @@ export default (params: object) => {
             });
           });
           //setRobustData2(JSON.parse(obj.resultStr));
+
+/*          const attack = res.attacks.pop();
+          console.log(attack);
+          res.attacks.unshift(attack);*/
+          res.attacks.unshift({success_attack_rate: 0, psnr: 0, ssim: 0});
+          setRobustData2(res);
+
           setNewDistortionFactor(newDistortionFactor);
           setAvgEpsilon(avgEpsilon);
           setDistortionFactor(maxFactor);
@@ -264,6 +278,7 @@ export default (params: object) => {
           //console.log(robustData2);
           setEvaluateType('ROBUST');
           //console.log(evaluateType);
+
         }
         if (obj.evaluateType === '正确性') {
           setEvaluateType('ACC');
@@ -281,7 +296,7 @@ export default (params: object) => {
           res.avgDec = avgDec;
           res.noiseMethodList.unshift({'methodName': '原始情况', 'change_clean_acc': res.clean_acc * 100});
           setAdaptData2(res);
-          console.log(adaptData2);
+          console.log(res);
           setEvaluateType('ADAPT');
           //console.log(evaluateType);
         }
@@ -592,11 +607,11 @@ export default (params: object) => {
                   },]);*/
         }
       }
-    } catch {
+    /*} catch {
       //console.log("1");
       history.push('/404');
       message.error("结果错误");
-    }
+    }*/
     /*    else{
           history.push('/404');
           message.error("结果错误");
@@ -731,10 +746,12 @@ export default (params: object) => {
         {evaluateType === "ROBUST" && (
           <ProCard split={"horizontal"} title={<Typography.Title level={3}>鲁棒性</Typography.Title>} layout={"center"}
                    bodyStyle={{padding: '80px'}}>
-            <ProCard split={"vertical"}>
-              <ProCard split={"horizontal"} colSpan={12}>
+            {/*<ProCard split={"vertical"}>*/}
+              <ProCard split={"horizontal"}>
                 <ProCard title={"攻击成功率"}>
                   <Column
+                    data={robustData2.attacks}
+                    autoFit={true}
                     onReady={(plot) => {
                       plot.on('element:click', (...args: any) => {
                         //console.log(args);
@@ -758,7 +775,6 @@ export default (params: object) => {
                       layout: 'horizontal',
                       flipPage: false
                     }}
-                    data={robustData2.attacks}
                     xField={'methodName'}
                     yField={'success_attack_rate'}
                     seriesField={'methodName'}
@@ -770,6 +786,7 @@ export default (params: object) => {
                     }}
                     yAxis={{
                       title: {text: '攻击成功率(%)'},
+                      tickCount: 6,
                       min: 0,
                       max: 100,
                     }}
@@ -882,7 +899,7 @@ export default (params: object) => {
                   {contextHolder}
                 </ProCard>
               </ProCard>
-              <ProCard split={"horizontal"} colSpan={12}>
+              <ProCard split={"horizontal"}>
                 <ProCard title={"平均失真度"}>
                   <Column
                     /*                data={robustData2.attacks}*/
@@ -1008,7 +1025,7 @@ export default (params: object) => {
                   />
                 </ProCard>
               </ProCard>
-            </ProCard>
+            {/*</ProCard>*/}
             <ProCard title={"平均扰动大小"}>
               <Column
                 data={avgEpsilon}

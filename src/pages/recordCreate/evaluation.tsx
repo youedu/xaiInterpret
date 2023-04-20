@@ -398,7 +398,7 @@ const robustDefaultData: robustDataSourceType[] = new Array(2).fill(1).map((_, i
 });*/
 
 const adaptColumns: ProColumns[] = [
-  {
+/*  {
     title: '扰动类型',
     dataIndex: 'categoryName',
     formItemProps: {
@@ -411,7 +411,7 @@ const adaptColumns: ProColumns[] = [
     },
     width: '35%',
     editable: false,
-  },
+  },*/
   {
     title: '扰动方法',
     dataIndex: 'methodList',

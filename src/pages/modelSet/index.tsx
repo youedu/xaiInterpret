@@ -826,10 +826,10 @@ export default () => {
                     label: '文本',
                     value: 2,
                   },
-                  {
+/*                  {
                     label: '表格',
                     value: 3,
-                  },
+                  },*/
                 ]}
               />
               {(first === 1) && (
@@ -861,7 +861,7 @@ export default () => {
                   }}
                 />
               )}
-              {first === 3 && (
+{/*              {first === 3 && (
                 <ProFormRadio.Group
                   name="taskType3"
                   label="任务类型"
@@ -874,7 +874,7 @@ export default () => {
                     ];
                   }}
                 />
-              )}
+              )}*/}
               {/*<ProFormSelect
                 width="sm"
                 name="modelType"

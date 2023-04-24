@@ -212,7 +212,7 @@ const Login: React.FC = () => {
         <LoginForm
           form={form}
           submitter={false}
-          logo={<img alt="logo" src="/logo.svg"/>}
+          logo={<img alt="logo" src="/ai.png"/>}
           title="人工智能可信测试平台"
           /*subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}*/
           initialValues={{

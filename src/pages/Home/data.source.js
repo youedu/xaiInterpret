@@ -1,6 +1,7 @@
 import React from 'react';
 import token from "@/utils/token";
 import dataset from "/public/dataset.png"
+import logo from "../../../public/ai.png"
 
 const url = (token.get() !== null && token.get() !== 'null') ? './dataset' : './user/login';
 export const Banner51DataSource = {
@@ -38,8 +39,9 @@ export const Banner51DataSource = {
   },
   image: {
     className: 'banner5-image',
-    children:
-      'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',
+    children: logo,
+/*    children:
+      'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',*/
   },
 };
 export const Content00DataSource = {

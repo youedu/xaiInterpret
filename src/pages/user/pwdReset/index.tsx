@@ -92,7 +92,7 @@ const Login: React.FC = () => {
               submitText: '提交',
             },
           }}
-          logo={<img alt="logo" src="/logo.svg"/>}
+          logo={<img alt="logo" src="/ai.png"/>}
           title="人工智能可信测试平台"
           subTitle='重置密码'
           /*subTitle={intl.formatMessage({ id: 'pages.layouts.userLayout.title' })}*/

@@ -51,19 +51,19 @@ const columns: ProColumns<TableListItem>[] = [
     title: <b>模型ID</b>,
     dataIndex: 'id',
     //ellipsis: true,
-    width: '11%',
+    width: '40',
   },
   {
     title: <b>模型名称</b>,
     dataIndex: 'modelName',
     //ellipsis: true,
-    width: '11%',
+    width: '13%',
   },
   {
     title: <b>模型描述</b>,
     dataIndex: 'modelDesc',
     ellipsis: true,
-    width: '11%',
+    width: '13%',
   },
   {
     title: <b>任务类型</b>,

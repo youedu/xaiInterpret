@@ -65,8 +65,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu}) => {
       const {key} = event;
 
       if (key === 'logout') {
-        console.log(initialState);
-        logOut().then();
+        loginOut().then();
         return;
       }
 
@@ -84,7 +83,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu}) => {
           marginRight: 8,
         }}
       />*/}
-      <Avatar size={50} className={styles.avatar} style={{backgroundColor: '#87d068'}}
+      <Avatar size={50} className={styles.avatar}
               icon={<UserOutlined/>} alt="avatar" />
     </span>
   );
@@ -131,7 +130,7 @@ const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({menu}) => {
   return (
     <HeaderDropdown overlay={menuHeaderDropdown} overlayStyle={{height: '70px'}}>
       <span className={`${styles.action} ${styles.account}`} style={{height: '70px'}}>
-        <Avatar size={50} className={styles.avatar} src={currentUser.avatar} style={{backgroundColor: '#87d068'}}
+        <Avatar size={50} className={styles.avatar} src={currentUser.avatar}
                 icon={<UserOutlined/>} alt="avatar"/>
         <span className={`${styles.name} anticon`} style={{fontSize:'17px'}}>{'你好，' + currentUser.name}</span>
       </span>

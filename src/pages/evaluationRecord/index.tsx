@@ -73,7 +73,6 @@ const tableListDataSource: TableListItem[] = [];
 // @ts-ignore
 
 
-
 export default () => {
 
   const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
@@ -86,18 +85,34 @@ export default () => {
     setEvaConfig: ret.setEvaluationConfig,
   }));
 
-
-  useEffect(() => {
-    setEvaConfig({});
-    setRobustEvaluationConfig({});
-  }, []);
-
+  //当前时间转为时间戳
+  const [percent, setPercent] = useState<number>((new Date()).valueOf());
 
   //表格查询栏选项与输入
   const ref = useRef<ActionType>();
   const formRef = useRef<ProFormInstance>();
   const [queryType, setQueryType] = useState('');
   const [queryContent, setQueryContent] = useState('');
+
+
+  useEffect(() => {
+    setEvaConfig({});
+    setRobustEvaluationConfig({});
+    //30s自动刷新当前表格数据
+    setInterval(() => ref.current?.reload(), 15000);
+
+    //每2s刷新时间戳
+    setInterval(() => {
+      setPercent((prevPercent) => {
+          //console.log(prevPercent);
+          const newPercent = prevPercent + 1000;
+          return newPercent;
+        }
+      )
+    }, 1000);
+
+  }, []);
+
 
   //测评数据类型
   const [dataType, setDataType] = useState(1);
@@ -106,18 +121,8 @@ export default () => {
   const [modalForm] = Form.useForm();
   const modalRef = useRef<ProFormInstance>();
 
-  //30s自动刷新当前表格数据
-  setInterval( () => ref.current?.reload(), 30000);
 
-  //当前时间转为时间戳
-  const [percent, setPercent] = useState<number>((new Date()).valueOf());
-  //每1s刷新时间戳,更新进度条
-  setInterval( () => {setPercent((prevPercent) => {
-    //console.log(prevPercent);
-    const newPercent = prevPercent + 100;
-    return newPercent;
-  })}, 1000);
-
+  //clearInterval(timer);
   //表格列
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -213,21 +218,20 @@ export default () => {
       render: (_, row) => {
         if (row.evaluateState === 0)
           return <><CloseCircleOutlined/>测评失败</>;
-        else if (row.evaluateState === 1){
+        else if (row.evaluateState === 1) {
           //return <><SyncOutlined spin/>测评中</>;
-          return <Progress percent={ Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) /100 ), 60) } />
-        }
-        else
+          return <Progress percent={Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) / 250), 90)}/>
+        } else
           return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString()}>测评成功</Link></>;
       }
     },
   ];
 
 
-
   return (<>
       <ProCard title={<div style={{fontSize: '20px', fontWeight: 'bold'}}>测评记录</div>}>
         <ProTable<TableListItem, { keyWord?: string }>
+          loading={false}
           columns={columns}
           //dataSource={tableListDataSource}
           toolbar={{
@@ -314,7 +318,7 @@ export default () => {
             }
             //console.log(taskType);
             const msg = await evaluationRecordQuery(params, queryType, queryContent, taskType);
-            console.log(msg);
+            //console.log(msg);
             if (msg.code === '00000') {
               /*          for (let item of msg.data.records){
                             let res = '';
@@ -344,7 +348,7 @@ export default () => {
                   value: columnsStateMap,
                   onChange: setColumnsStateMap,
                 }}*/
-          rowKey="key"
+          rowKey="id"
           actionRef={ref}
           formRef={formRef}
           pagination={{
@@ -429,10 +433,10 @@ export default () => {
                     label: '文本',
                     value: 2,
                   },
-/*                  {
-                    label: '表格',
-                    value: 3,
-                  },*/
+                  /*                  {
+                                      label: '表格',
+                                      value: 3,
+                                    },*/
                 ]}
               />
               {(dataType === 1) && (
@@ -463,7 +467,7 @@ export default () => {
                   }}
                 />
               )}
-{/*              {dataType === 3 && (
+              {/*              {dataType === 3 && (
                 <ProFormRadio.Group
                   name="taskType3"
                   label="任务类型"

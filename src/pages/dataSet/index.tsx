@@ -65,19 +65,19 @@ const columns: ProColumns[] = [
     title: <b>数据ID</b>,
     dataIndex: 'id',
     ellipsis: true,
-    width: '12.5%',
+    width: '40',
   },
   {
     title: <b>数据名称</b>,
     dataIndex: 'dataName',
     ellipsis: true,
-    width: '12.5%',
+    width: '15%',
   },
   {
     title: <b>数据描述</b>,
     dataIndex: 'dataDesc',
     ellipsis: true,
-    width: '12.5%',
+    width: '15%',
   },
   {
     title: <b>任务类型</b>,
@@ -226,7 +226,7 @@ export default () => {
             }
             //console.log(taskType);
             const msg = await dataSetQuery(params, queryType, queryContent, taskType);
-            console.log(msg);
+            //console.log(msg);
             if (msg.code === '00000')
               return {
                 data: msg.data.records,
@@ -285,7 +285,7 @@ export default () => {
               enterButton: true,
             }*/
           }}
-          rowKey="key"
+          rowKey="id"
           actionRef={ref}
           formRef={formRef}
           pagination={{
@@ -378,10 +378,10 @@ export default () => {
                       value: 2,
                       label: '文本分类',
                     },
-/*                    {
-                      value: 3,
-                      label: '表格分类',
-                    },*/
+                    /*                    {
+                                          value: 3,
+                                          label: '表格分类',
+                                        },*/
                   ]
                   }/>
               </Form.Item>
@@ -491,7 +491,7 @@ export default () => {
                                 ];
                               }}*/
                       itemLayout="vertical"
-                      rowKey="id"
+                      rowKey="title"
                       //headerTitle="结果说明"
                       dataSource={dataSource}
                       metas={{
@@ -514,13 +514,11 @@ export default () => {
                                   },*/
                         extra: {
                           render: (dom, entity, index, action, schema) => {
-                            console.log(index)
                             if (index === 0) {
                               return (
                                 <img src={datasetForm1}></img>
                               )
-                            }
-                            else if(index === 1){
+                            } else if (index === 1) {
                               return (
                                 <img src={datasetForm2}></img>
                               )
@@ -533,15 +531,19 @@ export default () => {
                             console.log(index);
                             if (index === 0) {
                               return (
-                                <div className="row">
-                                  zip压缩文件内应包含test文件夹,train文件夹,test.txt文件,train.txt文件,如右图所示
-                                </div>
+                                <ul>
+                                  <li>
+                                    上传的图像数据格式应为zip压缩文件，文件内应包含test文件夹,train文件夹,test.txt文件,train.txt文件,如右图所示
+                                  </li>
+                                </ul>
                               )
                             } else if (index === 1) {
                               return (
-                                <div className="row">
-                                  txt文件应说明数据集文件与标签的对应关系，每一行对应文件夹内的一条数据文件名，以及对应的分类标签,如右图所示
-                                </div>
+                                <ul>
+                                  <li>
+                                    txt文件应说明数据集文件与标签的对应关系，每一行对应文件夹内的一条数据文件名，以及对应的分类标签,如右图所示
+                                  </li>
+                                </ul>
                               )
                             }
                           },
@@ -585,7 +587,7 @@ export default () => {
                                 ];
                               }}*/
                       itemLayout="vertical"
-                      rowKey="id"
+                      rowKey="title"
                       //headerTitle="结果说明"
                       dataSource={[{
                         title: ''
@@ -624,7 +626,7 @@ export default () => {
                         },
                       }}
                     />
-{/*                    <div className="row row-margin-top">
+                    {/*                    <div className="row row-margin-top">
                       zip压缩文件内，需同时包含训练集与测试集，其中训练集的命名格式为，数据集名称_train.csv，测试集的命名格式为：数据集名称_test.csv
                     </div>
                     <Image src={tableDataForm}></Image>*/}

@@ -1,9 +1,9 @@
-import {useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Column} from '@ant-design/plots';
 import {ProTable} from "@ant-design/pro-components";
 import type {ProColumns} from "@ant-design/pro-components";
 import {message, Modal, Typography} from 'antd';
-import {ProCard} from '@ant-design/pro-components';
+import {ProCard, ProFormSelect} from '@ant-design/pro-components';
 import {evaluateResult, evaluateConfigResult} from "@/services/ant-design-pro/api";
 import {history} from "umi";
 
@@ -134,6 +134,11 @@ export default (params: object) => {
   const [robustData2, setRobustData2] = useState({});
   //鲁棒性表格数据
   const [robustDataTable, setRobustDataTable] = useState({});
+  //鲁棒性结果柱状图展示选择
+  const [robustBarType, setRobustBarType] = useState('success_attack_rate');
+  //适应性结果柱状图展示选择
+  const [adaptBarType, setAdaptBarType] = useState('Acc');
+
 
   const [interpretData2, setInterpretData2] = useState(null);
 
@@ -238,21 +243,21 @@ export default (params: object) => {
               config: configData[index].config,
             });
             avgEpsilon.push({
-              epsilonType: "L1扰动",
+              epsilonType: "L1范数下的平均扰动",
               methodName: item.methodName,
               index: item.avg_epsilon[0],
               epsilon: item.epsilon,
               config: configData[index].config,
             });
             avgEpsilon.push({
-              epsilonType: "L2扰动",
+              epsilonType: "L2范数下的平均扰动",
               methodName: item.methodName,
               index: item.avg_epsilon[1],
               epsilon: item.epsilon,
               config: configData[index].config,
             });
             avgEpsilon.push({
-              epsilonType: "L∞扰动",
+              epsilonType: "L∞范数下的平均扰动",
               methodName: item.methodName,
               index: item.avg_epsilon[2],
               epsilon: item.epsilon,
@@ -273,15 +278,37 @@ export default (params: object) => {
         }
         if (obj.evaluateType === '适应性') {
           const res = JSON.parse(obj.resultStr);
-          let avgDec = 0;
+          console.log(res);
+          let avgAccDec = 0;
+          let avgRecDec = 0;
+          let avgPreDec = 0;
+          let avgF1Dec = 0;
           res.noiseMethodList.forEach((item: object, index: number) => {
             item.config = configData[index].config;
-            avgDec = avgDec + res.clean_acc - item.change_clean_acc;
+            avgAccDec = avgAccDec + res.clean_acc - item.change_clean_acc;
+            avgRecDec = avgRecDec + res.RECALL - item.RECALL;
+            avgPreDec = avgPreDec + res.PRECISION - item.PRECISION;
+            avgF1Dec = avgF1Dec + res.F1_SCORE - item.F1_SCORE;
             item.change_clean_acc = parseFloat((item.change_clean_acc * 100).toFixed(2));
+            item.RECALL = parseFloat((item.RECALL * 100).toFixed(2));
+            item.PRECISION = parseFloat((item.PRECISION * 100).toFixed(2));
+            item.F1_SCORE = parseFloat(item.F1_SCORE.toFixed(2));
           });
-          avgDec = Number(((avgDec / res.noiseMethodList.length) * 100).toFixed(2));
-          res.avgDec = avgDec;
-          res.noiseMethodList.unshift({'methodName': '原始情况', 'change_clean_acc': res.clean_acc * 100});
+          avgAccDec = Number(((avgAccDec / res.noiseMethodList.length) * 100).toFixed(2));
+          avgRecDec = Number(((avgRecDec / res.noiseMethodList.length) * 100).toFixed(2));
+          avgPreDec = Number(((avgPreDec / res.noiseMethodList.length) * 100).toFixed(2));
+          avgF1Dec = Number((avgF1Dec / res.noiseMethodList.length).toFixed(2));
+          res.avgAccDec = avgAccDec;
+          res.avgRecDec = avgRecDec;
+          res.avgPreDec = avgPreDec;
+          res.avgF1Dec = avgF1Dec;
+          res.noiseMethodList.unshift({
+            'methodName': '原始情况',
+            'change_clean_acc': parseFloat((res.clean_acc * 100).toFixed(2)),
+            'RECALL': parseFloat((res.RECALL * 100).toFixed(2)),
+            'PRECISION': parseFloat((res.PRECISION * 100).toFixed(2)),
+            'F1_SCORE': parseFloat(res.F1_SCORE.toFixed(2)),
+          });
           setAdaptData2(res);
           console.log(res);
           setEvaluateType('ADAPT');
@@ -650,173 +677,840 @@ export default (params: object) => {
         {/*适应性评测结果内容*/}
         {evaluateType === "ADAPT" && (
           <ProCard title={<Typography.Title level={3}>适应性</Typography.Title>} layout={"center"} split={"horizontal"}>
-            <ProCard colSpan={16}>
-              <Column
-                autoFit={true}
-                data={adaptData2.noiseMethodList}
-                onReady={(plot) => {
-                  plot.on('element:click', (...args: any) => {
-                    //console.log(args);
-                    let item;
-                    if (args[0].data.data.methodName !== '原始情况') {
-                      item = args[0].data.data.config;
-                      /*                      item = args[0].data.data.config.split("{").join("{\n");
-                                            item = item.split(",").join(",\n");
-                                            item = item.split("}").join("\n}");*/
-                      //console.log(item);
-                      modal.info({
-                        title: '配置信息', content: (
-                          <>
-                            <div style={{whiteSpace: 'pre-line'}}>{item}</div>
-                          </>
-                        )
-                      });
-                    }
-                  });
-                }}
-                isGroup={true}
-                legend={{
-                  layout: 'horizontal',
-                  flipPage: false
-                }}
-                xField={'methodName'}
-                yField={'change_clean_acc'}
-                seriesField={'methodName'}
-                xAxis={{
-                  title: {text: '扰动方法'},
-                  label: {style: {fontWeight: 'bolder', fontSize: 10}},
-                }}
-                yAxis={{
-                  title: {text: '准确率(%)'},
-                  tickCount: 6,
-                  min: 0,
-                  max: 100,
-                }}
-                maxColumnWidth={40}
-                minColumnWidth={40}
-                label={undefined}
-                /*            label={{
-                              // 可手动配置 label 数据标签位置
-                              position: 'top',
-                              // 'top', 'bottom', 'middle',
-                              // 配置样式
-                              style: {
-                                fill: '#000000',
-                                opacity: 1,
-                              },
-                            }}*/
-                meta={{
-                  methodName: {
-                    alias: '方法',
-                  },
-                  change_clean_acc: {
-                    alias: '准确率',
-                  },
-                }}
-              />
-              {contextHolder}
-            </ProCard>
-            <ProCard colSpan={10}>
-              <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，准确率平均下降{adaptData2.avgDec}%</div>
-            </ProCard>
-          </ProCard>)}
-
-        {/*鲁棒性评测结果内容*/}
-        {evaluateType === "ROBUST" && (
-          <ProCard split={"horizontal"} title={<Typography.Title level={3}>鲁棒性</Typography.Title>} layout={"center"}
-                   bodyStyle={{padding: '80px'}}>
-            {/*<ProCard split={"vertical"}>*/}
-              <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard title={"攻击成功率"} colSpan={16}>
+            <ProFormSelect
+              allowClear={false}
+              label={<div style={{
+                fontSize: '18px',
+                height: '30px',
+                fontWeight: 'normal',
+                lineHeight: '30px',
+                //backgroundImage: 'linear-gradient(135deg,  #fdfcfb 0% ,#e2d1c3 100% )',
+                width: 'auto',
+                //position: 'absolute',
+                //left: "0"
+              }}>适应性测评结果指标</div>}
+              width={'200px'}
+              name="adaptBarType"
+              placeholder={'准确率'}
+              onChange={(e) => {
+                //console.log(e);
+                setAdaptBarType(e);
+              }}
+              options={[
+                {label: '准确率', value: 'Acc'},
+                {label: '召回率', value: 'Recall'},
+                {label: '精确率', value: 'Precision'},
+                {label: 'F1分数', value: 'F1Score'},
+              ]
+              }
+            />
+            {adaptBarType === 'Acc' && (
+              <ProCard split={"horizontal"} colSpan={16} layout={"center"}>
+                {/*准确率柱状图*/}
+                <ProCard style={{height: '500px'}}>
                   <Column
-                    data={robustData2.attacks}
                     autoFit={true}
+                    data={adaptData2.noiseMethodList}
                     onReady={(plot) => {
                       plot.on('element:click', (...args: any) => {
                         //console.log(args);
                         let item;
-                        item = args[0].data.data.config;
-                        /*                      item = args[0].data.data.config.split("{").join("{\n");
-                                              item = item.split(",").join(",\n");
-                                              item = item.split("}").join("\n}");*/
-                        //console.log(item);
-                        modal.info({
-                          title: '配置信息', content: (
-                            <>
-                              <div style={{whiteSpace: 'pre-line'}}>{item}</div>
-                            </>
-                          ),
-                        });
+                        if (args[0].data.data.methodName !== '原始情况') {
+                          item = args[0].data.data.config;
+                          /*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                item = item.split(",").join(",\n");
+                                                item = item.split("}").join("\n}");*/
+                          //console.log(item);
+                          modal.info({
+                            title: '配置信息', content: (
+                              <>
+                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                              </>
+                            )
+                          });
+                        }
                       });
                     }}
-                    //isGroup={true}
+                    isGroup={true}
                     legend={{
                       layout: 'horizontal',
                       flipPage: false
                     }}
                     xField={'methodName'}
-                    yField={'success_attack_rate'}
+                    yField={'change_clean_acc'}
                     seriesField={'methodName'}
-                    isGroup={true}
-                    //seriesField={'methodName'}
                     xAxis={{
-                      title: {text: '攻击方法'},
-                      label: null,
+                      title: {text: '扰动方法'},
+                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
                     }}
                     yAxis={{
-                      title: {text: '攻击成功率(%)'},
+                      title: {text: '准确率(%)'},
                       tickCount: 6,
                       min: 0,
                       max: 100,
                     }}
-                    /*                color={(col) => {
-                                      //console.log(col.methodName);
-                                      switch (col.methodName) {
-                                        case 'L2FastGradientAttack':
-                                          return '#05f8d6';
-                                        case 'L2PGD':
-                                          return '#0082fc';
-                                        case 'L2BasicIterativeAttack':
-                                          return '#fdd845';
-                                        case 'L2DeepFoolAttack':
-                                          return '#22ed7c';
-                                        case 'LinfPGD':
-                                          return '#09b0d3';
-                                        case 'LinfFastGradientAttack':
-                                          return '#1d27c9';
-                                        case 'BoundaryAttack':
-                                          return '#f9e264 ';
-                                        default:
-                                          return '#000000';
-                                      }
-                                  }}*/
                     maxColumnWidth={40}
                     minColumnWidth={40}
                     label={undefined}
-                    /*                label={{
-                                      // 可手动配置 label 数据标签位置
-                                      position: 'top',
-                                      // 'top', 'bottom', 'middle',
-                                      // 配置样式
-                                      style: {
-                                        fill: '#000000',
-                                        opacity: 1,
-                                      },
-                                    }}*/
+                    /*            label={{
+                                  // 可手动配置 label 数据标签位置
+                                  position: 'top',
+                                  // 'top', 'bottom', 'middle',
+                                  // 配置样式
+                                  style: {
+                                    fill: '#000000',
+                                    opacity: 1,
+                                  },
+                                }}*/
                     meta={{
                       methodName: {
                         alias: '方法',
                       },
-                      success_attack_rate: {
-                        alias: '攻击成功率',
+                      change_clean_acc: {
+                        alias: '准确率',
                       },
                     }}
                   />
                   {contextHolder}
                 </ProCard>
-                <ProCard title={"平均结构相似度"} colSpan={16}>
+                <ProCard layout={"center"}>
+                  <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，准确率平均下降{adaptData2.avgAccDec}%</div>
+                </ProCard>
+              </ProCard>
+            )}
+            {adaptBarType === 'Recall' && (
+              <ProCard split={"horizontal"} colSpan={16} layout={"center"}>
+                {/*召回率柱状图*/}
+                <ProCard style={{height: '500px'}}>
+                  <Column
+                    autoFit={true}
+                    data={adaptData2.noiseMethodList}
+                    onReady={(plot) => {
+                      plot.on('element:click', (...args: any) => {
+                        //console.log(args);
+                        let item;
+                        if (args[0].data.data.methodName !== '原始情况') {
+                          item = args[0].data.data.config;
+                          /*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                item = item.split(",").join(",\n");
+                                                item = item.split("}").join("\n}");*/
+                          //console.log(item);
+                          modal.info({
+                            title: '配置信息', content: (
+                              <>
+                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                              </>
+                            )
+                          });
+                        }
+                      });
+                    }}
+                    isGroup={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
+                    xField={'methodName'}
+                    yField={'RECALL'}
+                    seriesField={'methodName'}
+                    xAxis={{
+                      title: {text: '扰动方法'},
+                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                    }}
+                    yAxis={{
+                      title: {text: '召回率(%)'},
+                      tickCount: 6,
+                      min: 0,
+                      max: 100,
+                    }}
+                    maxColumnWidth={40}
+                    minColumnWidth={40}
+                    label={undefined}
+                    meta={{
+                      methodName: {
+                        alias: '方法',
+                      },
+                      RECALL: {
+                        alias: '召回率',
+                      },
+                    }}
+                  />
+                  {contextHolder}
+                </ProCard>
+                <ProCard layout={"center"}>
+                  <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，召回率平均下降{adaptData2.avgRecDec}%</div>
+                </ProCard>
+              </ProCard>
+            )}
+            {adaptBarType === 'Precision' && (
+              <ProCard split={"horizontal"} colSpan={16} layout={"center"}>
+                {/*精确率柱状图*/}
+                <ProCard style={{height: '500px'}}>
+                  <Column
+                    autoFit={true}
+                    data={adaptData2.noiseMethodList}
+                    onReady={(plot) => {
+                      plot.on('element:click', (...args: any) => {
+                        //console.log(args);
+                        let item;
+                        if (args[0].data.data.methodName !== '原始情况') {
+                          item = args[0].data.data.config;
+                          /*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                item = item.split(",").join(",\n");
+                                                item = item.split("}").join("\n}");*/
+                          //console.log(item);
+                          modal.info({
+                            title: '配置信息', content: (
+                              <>
+                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                              </>
+                            )
+                          });
+                        }
+                      });
+                    }}
+                    isGroup={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
+                    xField={'methodName'}
+                    yField={'PRECISION'}
+                    seriesField={'methodName'}
+                    xAxis={{
+                      title: {text: '扰动方法'},
+                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                    }}
+                    yAxis={{
+                      title: {text: '精确率(%)'},
+                      tickCount: 6,
+                      min: 0,
+                      max: 100,
+                    }}
+                    maxColumnWidth={40}
+                    minColumnWidth={40}
+                    label={undefined}
+                    /*            label={{
+                                  // 可手动配置 label 数据标签位置
+                                  position: 'top',
+                                  // 'top', 'bottom', 'middle',
+                                  // 配置样式
+                                  style: {
+                                    fill: '#000000',
+                                    opacity: 1,
+                                  },
+                                }}*/
+                    meta={{
+                      methodName: {
+                        alias: '方法',
+                      },
+                      RECALL: {
+                        alias: '召回率',
+                      },
+                    }}
+                  />
+                  {contextHolder}
+                </ProCard>
+                <ProCard layout={"center"}>
+                  <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，精确率平均下降{adaptData2.avgPreDec}%</div>
+                </ProCard>
+              </ProCard>
+            )}
+            {adaptBarType === 'F1Score' && (
+              <ProCard split={"horizontal"} colSpan={16} layout={"center"}>
+                {/*F1分数柱状图*/}
+                <ProCard style={{height: '500px'}}>
+                  <Column
+                    autoFit={true}
+                    data={adaptData2.noiseMethodList}
+                    onReady={(plot) => {
+                      plot.on('element:click', (...args: any) => {
+                        //console.log(args);
+                        let item;
+                        if (args[0].data.data.methodName !== '原始情况') {
+                          item = args[0].data.data.config;
+                          /*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                item = item.split(",").join(",\n");
+                                                item = item.split("}").join("\n}");*/
+                          //console.log(item);
+                          modal.info({
+                            title: '配置信息', content: (
+                              <>
+                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                              </>
+                            )
+                          });
+                        }
+                      });
+                    }}
+                    isGroup={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
+                    xField={'methodName'}
+                    yField={'F1_SCORE'}
+                    seriesField={'methodName'}
+                    xAxis={{
+                      title: {text: '扰动方法'},
+                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                    }}
+                    yAxis={{
+                      title: {text: 'F1分数'},
+                      tickCount: 6,
+                      min: 0,
+                      max: 1,
+                    }}
+                    maxColumnWidth={40}
+                    minColumnWidth={40}
+                    label={undefined}
+                    /*            label={{
+                                  // 可手动配置 label 数据标签位置
+                                  position: 'top',
+                                  // 'top', 'bottom', 'middle',
+                                  // 配置样式
+                                  style: {
+                                    fill: '#000000',
+                                    opacity: 1,
+                                  },
+                                }}*/
+                    meta={{
+                      methodName: {
+                        alias: '方法',
+                      },
+                      RECALL: {
+                        alias: '召回率',
+                      },
+                    }}
+                  />
+                  {contextHolder}
+                </ProCard>
+                <ProCard layout={"center"}>
+                  <div>在{adaptData2.batch_size}张测试图片上，进行了{adaptData2.noiseMethodList.length - 1}种噪声测试,在少量噪声干扰下，F1分数平均下降{adaptData2.avgF1Dec}</div>
+                </ProCard>
+              </ProCard>
+            )}
+          </ProCard>)}
+
+        {/*鲁棒性评测结果内容*/}
+        {evaluateType === "ROBUST" && (
+          /*          <>
+                      <ProCard colSpan={16} size={'default'} tabs={{type: 'card', centered: true,}}
+                               title={<Typography.Title level={3}>鲁棒性</Typography.Title>}>
+                        {/!*<ProCard split={"vertical"}>*!/}
+                        <ProCard.TabPane key={'attack_success_rate'} tab={'攻击成功率'}>
+                          <ProCard>
+                            <Column
+                              data={robustData2.attacks}
+                              onReady={(plot) => {
+                                plot.on('element:click', (...args: any) => {
+                                  //console.log(args);
+                                  let item;
+                                  item = args[0].data.data.config;
+                                  /!*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                        item = item.split(",").join(",\n");
+                                                        item = item.split("}").join("\n}");*!/
+                                  //console.log(item);
+                                  modal.info({
+                                    title: '配置信息', content: (
+                                      <>
+                                        <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                      </>
+                                    ),
+                                  });
+                                });
+                              }}
+                              //isGroup={true}
+                              legend={{
+                                layout: 'horizontal',
+                                flipPage: false
+                              }}
+                              xField={'methodName'}
+                              yField={'success_attack_rate'}
+                              seriesField={'methodName'}
+                              isGroup={true}
+                              //seriesField={'methodName'}
+                              xAxis={{
+                                title: {text: '攻击方法'},
+                                label: null,
+                              }}
+                              yAxis={{
+                                title: {text: '攻击成功率(%)'},
+                                tickCount: 6,
+                                min: 0,
+                                max: 100,
+                              }}
+                              /!*                color={(col) => {
+                                                //console.log(col.methodName);
+                                                switch (col.methodName) {
+                                                  case 'L2FastGradientAttack':
+                                                    return '#05f8d6';
+                                                  case 'L2PGD':
+                                                    return '#0082fc';
+                                                  case 'L2BasicIterativeAttack':
+                                                    return '#fdd845';
+                                                  case 'L2DeepFoolAttack':
+                                                    return '#22ed7c';
+                                                  case 'LinfPGD':
+                                                    return '#09b0d3';
+                                                  case 'LinfFastGradientAttack':
+                                                    return '#1d27c9';
+                                                  case 'BoundaryAttack':
+                                                    return '#f9e264 ';
+                                                  default:
+                                                    return '#000000';
+                                                }
+                                            }}*!/
+                              maxColumnWidth={40}
+                              minColumnWidth={40}
+                              label={undefined}
+                              /!*                label={{
+                                                // 可手动配置 label 数据标签位置
+                                                position: 'top',
+                                                // 'top', 'bottom', 'middle',
+                                                // 配置样式
+                                                style: {
+                                                  fill: '#000000',
+                                                  opacity: 1,
+                                                },
+                                              }}*!/
+                              meta={{
+                                methodName: {
+                                  alias: '方法',
+                                },
+                                success_attack_rate: {
+                                  alias: '攻击成功率',
+                                },
+                              }}
+                            />
+                            {contextHolder}
+                          </ProCard>
+                        </ProCard.TabPane>
+                        <ProCard.TabPane key={'ssim'} tab={'平均结构相似度'}>
+                          <ProCard>
+                            <Column
+                              data={robustData2.attacks}
+                              onReady={(plot) => {
+                                plot.on('element:click', (...args: any) => {
+                                  //console.log(args);
+                                  let item;
+                                  item = args[0].data.data.config;
+                                  /!*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                        item = item.split(",").join(",\n");
+                                                        item = item.split("}").join("\n}");*!/
+                                  //console.log(item);
+                                  modal.info({
+                                    title: '配置信息', content: (
+                                      <>
+                                        <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                      </>
+                                    ),
+                                  });
+                                });
+                              }}
+                              isGroup={true}
+                              legend={false}
+                              xField={'methodName'}
+                              yField={'ssim'}
+                              seriesField={'methodName'}
+                              xAxis={{
+                                title: {text: '攻击方法'},
+                                label: null,
+                              }}
+                              yAxis={{
+                                title: {text: '平均结构相似度(%)'},
+                                tickCount: 7,
+                                min: 0,
+                                max: 100,
+                              }}
+                              maxColumnWidth={40}
+                              minColumnWidth={40}
+                              label={undefined}
+                              /!*                  label={{
+                                                  // 可手动配置 label 数据标签位置
+                                                  position: 'top',
+                                                  // 'top', 'bottom', 'middle',
+                                                  // 配置样式
+                                                  style: {
+                                                    fill: '#000000',
+                                                    opacity: 1,
+                                                  },
+                                                }}*!/
+                              meta={{
+                                methodName: {
+                                  alias: '方法',
+                                },
+                                ssim: {
+                                  alias: '平均结构相似度',
+                                },
+                              }}
+                            />
+                            {contextHolder}
+                          </ProCard>
+                        </ProCard.TabPane>
+
+                        <ProCard.TabPane key={'distortion'} tab={'平均失真度'}>
+                          <ProCard>
+                            <Column
+                              /!*                data={robustData2.attacks}*!/
+                              data={newDistortionFactor}
+                              onReady={(plot) => {
+                                plot.on('element:click', (...args: any) => {
+                                  //console.log(args);
+                                  let item;
+                                  item = args[0].data.data.config;
+                                  /!*                    item = args[0].data.data.config.split("{").join("{\n");
+                                                      item = item.split(",").join(",\n");
+                                                      item = item.split("}").join("\n}");*!/
+                                  //console.log(item);
+                                  modal.info({
+                                    title: '配置信息', content: (
+                                      <>
+                                        <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                      </>
+                                    ),
+                                  });
+                                });
+                              }}
+                              isGroup={true}
+                              legend={false}
+                              xField={'distortionType'}
+                              yField={'index'}
+                              maxColumnWidth={40}
+                              minColumnWidth={15}
+                              xAxis={{
+                                title: {text: '失真度类型'},
+                                label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                              }}
+                              yAxis={{
+                                title: {text: '平均失真度'},
+                                min: 0,
+                                max: distortionFactor * 1.2,
+                              }}
+                              label={undefined}
+                              /!*                label={{
+                                                // 可手动配置 label 数据标签位置
+                                                position: 'top',
+                                                // 'top', 'bottom', 'middle',
+                                                // 配置样式
+                                                style: {
+                                                  fill: '#000000',
+                                                  opacity: 1,
+                                                },
+                                              }}*!/
+                              seriesField={'methodName'}
+                              meta={{
+                                methodName: {
+                                  alias: '方法',
+                                },
+                                distortion_factor: {
+                                  alias: '平均失真度',
+                                },
+                              }}
+                            />
+                          </ProCard>
+                        </ProCard.TabPane>
+                        <ProCard.TabPane key={'psnr'} tab={'峰值信噪比'}>
+                          <ProCard>
+                            <Column
+                              data={robustData2.attacks}
+                              onReady={(plot) => {
+                                plot.on('element:click', (...args: any) => {
+                                  //console.log(args);
+                                  let item;
+                                  item = args[0].data.data.config;
+                                  /!*                    item = args[0].data.data.config.split("{").join("{\n");
+                                                      item = item.split(",").join(",\n");
+                                                      item = item.split("}").join("\n}");*!/
+                                  //console.log(item);
+                                  modal.info({
+                                    title: '配置信息', content: (
+                                      <>
+                                        <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                      </>
+                                    ),
+                                  });
+                                });
+                              }}
+                              xField={'methodName'}
+                              yField={'psnr'}
+                              isGroup={true}
+                              legend={false}
+                              seriesField={'methodName'}
+                              xAxis={{
+                                title: {text: '攻击方法'},
+                                label: null,
+                              }}
+                              tooltip={{}}
+                              yAxis={{
+                                title: {text: '峰值信噪比'},
+                                min: 0,
+                                max: 160,
+                              }}
+                              maxColumnWidth={40}
+                              minColumnWidth={40}
+                              annotations={[]}
+                              /!*                label={{
+                                                // 可手动配置 label 数据标签位置
+                                                position: 'top',
+                                                // 'top', 'bottom', 'middle',
+                                                // 配置样式
+                                                style: {
+                                                  fill: '#000000',
+                                                  opacity: 1,
+                                                },
+                                              }}*!/
+                              meta={{
+                                methodName: {
+                                  alias: '方法',
+                                },
+                                psnr: {
+                                  alias: '峰值信噪比',
+                                },
+                              }}
+                            />
+                          </ProCard>
+                        </ProCard.TabPane>
+                        {/!*</ProCard>*!/}
+                        <ProCard.TabPane key={'epsilon'} tab={'平均扰动大小'}>
+                          <ProCard>
+                            <Column
+                              data={avgEpsilon}
+                              xField={'epsilonType'}
+                              yField={'index'}
+                              isGroup={true}
+                              legend={false}
+                              seriesField={'methodName'}
+                              maxColumnWidth={40}
+                              minColumnWidth={15}
+                              xAxis={{
+                                title: {text: '扰动类型'},
+                                label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                              }}
+                              yAxis={{
+                                title: {text: '平均扰动大小'},
+                                /!*                  min: 0,
+                                                  max: epsilon * 1.5,*!/
+                              }}
+                              label={false}
+                              /!*                label={{
+                                                // 可手动配置 label 数据标签位置
+                                                position: 'top',
+                                                // 'top', 'bottom', 'middle',
+                                                // 配置样式
+                                                style: {
+                                                  fill: '#000000',
+                                                  opacity: 1,
+                                                },
+                                              }}*!/
+                              meta={{
+                                methodName: {
+                                  alias: '方法',
+                                },
+                                epsilon: {
+                                  alias: '扰动大小',
+                                },
+                              }}
+                            />
+                          </ProCard>
+                        </ProCard.TabPane>
+                        {/!*          <ProCard colSpan={12}>
+                      <Space>在XXX张测试图片上，使用了XX种对抗攻击，在对抗噪声干扰下，攻击成功率平均达到XXX，准确率平均下降XXX</Space>
+                    </ProCard>*!/}
+                      </ProCard>
+
+                    </>*/
+          <ProCard split={"horizontal"} title={<Typography.Title level={3}>鲁棒性</Typography.Title>} layout={"center"}>
+            <ProFormSelect
+              allowClear={false}
+              label={<div style={{
+                fontSize: '18px',
+                height: '30px',
+                fontWeight: 'normal',
+                lineHeight: '30px',
+                //backgroundImage: 'linear-gradient(135deg,  #fdfcfb 0% ,#e2d1c3 100% )',
+                width: 'auto',
+                //position: 'absolute',
+                //left: "0"
+              }}>鲁棒性测评结果指标</div>}
+              width={'200px'}
+              name="robustBarType"
+              placeholder={'攻击成功率'}
+              onChange={(e) => {
+                //console.log(e);
+                setRobustBarType(e);
+              }}
+              options={[
+                {label: '攻击成功率', value: 'success_attack_rate'},
+                {label: '平均结构相似度', value: 'ssim'},
+                {label: '峰值信噪比', value: 'psnr'},
+                {label: '平均失真度', value: 'distortion'},
+                {label: '平均扰动大小', value: 'epsilon'},
+              ]
+              }
+            />
+            {/*<ProCard split={"vertical"}>*/}
+            {robustBarType === 'success_attack_rate' && (
+              <ProCard split={"horizontal"} layout={"center"}>
+                <ProCard gutter={30} colSpan={20} style={{height: '500px'}}>
+                  <ProCard type={"inner"} title={"指标说明"} style={{height: '450px'}} bordered={true} colSpan={"30%"}>
+                    攻击成功率定义为模型识别对抗样本的结果不同于识别正常样本结果的比例。使用此指标可以评测模型的鲁棒性，攻击成功率越高表明模型的鲁棒性越差，计算公式如下:
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+                      <mi>S</mi>
+                      <mi>R</mi>
+                      <mo>=</mo>
+                      <mfrac>
+                        <mn>1</mn>
+                        <mi>n</mi>
+                      </mfrac>
+                      <munderover>
+                        <mo data-mjx-texclass="OP">&#x2211;</mo>
+                        <mrow>
+                          <mi>i</mi>
+                          <mo>=</mo>
+                          <mn>1</mn>
+                        </mrow>
+                        <mrow>
+                          <mi>n</mi>
+                        </mrow>
+                      </munderover>
+                      <mo stretchy="false">(</mo>
+                      <mi>f</mi>
+                      <mo stretchy="false">(</mo>
+                      <msub>
+                        <mrow>
+                          <mover>
+                            <mi>x</mi>
+                            <mo stretchy="false">^</mo>
+                          </mover>
+                        </mrow>
+                        <mrow>
+                          <mi>i</mi>
+                        </mrow>
+                      </msub>
+                      <mo stretchy="false">)</mo>
+                      <mo>&#x2260;</mo>
+                      <mi>f</mi>
+                      <mo stretchy="false">(</mo>
+                      <msub>
+                        <mi>x</mi>
+                        <mrow>
+                          <mi>i</mi>
+                        </mrow>
+                      </msub>
+                      <mo stretchy="false">)</mo>
+                      <mo stretchy="false">)</mo>
+                    </math>
+                    其中<math xmlns="http://www.w3.org/1998/Math/MathML">  <msub>    <mi>x</mi>    <mrow>      <mi>i</mi>    </mrow>  </msub></math>
+                    为原样本，<math xmlns="http://www.w3.org/1998/Math/MathML">  <msub>    <mrow>      <mover>        <mi>x</mi>        <mo stretchy="false">^</mo>      </mover>    </mrow>    <mrow>      <mi>i</mi>    </mrow>  </msub></math>
+                    为对抗样本，
+                    n为样本数量，
+                    f为模型，
+                    f(x)为模型输出结果。
+
+                  </ProCard>
+                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                    <Column
+                      data={robustData2.attacks}
+                      //animation={false}
+                      autoFit={true}
+                      onReady={(plot) => {
+                        plot.on('element:click', (...args: any) => {
+                          //console.log(args);
+                          let item;
+                          item = args[0].data.data.config;
+                          /*                      item = args[0].data.data.config.split("{").join("{\n");
+                                                item = item.split(",").join(",\n");
+                                                item = item.split("}").join("\n}");*/
+                          //console.log(item);
+                          modal.info({
+                            title: '配置信息', content: (
+                              <>
+                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                              </>
+                            ),
+                          });
+                        });
+                      }}
+                      //isGroup={true}
+                      legend={{
+                        layout: 'horizontal',
+                        flipPage: false
+                      }}
+                      xField={'methodName'}
+                      yField={'success_attack_rate'}
+                      seriesField={'methodName'}
+                      isGroup={true}
+                      //seriesField={'methodName'}
+                      xAxis={{
+                        title: {text: '攻击方法'},
+                        label: null,
+                      }}
+                      yAxis={{
+                        title: {text: '攻击成功率(%)'},
+                        tickCount: 6,
+                        min: 0,
+                        max: 100,
+                      }}
+                      /*                color={(col) => {
+                                        //console.log(col.methodName);
+                                        switch (col.methodName) {
+                                          case 'L2FastGradientAttack':
+                                            return '#05f8d6';
+                                          case 'L2PGD':
+                                            return '#0082fc';
+                                          case 'L2BasicIterativeAttack':
+                                            return '#fdd845';
+                                          case 'L2DeepFoolAttack':
+                                            return '#22ed7c';
+                                          case 'LinfPGD':
+                                            return '#09b0d3';
+                                          case 'LinfFastGradientAttack':
+                                            return '#1d27c9';
+                                          case 'BoundaryAttack':
+                                            return '#f9e264 ';
+                                          default:
+                                            return '#000000';
+                                        }
+                                    }}*/
+                      maxColumnWidth={40}
+                      minColumnWidth={40}
+                      label={undefined}
+                      /*                label={{
+                                        // 可手动配置 label 数据标签位置
+                                        position: 'top',
+                                        // 'top', 'bottom', 'middle',
+                                        // 配置样式
+                                        style: {
+                                          fill: '#000000',
+                                          opacity: 1,
+                                        },
+                                      }}*/
+                      meta={{
+                        methodName: {
+                          alias: '方法',
+                        },
+                        success_attack_rate: {
+                          alias: '攻击成功率',
+                        },
+                      }}
+                    />
+                    {contextHolder}
+                  </ProCard>
+                </ProCard>
+              </ProCard>
+            )}
+            {robustBarType === 'ssim' && (
+              <ProCard split={"horizontal"} layout={"center"}>
+                <ProCard gutter={30} style={{height: '500px'}} colSpan={20}>
+                  <ProCard type={"inner"} title={"指标说明"} style={{height: '450px'}} bordered={true} colSpan={"30%"}>
+                    平均结构相似度（Average Structural Similarity，ASS）是指所有对抗样本和对应的原始样本之间的平均结构相似性，
+                    结构相似性（Structual Similarity，SSIM）基于两幅图片之间的亮度、对比度和结构来衡量样本的相似性。
+                  </ProCard>
+                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
                   <Column
                     data={robustData2.attacks}
+                    //animation={false}
                     onReady={(plot) => {
                       plot.on('element:click', (...args: any) => {
                         //console.log(args);
@@ -836,7 +1530,10 @@ export default (params: object) => {
                       });
                     }}
                     isGroup={true}
-                    legend={false}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     xField={'methodName'}
                     yField={'ssim'}
                     seriesField={'methodName'}
@@ -873,13 +1570,34 @@ export default (params: object) => {
                     }}
                   />
                   {contextHolder}
+                  </ProCard>
                 </ProCard>
               </ProCard>
+            )}
+            {robustBarType === 'distortion' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard title={"平均失真度"} colSpan={16}>
+                <ProCard gutter={30} style={{height: '500px'}} colSpan={20}>
+                  <ProCard type={"inner"} title={"指标说明"} style={{height: '450px'}} bordered={true} colSpan={"30%"}>
+                    <Typography>
+                      <ul>
+                      <li>
+                        平均L1失真度使用对抗样本与原始样本的平均曼哈顿距离衡量模型的鲁棒性，值越大说明需要改变更多原始样本上的像素才能生成对抗样本；
+                      </li>
+                      <li>
+                        平均L2失真度使用对抗样本与原始样本的平均欧式距离衡量模型的鲁棒性，值越大说明需要在原始样本上添加更多的扰动才能生成对抗样本，即对抗样本总体特征改变幅值越大；
+                      </li>
+                      <li>
+                        平均L∞失真度使用对抗样本与原始样本的平均切比雪夫距离衡量模型的鲁棒性，值越大表明对抗样本相较于原始样本的最大像素点改变值越大；
+                      </li>
+                      </ul>
+                    </Typography>
+
+                  </ProCard>
+                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
                   <Column
                     /*                data={robustData2.attacks}*/
                     data={newDistortionFactor}
+                    //animation={false}
                     onReady={(plot) => {
                       plot.on('element:click', (...args: any) => {
                         //console.log(args);
@@ -899,7 +1617,10 @@ export default (params: object) => {
                       });
                     }}
                     isGroup={true}
-                    legend={false}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     xField={'distortionType'}
                     yField={'index'}
                     maxColumnWidth={40}
@@ -934,10 +1655,25 @@ export default (params: object) => {
                       },
                     }}
                   />
+                  </ProCard>
                 </ProCard>
-                <ProCard title={"峰值信噪比"} colSpan={16}>
+              </ProCard>
+            )}
+            {robustBarType === 'psnr' && (
+              <ProCard split={"horizontal"} layout={"center"}>
+                <ProCard gutter={30} style={{height: '500px'}} colSpan={20}>
+                  <ProCard type={"inner"} title={"指标说明"} style={{height: '450px'}} bordered={true} colSpan={"30%"}>
+                    峰值信噪比（Peak Signal-to-Noise Ratio，PSNR），是衡量图像质量的指标之一是，基于MSE(均方误差)定义，对给定一个大小为m*n的原始图像I和对其添加噪声后的噪声图像K，其MSE可定义为：
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">  <mi>M</mi>  <mi>S</mi>  <mi>E</mi>  <mo>=</mo>  <mfrac>    <mn>1</mn>    <mrow>      <mi>m</mi>      <mi>n</mi>    </mrow>  </mfrac>  <munderover>    <mo data-mjx-texclass="OP">&#x2211;</mo>    <mrow>      <mi>i</mi>      <mo>=</mo>      <mn>0</mn>    </mrow>    <mrow>      <mi>m</mi>      <mo>&#x2212;</mo>      <mn>1</mn>    </mrow>  </munderover>  <munderover>    <mo data-mjx-texclass="OP">&#x2211;</mo>    <mrow>      <mi>j</mi>      <mo>=</mo>      <mn>0</mn>    </mrow>    <mrow>      <mi>n</mi>      <mo>&#x2212;</mo>      <mn>1</mn>    </mrow>  </munderover>  <mo stretchy="false">[</mo>  <mo stretchy="false">(</mo>  <mi>I</mi>  <mo stretchy="false">(</mo>  <mi>x</mi>  <mo>,</mo>  <mi>y</mi>  <mo stretchy="false">)</mo>  <mo>&#x2212;</mo>  <mi>K</mi>  <mo stretchy="false">(</mo>  <mi>x</mi>  <mo>,</mo>  <mi>y</mi>  <mo stretchy="false">)</mo>  <msup>    <mo stretchy="false">]</mo>    <mrow>      <mn>2</mn>    </mrow>  </msup></math>
+                    PSNR可定义为：
+                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">  <mi>P</mi>  <mi>S</mi>  <mi>N</mi>  <mi>R</mi>  <mo>=</mo>  <mn>10</mn>  <mo>&#xB7;</mo>  <mi>l</mi>  <mi>o</mi>  <msub>    <mi>g</mi>    <mrow>      <mn>10</mn>    </mrow>  </msub>  <mo stretchy="false">(</mo>  <mfrac>    <mrow>      <mi>M</mi>      <mi>A</mi>      <msubsup>        <mi>X</mi>        <mrow>          <mi>I</mi>        </mrow>        <mrow>          <mn>2</mn>        </mrow>      </msubsup>    </mrow>    <mrow>      <mi>M</mi>      <mi>S</mi>      <mi>E</mi>    </mrow>  </mfrac>  <mo stretchy="false">)</mo></math>
+                    其中MAXI为图像的最大像素值，PSNR的单位为dB。若每个像素由8位二进制表示，则其值为2^8-1=255，
+                    若原始图像是彩色图像，可以由以下方法进行计算： 计算RGB图像三个通道每个通道的MSE值再求平均值，进而求PSNR。
+                  </ProCard>
+                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
                   <Column
                     data={robustData2.attacks}
+                    //mation={false}
                     onReady={(plot) => {
                       plot.on('element:click', (...args: any) => {
                         //console.log(args);
@@ -959,7 +1695,10 @@ export default (params: object) => {
                     xField={'methodName'}
                     yField={'psnr'}
                     isGroup={true}
-                    legend={false}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
                     seriesField={'methodName'}
                     xAxis={{
                       title: {text: '攻击方法'},
@@ -967,7 +1706,7 @@ export default (params: object) => {
                     }}
                     tooltip={{}}
                     yAxis={{
-                      title: {text: '峰值信噪比'},
+                      title: {text: '峰值信噪比(dB)'},
                       min: 0,
                       max: 160,
                     }}
@@ -993,54 +1732,91 @@ export default (params: object) => {
                       },
                     }}
                   />
+                  </ProCard>
                 </ProCard>
               </ProCard>
-            {/*</ProCard>*/}
-            <ProCard title={"平均扰动大小"} colSpan={16}>
-              <Column
-                data={avgEpsilon}
-                xField={'epsilonType'}
-                yField={'index'}
-                isGroup={true}
-                legend={false}
-                seriesField={'methodName'}
-                maxColumnWidth={40}
-                minColumnWidth={15}
-                xAxis={{
-                  title: {text: '扰动类型'},
-                  label: {style: {fontWeight: 'bolder', fontSize: 10}},
-                }}
-                yAxis={{
-                  title: {text: '平均扰动大小'},
-                  /*                  min: 0,
-                                    max: epsilon * 1.5,*/
-                }}
-                label={false}
-                /*                label={{
-                                  // 可手动配置 label 数据标签位置
-                                  position: 'top',
-                                  // 'top', 'bottom', 'middle',
-                                  // 配置样式
-                                  style: {
-                                    fill: '#000000',
-                                    opacity: 1,
-                                  },
-                                }}*/
-                meta={{
-                  methodName: {
-                    alias: '方法',
-                  },
-                  epsilon: {
-                    alias: '扰动大小',
-                  },
-                }}
-              />
-            </ProCard>
+            )}
+            {robustBarType === 'epsilon' && (
+              <ProCard split={"horizontal"} layout={"center"}>
+                <ProCard gutter={30} style={{height: '500px'}} colSpan={20}>
+                  <ProCard type={"inner"} title={"指标说明"} style={{height: '450px'}} bordered={true} colSpan={"30%"}>
+                    <Typography>
+                    平均扰动大小定义了对抗攻击中修改了每个像素的大小，这个大小可以使用不同的范数来度量，比较常用的范数是1范数、2范数和无穷范数：
+                    <ul>
+                      <li>
+                        1范数(L1 norm):所有修改像素值绝对值之和。在数学定义中，1范数为
+                        <math xmlns="http://www.w3.org/1998/Math/MathML" display={"block"}>  <msub>    <mrow data-mjx-texclass="INNER">      <mo data-mjx-texclass="OPEN">|</mo>      <mrow data-mjx-texclass="INNER">        <mo data-mjx-texclass="OPEN">|</mo>        <mi>x</mi>        <mo data-mjx-texclass="CLOSE">|</mo>      </mrow>      <mo data-mjx-texclass="CLOSE">|</mo>    </mrow>    <mrow>      <mn>1</mn>    </mrow>  </msub>  <mo>=</mo>  <mrow>    <mstyle displaystyle="false" scriptlevel="0">      <munderover>        <mo data-mjx-texclass="OP">&#x2211;</mo>        <mrow>          <mi>i</mi>        </mrow>        <mrow></mrow>      </munderover>    </mstyle>  </mrow>  <mrow data-mjx-texclass="INNER">    <mo data-mjx-texclass="OPEN">|</mo>    <msub>      <mi>x</mi>      <mrow>        <mi>i</mi>      </mrow>    </msub>    <mo data-mjx-texclass="CLOSE">|</mo>  </mrow></math>
+                      </li>
+                      <li>
+                        2范数(L2 norm):误差向量的欧拉范数。在数学定义中，2范数为
+                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">  <msub>    <mrow data-mjx-texclass="INNER">      <mo data-mjx-texclass="OPEN">|</mo>      <mrow data-mjx-texclass="INNER">        <mo data-mjx-texclass="OPEN">|</mo>        <mi>x</mi>        <mo data-mjx-texclass="CLOSE">|</mo>      </mrow>      <mo data-mjx-texclass="CLOSE">|</mo>    </mrow>    <mrow>      <mn>2</mn>    </mrow>  </msub>  <mo>=</mo>  <mo stretchy="false">(</mo>  <mrow>    <mstyle displaystyle="false" scriptlevel="0">      <munderover>        <mo data-mjx-texclass="OP">&#x2211;</mo>        <mrow>          <mi>i</mi>        </mrow>        <mrow></mrow>      </munderover>    </mstyle>  </mrow>  <msubsup>    <mi>x</mi>    <mrow>      <mi>i</mi>    </mrow>    <mrow>      <mn>2</mn>    </mrow>  </msubsup>  <msup>    <mo stretchy="false">)</mo>    <mrow>      <mn>0.5</mn>    </mrow>  </msup></math>
+                      </li>
+                      <li>
+                        无穷范数(L无穷 norm):所有修改像素值绝对值的最大值。在数学定义中，无穷范数为
+                        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">  <msub>    <mrow data-mjx-texclass="INNER">      <mo data-mjx-texclass="OPEN">|</mo>      <mrow data-mjx-texclass="INNER">        <mo data-mjx-texclass="OPEN">|</mo>        <mi>x</mi>        <mo data-mjx-texclass="CLOSE">|</mo>      </mrow>      <mo data-mjx-texclass="CLOSE">|</mo>    </mrow>    <mrow>      <mi mathvariant="normal">&#x221E;</mi>    </mrow>  </msub>  <mo>=</mo>  <mi>m</mi>  <mi>a</mi>  <msub>    <mi>x</mi>    <mrow>      <mi>i</mi>    </mrow>  </msub>  <mrow data-mjx-texclass="INNER">    <mo data-mjx-texclass="OPEN">|</mo>    <msub>      <mi>x</mi>      <mrow>        <mi>i</mi>      </mrow>    </msub>    <mo data-mjx-texclass="CLOSE">|</mo>  </mrow></math>
+                      </li>
+                    </ul>
+                      其中
+                      <math xmlns="http://www.w3.org/1998/Math/MathML">  <mi>x</mi></math>
+                      是修改图像后的差值，
+                      <math xmlns="http://www.w3.org/1998/Math/MathML">  <msub>    <mi>x</mi>    <mrow>      <mi>i</mi>    </mrow>  </msub></math>
+                      是差值中的第像素。
+                    </Typography>
+                  </ProCard>
+                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <Column
+                    data={avgEpsilon}
+                    //animation={false}
+                    xField={'epsilonType'}
+                    yField={'index'}
+                    isGroup={true}
+                    legend={{
+                      layout: 'horizontal',
+                      flipPage: false
+                    }}
+                    seriesField={'methodName'}
+                    maxColumnWidth={40}
+                    minColumnWidth={15}
+                    xAxis={{
+                      title: {text: '不同范数下的扰动大小'},
+                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                    }}
+                    yAxis={{
+                      title: {text: '平均扰动大小'},
+                      /*                  min: 0,
+                                        max: epsilon * 1.5,*/
+                    }}
+                    label={false}
+                    /*                label={{
+                                      // 可手动配置 label 数据标签位置
+                                      position: 'top',
+                                      // 'top', 'bottom', 'middle',
+                                      // 配置样式
+                                      style: {
+                                        fill: '#000000',
+                                        opacity: 1,
+                                      },
+                                    }}*/
+                    meta={{
+                      methodName: {
+                        alias: '方法',
+                      },
+                      epsilon: {
+                        alias: '扰动大小',
+                      },
+                    }}
+                  />
+                  </ProCard>
+                </ProCard>
+              </ProCard>
+            )}
             <ProCard>
               <ProTable
+                name={'attackTable'}
                 bordered={true}
                 pagination={false}
                 columns={robustColumns}
+                loading={false}
                 search={false}
                 options={false}
                 scroll={{x: 1500}}
@@ -1072,10 +1848,11 @@ export default (params: object) => {
                 }}
               />
             </ProCard>
-            {/*          <ProCard colSpan={12}>
-            <Space>在XXX张测试图片上，使用了XX种对抗攻击，在对抗噪声干扰下，攻击成功率平均达到XXX，准确率平均下降XXX</Space>
-          </ProCard>*/}
-          </ProCard>)}
+            {/*</ProCard>*/}
+
+
+          </ProCard>
+        )}
 
         {/*可解释性评测结果内容*/}
         {evaluateType === "INTERPRET" && (

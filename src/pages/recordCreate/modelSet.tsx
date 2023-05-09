@@ -36,14 +36,18 @@ const columns: ProColumns<TableListItem>[] = [
   {
     title: <b>模型ID</b>,
     dataIndex: 'id',
+    align: 'center',
+    width: '40',
   },
   {
     title: <b>模型名称</b>,
     dataIndex: 'modelName',
+    align: 'center',
   },
   {
     title: <b>模型描述</b>,
     dataIndex: 'modelDesc',
+    align: 'center',
   },
   {
     title: <b>任务类型</b>,
@@ -58,6 +62,7 @@ const columns: ProColumns<TableListItem>[] = [
       3: {text: '表格分类'},
       4: {text: '图像识别'},
     },
+    align: 'center',
   },
   {
     title: <b>模型框架</b>,
@@ -72,20 +77,24 @@ const columns: ProColumns<TableListItem>[] = [
       2: {text: '其他'},
     },
     ellipsis: true,
+    align: 'center',
   },
   {
     title: <b>模型大小</b>,
     dataIndex: 'modelSize',
+    align: 'center',
     // sorter: (a, b) => parseFloat(a.size) - parseFloat(b.size),
   },
   {
     title: <b>创建者</b>,
     dataIndex: 'belong',
+    align: 'center',
   },
   {
     title: <b>创建时间</b>,
     valueType: 'dateTime',
     dataIndex: 'createTime',
+    align: 'center',
     // sorter: (a, b) => a.createdAt - b.createdAt,
   },
   {
@@ -99,6 +108,7 @@ const columns: ProColumns<TableListItem>[] = [
       0: {text: '正在上传', status: 'Processing'},
       1: {text: '上传成功', status: 'Success'},
     },
+    align: 'center',
   },
 ];
 

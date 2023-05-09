@@ -105,6 +105,20 @@ export async function dataSetFile(file, signal) {
     data: data,
   });
 }
+/*测试用，上传图片文件接口*/
+export async function imgFile(file) {
+  let data = new FormData();
+  data.append('file', file);
+  return request('/api/micro-model-dataset-service/minio/images/upload', {
+    method: 'POST',
+    timeout: 0,
+    headers: {
+      Authorization: 'Bearer ' + token.get(),
+    },
+    data: data,
+  });
+}
+
 
 /*测试用，上传数据集信息接口*/
 export async function dataSetInfo(values: API.dataSetInfoParams) {
@@ -125,6 +139,26 @@ export async function dataSetInfo(values: API.dataSetInfoParams) {
     },
   });
 }
+/*测试用，上传图片集信息接口*/
+export async function imgInfo(values: API.imgInfoParams) {
+  //console.log(values);
+  return request('/api/micro-model-dataset-service/dataset/xaiImages/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token.get(),
+      Accept: '*/*',
+    },
+    data: {
+      "dataDesc": values.dataDesc,
+      "dataLength": values.dataLength,
+      "dataName": values.dataName,
+      "dataUrls": values.dataUrls,
+      "taskTypeId": values.taskTypeId,
+    },
+  });
+}
+
 
 /*测试用，获取任务类型接口*/
 export async function taskTypeQuery() {
@@ -426,15 +460,47 @@ export async function interpretEvaluation(values) {
 /*测试用，新的新建可解释性评测接口*/
 export async function interpretEvaluationNew(values) {
   //console.log(values);
-  return request('/api/micro-evaluate-service/evaluateRecord/xai/upload1', {
+  return request('/api/micro-evaluate-service/evaluateRecord/imageClassify/xai/upload', {
     method: 'POST',
     headers: {
       Authorization: 'Bearer ' + token.get(),
     },
-    data: values
+    data: {
+      "dataSetId": values.dataSetId,
+      "methodConfigList": values.methodConfigList,
+      "modelId": values.modelId,
+      "taskName": values.taskName,
+      "taskTypeId": values.taskTypeId,
+      "device": values.deviceType,
+      "measureDataSize": values.datasetNumber,
+      "imageUrls": values.imageUrls,
+    },
   });
 }
 
+/*测试用，新建图片分类可解释性评测接口*/
+export async function imgInterpretEvaluation(values) {
+  //console.log(values);
+  return request('/api/micro-evaluate-service/evaluateRecord/imageClassify/xai/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + token.get(),
+      Accept: '*/*',
+    },
+    data: {
+      "dataSetId": values.dataSetId,
+      "evaluateTypeId": 1,
+      "methodConfigList": values.methodConfigList,
+      "modelId": values.modelId,
+      "taskName": values.taskName,
+      "taskTypeId": values.taskTypeId,
+      "device": values.deviceType,
+      "imageUrls": values.imageUrls,
+      "measureDataSize": values.datasetNumber,
+    },
+  });
+}
 
 /*测试用，根据任务类型获取正确性指标*/
 export async function accMethod(taskTypeId) {
@@ -478,6 +544,19 @@ export async function robustMethod(taskTypeId: number) {
   });
 }
 
+/*测试用，根据任务类型获取可解释性图像评测方法*/
+export async function interpretImgMethod(taskTypeId: number) {
+  return request('/api/micro-evaluate-service/evaluateType/image_classify/interpret_method', {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token.get(),
+    },
+    params: {
+      "taskTypeId": taskTypeId,
+    },
+  });
+}
+
 /*测试用，根据id获取评测结果接口*/
 export async function evaluateResult(evaluateResultId) {
   //console.log(evaluateResultId);
@@ -502,6 +581,35 @@ export async function evaluateConfigResult(evaluateResultId) {
     },
     params: {
       "id": evaluateResultId,
+    },
+  });
+}
+
+/*测试用，根据id获取可解释性评测图片列表接口*/
+export async function evaluateImgList(evaluateResultId) {
+  //console.log(evaluateResultId);
+  return request('/api/micro-evaluate-service/evaluateResult/imageClassifyXai/record/' + evaluateResultId, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token.get(),
+    },
+    params: {
+      "id": evaluateResultId,
+    },
+  });
+}
+
+/*测试用，根据id获取可解释性评测图片评测结果接口*/
+export async function evaluateImgResult(evaluateResultId, imgId) {
+  //console.log(evaluateResultId);
+  return request('/api/micro-evaluate-service/evaluateResult/imageClassifyXai/result/detail/' + evaluateResultId+'/'+imgId, {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token.get(),
+    },
+    params: {
+      "evaluateRecordid": evaluateResultId,
+      "imgId": imgId,
     },
   });
 }

@@ -99,6 +99,14 @@ declare namespace API {
     taskTypeId?: number;
   }
 
+  type imgInfoParams = {
+    dataDesc?: string;
+    dataLength?: number;
+    dataName?: string;
+    dataUrls?: string[];
+    taskTypeId?: number;
+  }
+
   type modelInfoParams = {
     dataSetIds?: string;
     modelDesc?: string;

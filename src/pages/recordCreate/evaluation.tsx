@@ -10,7 +10,7 @@ import {
   ProForm
 } from '@ant-design/pro-components';
 import type {ProColumns, ProFormInstance} from '@ant-design/pro-components';
-import {Input, Form, message, Space, Button, Upload, Image, Col, Row, Checkbox} from 'antd';
+import {Input, Form, message, Space, Button, Upload, Image, Col, Row, Checkbox, Card} from 'antd';
 import React, {useRef, useState, forwardRef, useImperativeHandle, Key, useEffect} from 'react';
 import type {TableRowSelection} from 'antd/es/table/interface';
 import {ReloadOutlined} from '@ant-design/icons';
@@ -20,6 +20,7 @@ import {
   interpretMethod,
   robustMethod,
   safeMethod,
+  interpretImgMethod,
   interpretDatasetGet,
   interpretDatasetUpload,
   interpretBlackboxUpload,
@@ -92,10 +93,29 @@ const TagList: React.FC<{
             onChange={(e) => {
               console.log('e:', e);
               if (e.target.checked === true) {
-                evaConfig[e.target.value] = true;
-                evaConfig[item.methodName] = item.value;
-                setEvaConfig(evaConfig);
-                //console.log(evaConfig);
+                if (evaConfig[e.target.value] === undefined) {
+                  if (evaConfig[item.methodName] === undefined) {
+
+                    let value = item.value;
+                    value = JSON.parse(value);
+                    value.method_name = item.methodName;
+                    value = JSON.stringify(value);
+                    console.log(value);
+
+                    evaConfig[e.target.value] = true;
+                    evaConfig[item.methodName] = value;
+                    setEvaConfig(evaConfig);
+                    //console.log(evaConfig);
+                  } else {
+                    const newConfig = evaConfig;
+                    newConfig[e.target.value] = true;
+                    setEvaConfig(newConfig);
+                  }
+                } else {
+                  evaConfig[e.target.value] = true;
+                  console.log(evaConfig);
+                  setEvaConfig(evaConfig);
+                }
               }
               if (e.target.checked === false) {
                 delete evaConfig[e.target.value];
@@ -150,16 +170,24 @@ const TagList: React.FC<{
             fieldProps={{destroyOnClose: true}}
             onFinish={async (values) => {
               try {
+                console.log(values);
                 if (values[item.methodName] === undefined)
                   return true;
                 if (typeof JSON.parse(values[item.methodName]) === 'object' && values[item.methodName]) {
                   //console.log('value:',values);
+                  let value = values[item.methodName];
+                  value = JSON.parse(value);
+                  value.method_name = item.methodName;
+                  value = JSON.stringify(value);
+                  values[item.methodName] = value;
+                  console.log(value);
                   evaConfig[item.methodName] = values[item.methodName];
                   setEvaConfig(evaConfig);
                   //console.log(evaConfig);
                   //message.success(evaluationConfig[0]);
                   return true;
                 }
+                return true;
               } catch {
                 //console.log(values[item.methodName]);
                 message.error('参数配置格式不正确');
@@ -219,12 +247,31 @@ const RobustTagList: React.FC<{
               value={item.methodName + '.' + item.methodId}
               onChange={
                 (e) => {
-                  //console.log('e:', e);
+                  console.log('e:', e);
                   if (e.target.checked === true) {
-                    const newConfig = robustEvaluationConfig;
-                    newConfig[e.target.value] = true;
-                    newConfig[item.methodName] = item.value;
-                    setRobustEvaluationConfig(newConfig);
+                    if (robustEvaluationConfig[e.target.value] === undefined) {
+                      if (robustEvaluationConfig[item.methodName] === undefined) {
+                        let value = item.value;
+                        value = JSON.parse(value);
+                        value.method_name = item.methodName;
+                        value = JSON.stringify(value);
+                        console.log(value);
+
+                        const newConfig = robustEvaluationConfig;
+                        newConfig[e.target.value] = true;
+                        newConfig[item.methodName] = value;
+                        setRobustEvaluationConfig(newConfig);
+                      } else {
+                        const newConfig = robustEvaluationConfig;
+                        newConfig[e.target.value] = true;
+                        setRobustEvaluationConfig(newConfig);
+                      }
+                    } else {
+                      robustEvaluationConfig[e.target.value] = true;
+                      console.log(robustEvaluationConfig);
+                      setRobustEvaluationConfig(robustEvaluationConfig);
+                    }
+
                     /*              robustEvaluationConfig[e.target.value] = true;
                                   robustEvaluationConfig[item.methodName] = item.value;
                                   setRobustEvaluationConfig(robustEvaluationConfig);*/
@@ -232,8 +279,9 @@ const RobustTagList: React.FC<{
                     //console.log(robustEvaluationConfig);
                   }
                   if (e.target.checked === false) {
-                    delete robustEvaluationConfig[e.target.value];
-                    delete robustEvaluationConfig[item.methodName];
+                    robustEvaluationConfig[e.target.value] = false;
+                    //delete robustEvaluationConfig[item.methodName];
+                    console.log(robustEvaluationConfig);
                     setRobustEvaluationConfig(robustEvaluationConfig);
                     //console.log(robustEvaluationConfig);
                   }
@@ -330,7 +378,16 @@ const RobustTagList: React.FC<{
                     return true;
                   if (typeof JSON.parse(values[item.methodName]) == 'object' && values[item.methodName]) {
                     //console.log('value:',values);
+
+                    let value = values[item.methodName];
+                    value = JSON.parse(value);
+                    value.method_name = item.methodName;
+                    value = JSON.stringify(value);
+                    values[item.methodName] = value;
+                    console.log(value);
+
                     robustEvaluationConfig[item.methodName] = values[item.methodName];
+                    console.log(robustEvaluationConfig);
                     setRobustEvaluationConfig(robustEvaluationConfig);
                     //console.log(robustEvaluationConfig);
                     //message.success(evaluationConfig[0]);
@@ -367,6 +424,166 @@ const RobustTagList: React.FC<{
     ;
 };
 
+//可解释性编辑配置组件项
+const InterpretTagList: React.FC<{
+  value?: {
+    methodId: number;
+    configDetailed: string;
+    value: string;
+    label: string;
+    methodName: string;
+    displayName: string;
+  }[];
+  onChange?: (
+    value: {
+      value: string;
+      label: string;
+    }[],
+  ) => void;
+}> = ({value, onChange}) => {
+
+  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+    interpretEvaluationConfig: ret.interpretEvaluationConfig,
+    setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
+  }));
+  //console.log(value);
+
+  return <ProFormCheckbox.Group
+    disabled={true}
+    layout={"vertical"}
+    style={{width: '100%'}}
+    fieldProps={{
+      name: 'interpretConfig' + value?.length.toString()
+    }}
+  >
+    {(value || []).map((item) =>
+      [<Row>
+        <Col>
+          <Checkbox
+            style={{width: '100%'}}
+            name={item.label}
+            onChange={(e) => {
+              console.log('e:', e);
+              if (e.target.checked === true) {
+                if (interpretEvaluationConfig[e.target.value] === undefined) {
+                  if (interpretEvaluationConfig[item.methodName] === undefined) {
+
+/*                    let value = item.value;
+                    console.log(value);
+                    value = JSON.parse(value);
+                    value.method_name = item.methodName;
+                    value = JSON.stringify(value);
+                    console.log(value);*/
+
+                    interpretEvaluationConfig[e.target.value] = true;
+                    interpretEvaluationConfig[item.methodName] = item.value;
+                    setInterpretEvaluationConfig(interpretEvaluationConfig);
+                    //console.log(evaConfig);
+                  } else {
+                    const newConfig = interpretEvaluationConfig;
+                    newConfig[e.target.value] = true;
+                    setInterpretEvaluationConfig(newConfig);
+                  }
+                } else {
+                  interpretEvaluationConfig[e.target.value] = true;
+                  console.log(interpretEvaluationConfig);
+                  setInterpretEvaluationConfig(interpretEvaluationConfig);
+                }
+              }
+              if (e.target.checked === false) {
+                delete interpretEvaluationConfig[e.target.value];
+                delete interpretEvaluationConfig[item.methodName];
+                setInterpretEvaluationConfig(interpretEvaluationConfig);
+                //console.log(evaConfig);
+              }
+            }}
+            /*        addonAfter={
+
+                    }*/
+            value={item.methodName + '.' + item.methodId}
+            /*        fieldProps={{
+                      value: item.methodName + '.' + item.methodId,
+                      onChange: {(e) => {
+                      console.log('e:', e);
+                      if (e.target.checked === true) {
+                      evaConfig[e.target.value] = true;
+                      evaConfig[item.methodName] = item.value;
+                      setEvaConfig(evaConfig);
+                      //console.log(evaConfig);
+                    }
+                      if (e.target.checked === false) {
+                      delete evaConfig[e.target.value];
+                      delete evaConfig[item.methodName];
+                      setEvaConfig(evaConfig);
+                      //console.log(evaConfig);
+                    }
+                    }}
+                    }}*/
+          >{item.displayName}</Checkbox></Col>
+        <Col>
+          <ModalForm
+            /*            request={async () => {
+                          const config = await adaptConfigDetailed(item.methodId);
+                          //console.log(config);
+                          return ;
+                        }
+                        }*/
+            title="参数配置"
+            //name={item.value}
+            trigger={<a onClick={async () => {
+              //item.configDetailed = 'new';
+            }
+            }>参数配置</a>}
+            submitter={{
+              searchConfig: {
+                submitText: '确认',
+                resetText: false,
+              },
+            }}
+            fieldProps={{destroyOnClose: true}}
+            onFinish={async (values) => {
+              try {
+                console.log(values);
+                if (values[item.methodName] === undefined)
+                  return true;
+                if (typeof JSON.parse(values[item.methodName]) === 'object' && values[item.methodName]) {
+                  //console.log('value:',values);
+                  let value = values[item.methodName];
+                  value = JSON.parse(value);
+                  value.method_name = item.methodName;
+                  value = JSON.stringify(value);
+                  values[item.methodName] = value;
+                  console.log(value);
+                  interpretEvaluationConfig[item.methodName] = values[item.methodName];
+                  setInterpretEvaluationConfig(interpretEvaluationConfig);
+                  //console.log(evaConfig);
+                  //message.success(evaluationConfig[0]);
+                  return true;
+                }
+                return true;
+              } catch {
+                //console.log(values[item.methodName]);
+                message.error('参数配置格式不正确');
+                return false;
+              }
+              ;
+            }}
+          >
+            <Form.Item>
+              <ProFormTextArea
+                name={item.methodName}
+                fieldProps={{defaultValue: item.value, autoSize: true}}
+              />
+            </Form.Item>
+            <ProFormTextArea
+              placeholder={''}
+              fieldProps={{value: item.configDetailed, bordered: false, readOnly: true, autoSize: true}}/>
+          </ModalForm>
+        </Col>
+      </Row>])}
+  </ProFormCheckbox.Group>;
+};
+
 
 //适应性表格
 /*type adaptDataSourceType = {
@@ -396,22 +613,22 @@ const robustDefaultData: robustDataSourceType[] = new Array(2).fill(1).map((_, i
     state: 2,
   };
 });*/
-
+//适应性列
 const adaptColumns: ProColumns[] = [
-/*  {
-    title: '扰动类型',
-    dataIndex: 'categoryName',
-    formItemProps: {
-      rules: [
-        {
-          required: true,
-          message: '此项为必填项',
-        },
-      ],
-    },
-    width: '35%',
-    editable: false,
-  },*/
+  /*  {
+      title: '扰动类型',
+      dataIndex: 'categoryName',
+      formItemProps: {
+        rules: [
+          {
+            required: true,
+            message: '此项为必填项',
+          },
+        ],
+      },
+      width: '35%',
+      editable: false,
+    },*/
   {
     title: '扰动方法',
     dataIndex: 'methodList',
@@ -503,9 +720,70 @@ const robustColumns: ProColumns[] = [
   },
 ];
 
+//可解释性性列
+const interpretColumns: ProColumns[] = [
+  {
+    title: '可解释性方法',
+    dataIndex: 'methodList',
+    width: '60%',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+    renderFormItem: (row, {isEditable}) => {
+      return <InterpretTagList/>;//isEditable ? <TagList /> : <Input />;
+    },
+    /*    render: (_, row) => {
+          return <ProFormCheckbox.Group
+            disabled={true}
+            layout={"vertical"}
+            fieldProps={{
+              name: "test",
+              onChange: (e) => {
+                //console.log(e);
+              }
+            }}
+          >
+            {row?.labels?.map((item) =>
+              <ProFormCheckbox
+                disabled={true}
+                fieldProps={{
+                  value: item.value,
+                }}>{item.label}</ProFormCheckbox>)}
+          </ProFormCheckbox.Group>;
+        },*/
+  },
+];
+
 
 export default forwardRef((props, ref, params: any) => {
-  //console.log(props);
+  console.log(props, params);
+  const [screenWidth, setScreenWidth] = useState(window.innerWidth);
+  const [screenHeight, setScreenHeight] = useState(window.innerHeight);
+
+  const getWindowInfo = () => {
+    setScreenWidth(window.innerWidth);
+    setScreenHeight(window.innerHeight);
+  };
+  const debounce = (fn, delay) => {
+    let timer;
+    return function() {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+        fn();
+      }, delay);
+    }
+  };
+  const cancelDebounce = debounce(getWindowInfo, 500);
+
+  window.addEventListener('resize', cancelDebounce);
+
 
   //数据集数量
   const [datasetSize, setDatasetSize] = useState(0);
@@ -559,6 +837,21 @@ export default forwardRef((props, ref, params: any) => {
     onChange: onRobustSelectChange,
   };
 
+  //选择可解释性行
+  const [interpretEditableKeys, setInterpretEditableRowKeys] = useState<React.Key[]>([]);
+  const [interpretSelectedRowKeys, setInterpretSelectedRowKeys] = useState<React.Key[]>([]);
+
+  const onInterpretSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setInterpretEditableRowKeys(newSelectedRowKeys);
+    //console.log('selectedRowKeys changed: ', newSelectedRowKeys);
+    setInterpretSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const interpretRowSelection: TableRowSelection<TableListItem> = {
+    selectedRowKeys: interpretSelectedRowKeys,
+    onChange: onInterpretSelectChange,
+  };
+
   //选择配置项改变内容
   //const [dataSource, setDataSource] = useState<[]>([]);
 
@@ -577,6 +870,16 @@ export default forwardRef((props, ref, params: any) => {
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
   }));
+
+  //可解释性选择内容
+  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+    interpretEvaluationConfig: ret.interpretEvaluationConfig,
+    setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
+  }));
+
+
+  //可解释性选择图片
+  const [interpretImg, setInterpretImg] = useState([]);
 
 
   //可解释性代理模型类型
@@ -618,11 +921,13 @@ export default forwardRef((props, ref, params: any) => {
 
   const robustActionRef = useRef<ActionType>();
   const adaptActionRef = useRef<ActionType>();
+  const interpretActionRef = useRef<ActionType>();
 
   const formRef = useRef<ProFormInstance>();
 
   const [robustForm] = Form.useForm();
   const [adaptForm] = Form.useForm();
+  const [interpretForm] = Form.useForm();
 
   //其他任务的评测类型
   const [type, setType] = useState('acc');
@@ -641,7 +946,7 @@ export default forwardRef((props, ref, params: any) => {
 
   useImperativeHandle(ref, () => ({
     openModal: (newVal: boolean) => {
-      if (props.props.location.query.taskTypeId === 3)
+      if (props.evaMethod.indexOf('INTERPRET') !== -1)
         return tableType;
       return type;
     },
@@ -656,10 +961,14 @@ export default forwardRef((props, ref, params: any) => {
       return evaConfig;
     },
     robustConfig: () => {
-      //console.log('robustConfig', robustEvaluationConfig);
+      console.log('robustConfig', robustEvaluationConfig);
       return robustEvaluationConfig;
     },
     interpretConfig: () => {
+      console.log('interpretConfig', interpretEvaluationConfig);
+      return [interpretEvaluationConfig, interpretImg];
+    },
+/*    interpretConfig: () => {
       //console.log(evaModelType);
       const values = {};
       values.dataSetId = props.params;
@@ -706,7 +1015,7 @@ export default forwardRef((props, ref, params: any) => {
 
       }
 
-      /*      const values = {};
+      /!*      const values = {};
             values.dataSetName = datasetSelect;
             values.evaModel = evaModelType;
             values.evaModelConfig = evaModelConfig;
@@ -720,10 +1029,10 @@ export default forwardRef((props, ref, params: any) => {
                 "proxyModelName": item.proxy,
               };
               }
-            );*/
+            );*!/
       //console.log(values);
       return values;
-    }
+    }*/
   }));
 
   return (
@@ -733,7 +1042,7 @@ export default forwardRef((props, ref, params: any) => {
           type: 'card',
           centered: true,
           onChange: event => {
-            //console.log(event);
+            console.log(event);
             setType(event);
             setTableType(event);
 
@@ -912,8 +1221,13 @@ export default forwardRef((props, ref, params: any) => {
                         item.configDetailed = configDetailed.data.paramConfigList;
                       else
                         item.configDetailed = '无';
-                      item.value = item.value.split("{").join("{\n");
-                      item.value = item.value.split(",").join(",\n");
+                      console.log(JSON.parse(item.value));
+                      item.value = JSON.parse(item.value);
+                      console.log(item.value);
+                      delete item.value.method_name;
+                      item.value = JSON.stringify(item.value);
+                      item.value = item.value.split("{").join("{\n\t");
+                      item.value = item.value.split(",").join(",\n\t");
                       item.value = item.value.split("}").join("\n}");
                     }
                     for (let item of data[1].methodList) {
@@ -922,11 +1236,16 @@ export default forwardRef((props, ref, params: any) => {
                         item.configDetailed = configDetailed.data.paramConfigList;
                       else
                         item.configDetailed = '无';
-                      item.value = item.value.split("{").join("{\n");
-                      item.value = item.value.split(",").join(",\n");
+                      console.log(item.value);
+                      item.value = JSON.parse(item.value);
+                      console.log(item.value);
+                      delete item.value.method_name;
+                      item.value = JSON.stringify(item.value);
+                      item.value = item.value.split("{").join("{\n\t");
+                      item.value = item.value.split(",").join(",\n\t");
                       item.value = item.value.split("}").join("\n}");
                     }
-                    //console.log(data);
+                    console.log(data);
                     if (msg.code === '00000') {
                       return {
                         //data: msg.data.methodList,
@@ -1006,7 +1325,7 @@ export default forwardRef((props, ref, params: any) => {
           </ProCard.TabPane>
         )}
 
-
+        {/*适应性栏*/}
         {props.evaMethod.indexOf('ADAPTABILITY') !== -1 && (
           <ProCard.TabPane key="adapt" tab="适应性">
             <Row>
@@ -1065,8 +1384,15 @@ export default forwardRef((props, ref, params: any) => {
                     for (let item of data[0].methodList) {
                       const configDetailed = await adaptConfigDetailed(item.methodId, props.props.location.query.taskTypeId);
                       item.configDetailed = configDetailed.data.paramConfigList;
-                      item.value = item.value.split("{").join("{\n");
-                      item.value = item.value.split(",").join(",\n");
+
+                      console.log(JSON.parse(item.value));
+                      item.value = JSON.parse(item.value);
+                      console.log(item.value);
+                      delete item.value.method_name;
+                      item.value = JSON.stringify(item.value);
+
+                      item.value = item.value.split("{").join("{\n\t");
+                      item.value = item.value.split(",").join(",\n\t");
                       item.value = item.value.split("}").join("\n}");
                     }
                     //console.log('hello');
@@ -1149,605 +1475,146 @@ export default forwardRef((props, ref, params: any) => {
             </Row>
           </ProCard.TabPane>
         )}
+
+        {/*可解释性栏*/}
         {props.evaMethod.indexOf('INTERPRET') !== -1 && (
-          <ProCard.TabPane key={'interpret'} tab={'可解释性'}>
-            <>
-              <Form>
-
-                {/*              <ProCard bordered bodyStyle={{backgroundColor: '#fafafa',}} size={'small'}>
-                数据集选择：
-              </ProCard>*/}
-                {/*              <ProCard direction={"column"} size={'small'}>
-              <ProCard direction={"row"} size={'small'}>
-                <ProCard size={'small'}>
-                <ProFormSelect
-                  addonBefore={<Button name={"reload"} onClick={async () => {
-                    const data = await interpretDatasetGet();
-                    const dataset = data.data.xaiDataSetNames;
-                    const newData = dataset.map(item => {
-                      return {label: item, value: item};
-                    })
-                    setDataSet(newData);
-                  }}><ReloadOutlined/></Button>}
-                  name = {'dataset'}
-                  width={'sm'}
+          <ProCard.TabPane key="interpret" tab="可解释性">
+            <Row>
+              <ProCard>
+                <EditableProTable
                   fieldProps={{
-                  onChange: (e)=>{
-                    setDatasetSelect(e);
-                    //console.log(e);
-                  }}}
-                  options={dataSet}/>
-                </ProCard>
-                <ProCard size={'small'}>
-                <ProFormUploadButton
-                  title={"请选择训练集与测试集文件"}
-                  rules={[{ required: true }]}
-                  name=" dataSetFile"
-                  max={2}
-                  accept={".csv"}
-                  fieldProps={{beforeUpload: (file) => {
-                      const isCsv = (file.name.split('.').reverse()[0] === 'csv');
-                      //console.log(isCsv);
-                      if (!isCsv) {
-                        message.error(`${file.name}文件格式不正确`);
-                        return false;
-                      }
-                      return false;
-                    },
-                    onChange:(info) => {
-                        setDatasetFileList(info.fileList);
-                    },
-                    listType: "text",
+                    name: 'interpret'
                   }}
-                >
-                </ProFormUploadButton>
-                  <Button onClick={async () => {
-                    if(datasetFileList.length < 2){
-                      message.error("请选择训练集与测试集文件后上传");
-                      return false;
-                    }
-                    const datasetFiles = new FormData();
-                    datasetFileList.map(item => {
-                      //console.log(item.name.slice(-9));
-                      if(item.name.length < 10){
-                        message.error("文件命名不规范，请重新上传");
-                        return false;
-                      }
-                      if(item.name.slice(-9) === '_test.csv'){
-                        //console.log("test");
-                        datasetFiles.append("test_dataset", item.originFileObj);
-                      }
-                      else if(item.name.slice(-10) === '_train.csv'){
-                        //console.log("train");
-                        datasetFiles.append("train_dataset", item.originFileObj);
-                      }
-                      else{
-                        message.error("文件命名不规范，请重新上传");
-                        return false;
-                      }
+                  rowSelection={interpretRowSelection}
+                  tableAlertRender={false}
+                  rowKey="categoryId"
+                  scroll={{
+                    x: 960,
+                  }}
+                  actionRef={interpretActionRef}
+                  headerTitle={<div style={{
+                    fontSize: '18px',
+                    height: '30px',
+                    fontWeight: 'normal',
+                    lineHeight: '30px',
+                    //backgroundImage: 'linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%)',
+                    width: '100%',
+                    position: 'absolute',
+                    left: "0"
+                  }}>可解释性方法选择及配置</div>}
+                  maxLength={5}
+                  // 关闭默认的新建按钮
+                  recordCreatorProps={false}
+                  columns={interpretColumns}
+                  /*        request={async () => ({
+                            data: defaultData,
+                            total: 3,
+                            success: true,
+                          })}*/
+                  request={async (
+                    // 第一个参数 params 查询表单和 params 参数的结合
+                    // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
+                    params: T & {
+                      pageSize: number;
+                      current: number;
+                    },
+                    sort,
+                    filter,
+                  ) => {
+                    // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
+                    // 如果需要转化参数可以在这里进行修改
+                    /*                const msg = await safeMethod(props.props.location.query.taskTypeId);
+                                    //console.log(msg);*/
+
+                    const msg = await interpretImgMethod(props.props.location.query.taskTypeId);
+                    console.log(msg);
+                    const data = msg.data.methodList.map(item => {
+                      item.categoryId += 100;
+                      return item;
                     })
-                    const msg = await interpretDatasetUpload(datasetFiles);
-                    //console.log(msg);
-                    if(msg.code === '00000'){
-                      message.success(msg.data);
-                    }
-                    else{
+                    console.log(data);
+/*                    for (let item of data[0].methodList) {
+                      console.log(item);
+                      console.log(JSON.parse(item.value));
+                      item.value = JSON.parse(item.value);
+                      console.log(item.value);
+                      delete item.value.method_name;
+                      item.value = JSON.stringify(item.value);
+
+                      item.value = item.value.split("{").join("{\n\t");
+                      item.value = item.value.split(",").join(",\n\t");
+                      item.value = item.value.split("}").join("\n}");
+                    }*/
+                    //console.log('hello');
+                    console.log(data);
+                    if (msg.code === '00000') {
+                      return {
+                        data: data,
+                        // success 请返回 true，
+                        // 不然 table 会停止解析数据，即使有数据
+                        success: true,
+                        // 不传会使用 data 的长度，如果是分页一定要传
+                        total: msg.data.total,
+                      };
+                    } else
                       message.error(msg.message);
-                    }
-                  }}>上传</Button>
-              </ProCard>
-
-              </ProCard>
-
-                <ProCard layout={"center"} size={'small'}>
-                  <ul style={{marker: "initial"}}>
-                    <li>若需要自行上传数据售，<strong>需将训练集与测试集均上传完成后再刷新数据集列表</strong>，其中训练集的命名格式为:<strong>数据集名称_train.csv</strong>，测试集的命名格式为:<strong>数据集名称_test.csv</strong>。</li>
-                    <li>上传数据集后点击刷新按钮即可在已有数据集中进行选择。</li>
-                    <li>确认数据集后，方可继续进行黑盒模型以及代理模型的选择。</li>
-                  </ul>
-                </ProCard>
-
-              </ProCard>*/}
-
-                <ProCard bordered bodyStyle={{backgroundColor: '#fafafa',}} size={'small'} colSpan={24}>
-                  代理模型类型：
-                </ProCard>
-
-                <Form form={xaiForm}>
-                  <Form.Item>
-                    <ProFormSelect
-                      allowClear={false}
-                      width={'200px'}
-                      name="modelType"
-                      //initialValue={'0'}
-                      onChange={async (e) => {
-                        //console.log(modelName);
-                        //console.log(e);
-                        setProxyModelType(e);
-                        if (e !== undefined) {
-                          setFirstProxy(null);
-                          /*                          const values = {proxy_type_id: e,
-                                                      blackbox_id: modelName.modelId};*/
-                          //const msg = await interpretXaiGet(values);
-                          /*                          //console.log(values);
-                                                    const msg = await ProxyByBlackBox(values);
-                                                    //console.log(msg);
-                                                    const res = msg.data.map(item => {
-                                                      return {label: item.modelName, value: [item.id, item.dataUrl].join(',')};
-                                                    });
-                                                    setFirstProxy(res);
-                                                    //console.log(res);*/
-
-
-                          /*                      xaiForm.setFields([
-                                                  {
-                                                    name: 'firstProxy',
-                                                    value: null,
-                                                  },
-                                                ]);*/
-                          xaiForm.setFieldValue('firstProxyIn', null);
-
-                          //console.log(xaiForm.getFieldValue('users'));
-                          try {
-                            let len = xaiForm.getFieldValue('users').length;
-                            for (let i = 0; i < len; i++) {
-                              xaiForm.setFields([
-                                {
-                                  name: ['users', i, 'proxy'],
-                                  value: null,
-                                },
-                              ]);
-                            }
-                          } catch {
-
-                          }
-                          ;
-                          //console.log(xaiForm.getFieldValue('firstProxyIn'))
-                        }
-                      }}
-                      options={[
-                        {label: '规则模型', value: '0'},
-                        {label: '决策树模型', value: '1'},
-                      ]
-                      }/>
-                  </Form.Item>
-
-                  {/*              <ProCard bordered bodyStyle={{backgroundColor: '#fafafa',}} size={'small'} colSpan={24}>
-                <ProCard colSpan={8}bodyStyle={{backgroundColor: '#fafafa',}} layout="left" size={'small'}>
-                  黑盒模型上传：
-                </ProCard>
-                <ProCard colSpan={8} bodyStyle={{backgroundColor: '#fafafa',}} layout="left" size={'small'}>
-                  代理模型上传：
-                </ProCard>
-                <ProCard colSpan={2} bodyStyle={{backgroundColor: '#fafafa',}} size={'small'}></ProCard >
-              </ProCard>
-
-              <ProCard size={'small'} colSpan={24}>
-              <ProCard size={'small'} colSpan={8}>
-                <ProFormUploadButton
-                  name={"blackboxFile"}
-                  rules={[{ required: true }]}
-                  title={'请上传黑盒模型文件'}
-                  //tooltip={'请上传黑盒模型文件'}
-                  max={1}
-                  accept={".pkl"}
-                  fieldProps={{beforeUpload: (file) => {
-                      const isPkl = (file.name.split('.').reverse()[0] === 'pkl');
-                      //console.log(isPkl);
-                      if (!isPkl) {
-                        message.error(`${file.name}文件格式不正确`);
-                        return false;
-                      }
-                      return false;
-                    },
-                    onChange: (info) => {
-                      setBlackboxFileList(info.fileList);
-                    },
-                    listType: "text",
-                  }}
-                >
-                </ProFormUploadButton>
-                <Button onClick={async () => {
-                  if(blackboxFileList.length < 1){
-                    message.error("请选择黑盒模型文件后上传");
                     return false;
-                  }
-                  const blackboxFile = new FormData();
-                  blackboxFile.append("blackbox", blackboxFileList[0].originFileObj)
-                  const msg = await interpretBlackboxUpload(blackboxFile);
-                  //console.log(msg);
-                  if(msg.code === '00000'){
-                    message.success(msg.data);
-                  }
-                  else{
-                    message.error(msg.message);
-                  }
-                }}>上传</Button>
+                  }}
+
+                  /*              value={dataSource}
+                                onChange={setDataSource}*/
+                  editable={{
+                    form: interpretForm,
+                    editableKeys: interpretEditableKeys,
+                    onChange: setInterpretEditableRowKeys,
+                    actionRender: (row, config, dom) => [dom.save, dom.cancel],
+                  }}
+                />
               </ProCard>
-                <ProCard size={'small'} colSpan={8}>
-                  <ProFormUploadButton
-                    name={"proxyFile"}
-                    rules={[{ required: true }]}
-                    title={'请上传代理模型文件'}
-                    //tooltip={'请上传代理模型文件'}
-                    max={1}
-                    accept={".txt"}
-                    fieldProps={{beforeUpload: (file) => {
-                        const isTxt = (file.name.split('.').reverse()[0] === 'txt');
-                        //console.log(isTxt);
-                        if (!isTxt) {
-                          message.error(`${file.name}文件格式不正确`);
-                          return Upload.LIST_IGNORE;
-                        }
-                        return true;
-                      },
-                      onChange: (info) => {
-                        setProxyFileList(info.fileList);
-                      },
-                      listType: "text",
-                    }}
-                  >
-                  </ProFormUploadButton>
-                  <Button onClick={async () => {
-                    if(proxyFileList.length < 1){
-                      message.error("请选择代理模型文件后上传");
-                      return false;
-                    }
-                    const proxyFile = new FormData();
-                    proxyFile.append("proxy", proxyFileList[0].originFileObj);
-                    proxyFile.append("proxy_type", proxyModelType);
-                    const msg = await interpretProxyUpload(proxyFile);
-                    //console.log(msg);
-                    if(msg.code === '00000'){
-                      message.success(msg.data);
-                    }
-                    else{
-                      message.error(msg.message);
-                    }
-                  }}>上传</Button>
-                </ProCard>
-              </ProCard>*/}
+              <ProCard>
+                <ProForm submitter={false}></ProForm>
 
+                <div style={{
+                  fontSize: '18px',
+                  height: '30px',
+                  fontWeight: 'normal',
+                  lineHeight: '30px',
+                  //backgroundImage: 'linear-gradient(135deg,  #fdfcfb 0% ,#e2d1c3 100% )',
+                  width: 'auto',
+                  //position: 'absolute',
+                  //left: "0"
+                }}>待解释图片选择</div>
+                  <Checkbox.Group style={{width: '100%'}} onChange={(e)=> {
+                    console.log(e);
+                    setInterpretImg(e);
+                  }}>
+                    <Row>
+                      {
+                        props.imgUrl.map((item: string) => {
+                          return (
+                              <Col span={4}>
+                                <Checkbox
+                                  name={item}
+                                  value={item}
 
-                  <ProCard bordered bodyStyle={{backgroundColor: '#fafafa',}} size={'small'} colSpan={24}>
-                    <ProCard colSpan={8} bodyStyle={{backgroundColor: '#fafafa',}} layout="left" size={'small'}>
-                      黑盒模型选择：
-                    </ProCard>
-                    <ProCard colSpan={8} bodyStyle={{backgroundColor: '#fafafa',}} layout="left" size={'small'}>
-                      代理模型选择：
-                    </ProCard>
-                    <ProCard colSpan={2} bodyStyle={{backgroundColor: '#fafafa',}} size={'small'}></ProCard>
-                    <ProCard colSpan={6} bodyStyle={{backgroundColor: '#fafafa',}} layout="left" size={'small'}>
-                      评估模型选择：
-                    </ProCard>
-                  </ProCard>
-
-                  <ProCard colSpan={24} size={'small'}>
-                    <ProCard split={'horizontal'} size={'small'}>
-
-                      {/*                  <Form>*/}
-                      <ProCard>
-                        <ProCard colSpan={1} layout={'center'} size={'small'} bordered={false}>{"XAI0"}</ProCard>
-                        <ProCard colSpan={8} layout={'left'} size={'small'}>
-                          <Form.Item>
-
-                            <ProFormSelect
-                              //label={"XAI"+(name+1).toString()}
-                              //options={[{label: props.modelName.modelName, value: [props.modelName.modelId, props.modelName.modelUrl].join(',') || undefined}]}
-                              options={[{
-                                label: modelName.modelName,
-                                value: [modelName.modelId, modelName.modelUrl].join(',')
-                              }]}
-                              style={{width: '180px'}}
-                              fieldProps={{value: [modelName.modelId, modelName.modelUrl].join(',')}}
-                              disabled={true}
-                              name={'firstBlackBox'}
-                            >
-                            </ProFormSelect>
-                          </Form.Item>
-                        </ProCard>
-
-                        <ProCard colSpan={8} layout={'center'} size={'small'}>
-                          <Form.Item name={'firstProxy'}>
-                            <ProFormSelect
-                              options={firstProxy}
-                              //dependencies={['modelType']}
-                              /*                        request={async () => {
-                                                        ////console.log(xaiForm.getFieldValue('firstBlackBox'));
-                                                        const values = {proxy_type_id: proxyModelType,
-                                                          blackbox_id: modelName.modelId};
-                                                        //const msg = await interpretXaiGet(values);
-                                                        //console.log(values);
-                                                        const msg = await ProxyByBlackBox(values);
-                                                        //console.log(msg);
-                                                        return msg.data.map(item => {
-                                                          return {label: item.modelName, value: [item.id, item.dataUrl].join(',')};
-                                                        });
-                              /!*                          if(xaiForm.getFieldsValue(true).users[name].blackbox === undefined)
-                                                        {
-                                                          xaiForm.setFields([
-                                                            {
-                                                              name: ['users', name, 'proxy'],
-                                                              value: null,
-                                                            },
-                                                          ]);
-                                                          return null;
-                                                        }*!/
-                              /!*                          const values = {dataset: datasetSelect, type: "proxy", proxy_type: proxyModelType,
-                                                          blackbox: xaiForm.getFieldsValue(true).users[name].blackbox};
-                                                        //console.log(values.blackbox);
-                                                        const msg = await interpretXaiGet(values);
-                                                        //console.log(msg);
-                                                        return msg.data.xaiModelNames.map(item => {
-                                                          return {label: item, value: item};
-                                                        });*!/
-                                                      }}*/
-                              //name={[name, 'proxy']}
-                              name={'firstProxyIn'}
-                              style={{width: "200px"}}
-                              addonAfter={<Button type={"small"} onClick={async () => {
-                                //console.log(proxyModelType);
-                                const values = {
-                                  proxy_type_id: proxyModelType,
-                                  blackbox_id: modelName.modelId
-                                };
-                                if (proxyModelType !== undefined) {
-                                  const msg = await ProxyByBlackBox(values);
-                                  //console.log(msg);
-                                  const res = msg.data.map(item => {
-                                    return {label: item.modelName, value: [item.id, item.dataUrl].join(',')};
-                                  });
-                                  setFirstProxy(res);
-                                  //console.log(res);
-                                }
-                              }}
-                              >
-                                <ReloadOutlined/>
-                              </Button>}
-                            >
-                            </ProFormSelect>
-                          </Form.Item>
-                        </ProCard>
-                      </ProCard>
-                      <ProCard split={"horizontal"}>
-                        <Form.List name="users">
-                          {(fields, {add, remove}) => {
-                            //console.log(fields);
-                            return (
-                              <>
-                                {fields.map(({key, name, ...restField}) => (
-                                  <ProCard colSpan={18} size={'small'}>
-                                    <ProCard colSpan={1} layout={'center'}
-                                             size={'small'}>{"XAI" + (name + 1).toString()}</ProCard>
-                                    <ProCard colSpan={7} layout={'default'} size={'small'}>
-                                      <Form.Item name={[name, 'blackbox']}>
-                                        <ProFormSelect
-                                          //label={"XAI"+(name+1).toString()}
-                                          fieldProps={{
-                                            onChange: () => {
-                                              xaiForm.setFields([
-                                                {
-                                                  name: ['users', name, 'proxy'],
-                                                  value: null,
-                                                },
-                                              ]);
-                                            }
-                                          }}
-                                          options={blackboxList}
-                                          /*                                  options={[{
-                                                                              label: 'breakfast', value: 1,
-                                                                            },{
-                                                                              label: 'rice', value: 2,
-                                                                            }]}*/
-                                          style={{width: "180px"}}
-                                          addonAfter={<Button type={"small"} onClick={async () => {
-                                            //console.log(xaiForm.getFieldsValue("users"));
-                                            /*                                    if(datasetSelect === undefined)
-                                                                                {
-                                                                                  message.error("请先选择数据集");
-                                                                                  return null;
-                                                                                }*/
-                                            const values = {dataset: datasetSelect, type: "blackbox"};
-                                            //const msg = await interpretXaiGet(values);
-                                            const msg = await BlackBoxByDataSet(props.params);
-                                            //console.log(msg);
-                                            const blackbox = msg.data.map(item => {
-                                              return {label: item.modelName, value: [item.id, item.dataUrl].join(',')};
-                                            });
-                                            /*                                    const blackbox = msg.data.xaiModelNames.map(item => {
-                                                                                  return {label: item, value: item};
-                                                                                });*/
-                                            setBlackboxList(blackbox);
-                                          }}
-                                          >
-                                            <ReloadOutlined/>
-                                          </Button>}>
-                                        </ProFormSelect>
-                                      </Form.Item>
-
-                                    </ProCard>
-                                    <ProCard colSpan={9} layout={'center'} size={'small'}>
-                                      <ProFormSelect
-                                        //options={proxyList}
-                                        dependencies={["users", name, 'blackbox', "modelType"]}
-                                        fieldProps={{
-                                          onChange: () => {
-                                          }
-                                        }}
-                                        request={async () => {
-                                          //console.log(name);
-                                          if (xaiForm.getFieldsValue(true).users[name].blackbox === undefined) {
-                                            xaiForm.setFields([
-                                              {
-                                                name: ['users', name, 'proxy'],
-                                                value: null,
-                                              },
-                                            ]);
-                                            return null;
-                                          }
-                                          //console.log(xaiForm.getFieldsValue(true).users[name].blackbox);
-                                          /*                                    const values = {dataset: datasetSelect, type: "proxy", proxy_type: proxyModelType,
-                                                                                blackbox: xaiForm.getFieldsValue(true).users[name].blackbox};
-                                                                              //console.log(values.blackbox);*/
-                                          const values = {
-                                            proxy_type_id: proxyModelType,
-                                            blackbox_id: xaiForm.getFieldsValue(true).users[name].blackbox.split(',')[0]
-                                          };
-                                          //const msg = await interpretXaiGet(values);
-                                          //console.log(values);
-                                          const msg = await ProxyByBlackBox(values);
-                                          //console.log(msg);
-                                          return msg.data.map(item => {
-                                            return {label: item.modelName, value: [item.id, item.dataUrl].join(',')};
-                                          });
-                                          /*                                    return msg.data.xaiModelNames.map(item => {
-                                                                                return {label: item, value: item};
-                                                                              });*/
-                                        }}
-                                        name={[name, 'proxy']}
-                                        style={{width: "200px"}}
-                                        /*                                  addonAfter={<Button type={"default"} onClick={async () => {
-                                                                            const black = xaiForm.getFieldsValue(true);
-                                                                            //console.log(black);
-                                                                            const values = {dataset: datasetSelect, type: "proxy", proxy_type: proxyModelType, blackbox: ''};
-                                                                            //console.log(values.blackbox);
-                                                                          }}
-                                                                          >
-                                                                            代理刷新
-                                                                          </Button>}*/
-                                      >
-                                      </ProFormSelect>
-                                    </ProCard>
-                                  </ProCard>
-                                ))}
-                                <ProCard colSpan={4} size={'small'}>
-                                  <Form.Item>
-                                    <Space>
-                                      <Button type="primary" onClick={() => add()} icon={<PlusOutlined/>}>
-                                        添加
-                                      </Button>
-                                      <Button type="primary" onClick={() => {
-                                        if (fields.length !== 0)
-                                          remove(fields.at(-1).name);
-                                      }} icon={<MinusOutlined/>}>
-                                        删除
-                                      </Button>
-                                    </Space>
-                                  </Form.Item>
-                                </ProCard>
-                              </>
-                            );
-                          }}
-                        </Form.List>
-                      </ProCard>
-                      {/*                  </Form>*/}
-                    </ProCard>
-                    <ProCard colSpan={6} layout="left" size={'small'}>
-
-                      <Form.Item>
-                        <ProFormSelect
-                          name='evaModelType'
-                          placeholder={'请选择评估模型类型'}
-                          dependencies={['modelType']}
-                          fieldProps={{
-                            onChange: (e) => {
-                              setEvaModelType(e);
-                              setEvaModelConfig(evaModelAllConfig[e]);
-                            }
-                          }}
-                          request={async () => {
-                            //console.log(proxyModelType)
-                            if (proxyModelType === undefined) {
-                              form.setFieldValue('evaModelType', null);
-                              return null;
-                            }
-                            let proxyModel;
-                            if (proxyModelType === '0')
-                              proxyModel = 'rule';
-                            else
-                              proxyModel = 'tree';
-                            const msg = await interpretMethod(proxyModel, 3).catch((error) => {
-                              //console.log('error');
-                            });
-                            //console.log(msg.data);
-                            const allConfig = {};
-                            const allConfigImg = {};
-                            msg.data.map(item => {
-                              allConfig[item.interpretMethod + ',' + item.id.toString()] = item.config;
-                              allConfigImg[item.interpretMethod + ',' + item.id.toString()] = item.imageUrl;
-                            });
-                            setEvaModelAllConfig(allConfig);
-                            setEvaModelAllConfigImage(allConfigImg);
-                            return msg.data.map(function (item) {
-                              //console.log(JSON.parse(item.config));
-                              return {label: item.displayName, value: item.interpretMethod + ',' + item.id.toString()}
-                            })
-                          }}
-                        />
-                      </Form.Item>
-                    </ProCard>
-                  </ProCard>
-                </Form>
-
-
-                <ProCard bordered bodyStyle={{backgroundColor: '#fafafa',}} size={'small'}>
-                  评估模型参数设置：
-                </ProCard>
-                <ProCard size={'small'}>
-                  <ModalForm
-                    title="评估模型参数配置"
-                    modalProps={{
-                      destroyOnClose: true
-                    }}
-                    //name={item.value}
-                    trigger={<a onClick={() => {
-                      //console.log(evaModelType);
-                      //console.log(evaModelAllConfig[evaModelType]);
-                    }}>参数配置</a>}
-                    onFinish={async (values) => {
-                      //console.log('value:',values);
-                      setEvaModelConfig(values.config);
-                      //console.log(evaModelConfig);
-                      //message.success(evaluationConfig[0]);
-                      return true;
-                    }}
-                  >
-                    <Form.Item label={
-                      <ModalForm<{
-                        name: string;
-                        company: string;
-                      }>
-                        trigger={
-                          <Link>
-                            配置图示
-                          </Link>
-                        }
-                        autoFocusFirstInput
-                        modalProps={{
-                          destroyOnClose: true,
-                        }}
-                        submitter={false}
-                      >
-                        <Image src={evaModelAllConfigImage[evaModelType]}></Image>
-                        {/*              <ProFormText width="sm" name="id" label="主合同编号" />
-              <ProFormText name="project" disabled label="项目名称" initialValue="xxxx项目" />
-              <ProFormText width="xs" name="mangerName" disabled label="商务经理" initialValue="启途" />*/}
-                      </ModalForm>
-                    } labelCol={{span: 3, offset: 22}}>
-
-                      <ProFormTextArea
-                        name='config'
-                        dependencies={["evaModelType"]}
-                        initialValue={evaModelAllConfig[evaModelType]}
-                        fieldProps={{/*value: evaModelAllConfig[evaModelType],*/
-                          autoSize: true
-                        }}
-                      />
-                    </Form.Item>
-                  </ModalForm>
-                </ProCard>
-              </Form>
-            </>
+/*                                  onChange={(e)=>{
+                                    //console.log(e);
+                                    let Img = interpretImg;
+                                    Img[e.target.value] = e.target.checked;
+                                    setInterpretImg(Img);
+                                    //console.log(Img);
+                                  }}*/
+                                >
+                                  <Image src={item} height={150 * screenHeight / 785} width={150 * screenWidth / 1600} preview={false}></Image>
+                                </Checkbox>
+                              </Col>
+                          )
+                        })
+                      }
+                    </Row>
+                  </Checkbox.Group>
+              </ProCard>
+            </Row>
           </ProCard.TabPane>
         )}
       </ProCard>

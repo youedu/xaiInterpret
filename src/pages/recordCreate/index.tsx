@@ -15,7 +15,7 @@ import {
   adaptEvaluation,
   interpretEvaluation,
   interpretEvaluationNew,
-  evaluateTypesByDataType,
+  evaluateTypesByDataType, imgInterpretEvaluation,
 } from "@/services/ant-design-pro/api";
 import {dataSetQueryById, modelQueryById, dataSetUrlQueryById} from "@/services/ant-design-pro/api";
 import {history} from "umi";
@@ -40,6 +40,11 @@ export default (params) => {
   const {evaConfig, setEvaConfig} = useModel('config', (ret) => ({
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
+  }));
+
+  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+    interpretEvaluationConfig: ret.interpretEvaluationConfig,
+    setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
   }));
 
   const [evaMethod, setEvaMethod] = useState('');
@@ -75,6 +80,8 @@ export default (params) => {
   const {modelName, setModelName} = useModel("modelName");
   //const [modelName, setModelName] = useState({});
   const {dataSetNumber, setDataSetNumber} = useModel("datasetNumber");
+
+  const [imgUrl, setImgUrl] = useState([]);
 
   return (
     <>
@@ -220,10 +227,12 @@ export default (params) => {
                 let obj = {};
                 //console.log(i);
                 if (i.indexOf('.') !== -1) {
-                  obj.methodName = i.split('.')[0];
-                  obj.methodId = Number(i.split('.')[1]);
-                  obj.value = robustConfig[i.split('.')[0]];
-                  methodConfigList.push(obj);
+                  if(robustConfig[i]) {
+                    obj.methodName = i.split('.')[0];
+                    obj.methodId = Number(i.split('.')[1]);
+                    obj.value = robustConfig[i.split('.')[0]];
+                    methodConfigList.push(obj);
+                  }
                 }
               }
               //console.log('params:', methodConfigList);
@@ -281,10 +290,12 @@ export default (params) => {
                 let obj = {};
                 //console.log(i);
                 if (i.indexOf('.') !== -1) {
-                  obj.methodName = i.split('.')[0];
-                  obj.methodId = Number(i.split('.')[1]);
-                  obj.value = adaptConfig[i.split('.')[0]];
-                  methodParamsContent.push(obj);
+                  if(adaptConfig[i]) {
+                    obj.methodName = i.split('.')[0];
+                    obj.methodId = Number(i.split('.')[1]);
+                    obj.value = adaptConfig[i.split('.')[0]];
+                    methodParamsContent.push(obj);
+                  }
                 }
               }
               //console.log('params:', methodParamsContent);
@@ -335,15 +346,91 @@ export default (params) => {
               }
               history.push('/evaluationrecord');
             }
+            //可解释性评测
             if (evaluationRef.current.openModal() === 'interpret') {
+              console.log('out:', evaluationRef.current.interpretConfig());
+              let [interpretConfig, imgUrls] = evaluationRef.current.interpretConfig();
+              const interpretConfigKeys = Object.keys(interpretConfig)
+              if (interpretConfigKeys.length === 0) {
+                alert('请选择配置');
+                return false;
+              }
+              imgUrls = imgUrls.map((item)=>{
+                return item.substring(34);
+              })
+              const methodParamsContent = [];
+              for (let i of interpretConfigKeys) {
+                let obj = {};
+                //console.log(i);
+                if (i.indexOf('.') !== -1) {
+                  if(interpretConfig[i]) {
+                    obj.methodName = i.split('.')[0];
+                    obj.methodId = Number(i.split('.')[1]);
+                    obj.value = interpretConfig[i.split('.')[0]];
+                    methodParamsContent.push(obj);
+                  }
+                }
+              }
+              //console.log('params:', methodParamsContent);
+
+/*              if (evaluationRef.current.accConfigNew().deviceType === null || evaluationRef.current.accConfigNew().datasetNumber === null) {
+                alert('请选择下方配置');
+                return false;
+              }*/
+/*              if (evaluationRef.current.accConfigNew().datasetNumber > dataSetNumber) {
+                alert('请选择需要的测评数据量');
+                return false;
+              }*/
+
+              const value = {
+                "methodConfigList": methodParamsContent,
+                "modelId": modelSetRef.current.openModal()[0],
+                "taskTypeId": params.location.query.taskTypeId,
+                "dataSetId": dataSetRef.current.openModal()[0],
+                "taskName": '',
+                "deviceType": evaluationRef.current.accConfigNew().deviceType,
+                "imageUrls": imgUrls,
+                "datasetNumber": imgUrls.length,
+              }
+              /*            history.push('/evaluationrecord');
+                          const msg = await robustEvaluation(value).then((e) => {
+                            //console.log(e);
+                          }).catch((error) => {
+                            //console.log(error);
+                          });
+                          return true;
+                          //console.log(msg);*/
+
+              const modelInfo = await modelQueryById(value.modelId);
+              const modelName = modelInfo.data.modelName;
+              //console.log(modelName);
+              const dataSetInfo = await dataSetQueryById(value.dataSetId);
+              const dataSetName = dataSetInfo.data.dataName;
+              //console.log(dataSetName);
+              value.taskName = dataSetName + '数据集-' + modelName + '模型-' + '可解释性评测';
+              if (value.taskTypeId === 1)
+                value.taskName += '-图片分类'
+              else
+                value.taskName += '-文本分类'
+              console.log(value);
+
+              const msg = await imgInterpretEvaluation(value);
+              if (msg.code === '00000') {
+                message.success('提交成功');
+                setInterpretEvaluationConfig({});
+              }
+              history.push('/evaluationrecord');
+            }
+
+            /*if (evaluationRef.current.openModal() === 'interpret') {
               const values = evaluationRef.current.interpretConfig();
               if (values === false)
                 return false;
-              /*            if(values.dataSetName === undefined)
+              /!*            if(values.dataSetName === undefined)
                           {
                             message.error("请选择数据集");
                             return false;
-                          }*/
+                          }*!/
               if (values.proxyType === undefined) {
                 message.error("请选择代理模型类型");
                 return false;
@@ -377,7 +464,7 @@ export default (params) => {
                 history.push('/evaluationrecord');
               }
               history.push('/evaluationrecord');
-            }
+            }*/
             return true;
           }}
           formProps={{
@@ -399,11 +486,32 @@ export default (params) => {
                 alert('请选择数据集');
                 return false;
               }
+              setImgUrl([
+                'https://s1.aigei.com/src/img/png/b6/b6ad95546ea34e7a8485b17ba5f98061.png?imageMogr2/auto-orient/thumbnail/!132x132r/gravity/Center/crop/132x132/quality/85/%7Cwatermark/3/image/aHR0cHM6Ly9zMS5haWdlaS5jb20vd2F0ZXJtYXJrLzYwLTEucG5nP2U9MTczNTQ4ODAwMCZ0b2tlbj1QN1MyWHB6ZnoxMXZBa0FTTFRrZkhON0Z3LW9PWkJlY3FlSmF4eXBMOmZTYlRIZ1Q2aGhxSnQ4bGczaWZ1dWlVWldNQT0=/dissolve/20/gravity/NorthWest/dx/36/dy/67/ws/0.0/wst/0&e=1735488000&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:2bFiBCyTqsiPP9ZF07Qpl0ygIzQ=',
+                'https://s1.aigei.com/src/img/png/b6/b6ad95546ea34e7a8485b17ba5f98061.png?imageMogr2/auto-orient/thumbnail/!132x132r/gravity/Center/crop/132x132/quality/85/%7Cwatermark/3/image/aHR0cHM6Ly9zMS5haWdlaS5jb20vd2F0ZXJtYXJrLzYwLTEucG5nP2U9MTczNTQ4ODAwMCZ0b2tlbj1QN1MyWHB6ZnoxMXZBa0FTTFRrZkhON0Z3LW9PWkJlY3FlSmF4eXBMOmZTYlRIZ1Q2aGhxSnQ4bGczaWZ1dWlVWldNQT0=/dissolve/20/gravity/NorthWest/dx/36/dy/67/ws/0.0/wst/0&e=1735488000&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:2bFiBCyTqsiPP9ZF07Qpl0ygIzQ=',
+                'https://zos.alipayobjects.com/rmsportal/EkXWVvAaFJKCzhMmQYiX.png',
+                'https://zos.alipayobjects.com/rmsportal/EkXWVvAaFJKCzhMmQYiX.png',
+                'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',
+                'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',
+
+              ]);
               //console.log(dataSetRef.current.openModal()[0]);
               setDataSetId(dataSetRef.current.openModal()[0]);
               const datainfo = await dataSetQueryById(dataSetRef.current.openModal()[0]);
-              //console.log(datainfo);
-              setDataSetNumber(datainfo.data.dataLength);
+              console.log(datainfo);
+              if(datainfo.data.isXai === 1){
+                let imgUrl = datainfo.data.dataUrl;
+                imgUrl = imgUrl.split(',');
+                imgUrl = imgUrl.map( (item, index) => {
+                  item = 'http://10.105.240.103:9000/images/' + item;
+                  return item;
+                })
+                console.log(imgUrl);
+                setImgUrl(imgUrl);
+                setEvaMethod('INTERPRET');
+              }else{
+                setDataSetNumber(datainfo.data.dataLength);
+              }
               modelSetRef.current.openModal();
               return true;
 
@@ -478,7 +586,7 @@ export default (params) => {
                 <QuestionCircleOutlined/>
               </Tooltip>
               <EvaluationTable ref={evaluationRef} props={params} params={dataSetId} evaMethod={evaMethod}
-                               modelName={modelName}></EvaluationTable>
+                               modelName={modelName} imgUrl = {imgUrl}></EvaluationTable>
             </div>
           </StepsForm.StepForm>
         </StepsForm>

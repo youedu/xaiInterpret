@@ -14,7 +14,7 @@ export const Banner51DataSource = {
   childWrapper: {
     className: 'banner5-title-wrapper',
     children: [
-      {name: 'title', children: '可信AI检测平台', className: 'banner5-title'},
+      {name: 'title', children: 'AI可信测试平台', className: 'banner5-title'},
       {
         name: 'explain',
         className: 'banner5-explain',
@@ -23,7 +23,7 @@ export const Banner51DataSource = {
       {
         name: 'content',
         className: 'banner5-content',
-        children: '平台面向模型开发者，针对模型正确性、鲁棒性、适应性、可解释性性测试提供产品化的解决方案。平台支持图像的鲁棒性测评，集成了学术界和工业界主流攻击算法。用户只需要提交待测评模型和评估数据，选择相应算法，平台即可对模型进行正确性、鲁棒性、适应性、可解释性测评，生成评估报告。',
+        children: '本平台面向人工智能模型开发者，针对模型的正确性、鲁棒性、适应性、可解释性测试需求提供产品化的解决方案。平台集成了学术界和工业界主流算法，用户只需要提交待测评模型和评估数据，选择评测需求、选择相应算法，平台即可对模型进行测评，生成评估报告。',
       },
       {
         name: 'button',
@@ -77,6 +77,7 @@ export const Content00DataSource = {
             },
             {
               name: 'content',
+              className: 'content0-block-text',
               children: '平台提供一站式AI模型安全评测服务，平台支持用户在线上传模型，自动对模型的正确性、鲁棒性、适应性、可解释性开展评测。'
             },
           ],
@@ -103,6 +104,7 @@ export const Content00DataSource = {
             },
             {
               name: 'content',
+              className: 'content0-block-text',
               children: '除内置测试集以外，平台支持用户根据实际业务场景需求创建自定义数据集，深度测评模型安全性。',
             },
           ],
@@ -129,6 +131,7 @@ export const Content00DataSource = {
             },
             {
               name: 'content',
+              className: 'content0-block-text',
               children: '平台拥有一套科学的、分层级多维度的AI可信度量标准和评分体系，由点及面全方位测评AI可信性。',
             },
           ],

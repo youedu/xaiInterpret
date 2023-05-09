@@ -85,6 +85,11 @@ export default () => {
     setEvaConfig: ret.setEvaluationConfig,
   }));
 
+  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+    interpretEvaluationConfig: ret.interpretEvaluationConfig,
+    setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
+  }));
+
   //当前时间转为时间戳
   const [percent, setPercent] = useState<number>((new Date()).valueOf());
 
@@ -98,6 +103,7 @@ export default () => {
   useEffect(() => {
     setEvaConfig({});
     setRobustEvaluationConfig({});
+    setInterpretEvaluationConfig({});
     //30s自动刷新当前表格数据
     setInterval(() => ref.current?.reload(), 15000);
 
@@ -130,6 +136,7 @@ export default () => {
       dataIndex: 'id',
       width: '200px',
       ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>任务类型</b>,
@@ -144,11 +151,13 @@ export default () => {
         2: {text: '文本分类'},
         3: {text: '表格分类'},
       },
+      align: 'center',
     },
     {
       title: <b>任务名称</b>,
       dataIndex: 'taskName',
       ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>测评类型</b>,
@@ -165,6 +174,7 @@ export default () => {
         可解释性: {text: '可解释性', status: 'Processing'},
         适应性: {text: '适应性', status: 'Processing'},
       },
+      align: 'center',
     },
     {
       title: <b>测评方法</b>,
@@ -192,16 +202,19 @@ export default () => {
           </>
         );
       },
+      align: 'center',
     },
     {
       title: <b>测评模型</b>,
       dataIndex: 'modelName',
       ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>测评数据</b>,
       dataIndex: 'dataSetName',
       ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>创建时间</b>,
@@ -209,6 +222,7 @@ export default () => {
       dataIndex: 'createTime',
       ellipsis: true,
       width: '200px',
+      align: 'center',
       // sorter: (a, b) => a.createdAt - b.createdAt,
     },
     {
@@ -222,8 +236,9 @@ export default () => {
           //return <><SyncOutlined spin/>测评中</>;
           return <Progress percent={Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) / 250), 90)}/>
         } else
-          return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString()}>测评成功</Link></>;
-      }
+          return <><CheckCircleOutlined/><Link to={'/evaluationresult?resultId=' + row.id.toString() + '&evaluateType=' + row.evaluateTypeId.toString()}>测评成功</Link></>;
+      },
+      align: 'center',
     },
   ];
 

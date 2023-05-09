@@ -52,18 +52,21 @@ const columns: ProColumns<TableListItem>[] = [
     dataIndex: 'id',
     //ellipsis: true,
     width: '40',
+    align: 'center'
   },
   {
     title: <b>模型名称</b>,
     dataIndex: 'modelName',
     //ellipsis: true,
     width: '13%',
+    align: 'center'
   },
   {
     title: <b>模型描述</b>,
     dataIndex: 'modelDesc',
     ellipsis: true,
     width: '13%',
+    align: 'center'
   },
   {
     title: <b>任务类型</b>,
@@ -74,11 +77,12 @@ const columns: ProColumns<TableListItem>[] = [
     valueType: 'select',
     valueEnum: {
       1: {text: '图像分类'},
-      2: {text: '文本分类'},
-      3: {text: '表格分类'},
+/*      2: {text: '文本分类'},
+      3: {text: '表格分类'},*/
     },
     ellipsis: true,
     width: '11%',
+    align: 'center'
   },
   {
     title: <b>模型框架</b>,
@@ -94,12 +98,14 @@ const columns: ProColumns<TableListItem>[] = [
     },
     ellipsis: true,
     width: '11%',
+    align: 'center'
   },
   {
     title: <b>模型大小</b>,
     dataIndex: 'modelSize',
     ellipsis: true,
     width: '11%',
+    align: 'center'
     // sorter: (a, b) => parseFloat(a.size) - parseFloat(b.size),
   },
   {
@@ -107,6 +113,7 @@ const columns: ProColumns<TableListItem>[] = [
     dataIndex: 'belong',
     ellipsis: true,
     width: '11%',
+    align: 'center'
   },
   {
     title: <b>创建时间</b>,
@@ -114,6 +121,7 @@ const columns: ProColumns<TableListItem>[] = [
     dataIndex: 'createTime',
     ellipsis: true,
     width: '11%',
+    align: 'center'
     // sorter: (a, b) => a.createdAt - b.createdAt,
   },
   {
@@ -129,6 +137,7 @@ const columns: ProColumns<TableListItem>[] = [
       1: {text: '上传成功', status: 'Success'},
     },
     width: '11%',
+    align: 'center'
   },
 ];
 
@@ -212,16 +221,19 @@ export default () => {
       title: <b>ID</b>,
       dataIndex: 'id',
       //ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>数据名称</b>,
       dataIndex: 'dataName',
       //ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>数据描述</b>,
       dataIndex: 'dataDesc',
       ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>任务类型</b>,
@@ -233,20 +245,23 @@ export default () => {
       ellipsis: true,
       valueEnum: {
         1: {text: '图像分类'},
-        2: {text: '文本分类'},
-        3: {text: '表格分类'},
+/*        2: {text: '文本分类'},
+        3: {text: '表格分类'},*/
       },
+      align: 'center',
     },
     {
       title: <b>数据量</b>,
       dataIndex: 'dataLength',
       ellipsis: true,
+      align: 'center',
       // sorter: (a, b) => a.dataLength - b.dataLength,
     },
     {
       title: <b>创建方式</b>,
       dataIndex: 'belong',
       ellipsis: true,
+      align: 'center',
     },
     {
       title: <b>创建时间</b>,
@@ -267,6 +282,7 @@ export default () => {
         0: {text: '正在上传', status: 'Processing'},
         1: {text: '上传成功', status: 'Success'},
       },
+      align: 'center',
     },
   ];
 
@@ -577,15 +593,15 @@ export default () => {
                                           }}*/
                               rules={[{required: true}]}
                               label="模型文件"
-                              tooltip={'请上传.pkl,.pt,.zip,.txt,.h5格式文件,，并于提示文件上传成功后点击确定上传模型信息'}
+                              tooltip={'请上传.pkl,.pt,.pth,.zip,.txt,.h5格式文件,，并于提示文件上传成功后点击确定上传模型信息'}
                               name="file"
                               title="选取文件"
-                              accept={".pkl,.pt,.zip,.txt,.h5"}
+                              accept={".pkl,.pt,.zip,.txt,.h5,.pth"}
                               max={1}
                               //action={'/api/micro-model-dataset-service/minio/dataset/upload'}
                               fieldProps={{
                                 beforeUpload: (file) => {
-                                  const fileFormat = ['pkl', 'pt', 'zip', 'txt', 'h5'];
+                                  const fileFormat = ['pkl', 'pt', 'zip', 'txt', 'h5', 'pth'];
                                   //console.log(fileFormat.indexOf(file.name.split('.').reverse()[0]));
                                   const isPkl = fileFormat.indexOf(file.name.split('.').reverse()[0]);
                                   if (isPkl === -1) {
@@ -821,10 +837,10 @@ export default () => {
                     label: '图像',
                     value: 1,
                   },
-                  {
+/*                  {
                     label: '文本',
                     value: 2,
-                  },
+                  },*/
 /*                  {
                     label: '表格',
                     value: 3,

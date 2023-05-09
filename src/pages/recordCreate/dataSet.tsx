@@ -35,14 +35,18 @@ const columns: ProColumns[] = [
   {
     title: <b>数据ID</b>,
     dataIndex: 'id',
+    width: '40',
+    align: 'center',
   },
   {
     title: <b>数据名称</b>,
     dataIndex: 'dataName',
+    align: 'center',
   },
   {
     title: <b>数据描述</b>,
     dataIndex: 'dataDesc',
+    align: 'center',
   },
   {
     title: <b>任务类型</b>,
@@ -56,20 +60,24 @@ const columns: ProColumns[] = [
       2: {text: '文本分类'},
       3: {text: '表格分类'},
     },
+    align: 'center',
   },
   {
     title: <b>样本量</b>,
     dataIndex: 'dataLength',
+    align: 'center',
     // sorter: (a, b) => a.dataLength - b.dataLength,
   },
   {
     title: <b>创建者</b>,
     dataIndex: 'belong',
+    align: 'center',
   },
   {
     title: <b>创建时间</b>,
     valueType: 'dateTime',
     dataIndex: 'createTime',
+    align: 'center',
     // sorter: (a, b) => a.createTime - b.createTime,
   },
   {
@@ -83,6 +91,7 @@ const columns: ProColumns[] = [
       0: {text: '正在上传', status: 'Processing'},
       1: {text: '上传成功', status: 'Success'},
     },
+    align: 'center',
   },
 ];
 

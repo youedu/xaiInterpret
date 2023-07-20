@@ -10,23 +10,29 @@ import {
   ProCard,
   ProList,
 } from '@ant-design/pro-components';
-import type {ProColumns, ProFormInstance, ColumnsState} from '@ant-design/pro-components';
-import {Button, Input, Select, Form, message, Upload, Image} from 'antd';
-import React, {useEffect, useRef, useState} from 'react';
-import {dataSetFile, dataSetInfo, dataSetQuery, taskTypeQuery, imgInfo, imgFile} from "@/services/ant-design-pro/api";
-import {QuestionCircleOutlined} from "@ant-design/icons";
-import Link from "antd/es/typography/Link";
-import datasetForm1 from "../../../public/datasetForm1.png"
-import datasetForm2 from "../../../public/datasetForm2.png";
-import tableDataForm from "../../../public/tableDataForm.png"
-import {useModel} from "@@/plugin-model/useModel";
+import type { ProColumns, ProFormInstance, ColumnsState } from '@ant-design/pro-components';
+import { Button, Input, Select, Form, message, Upload, Image } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  dataSetFile,
+  dataSetInfo,
+  dataSetQuery,
+  taskTypeQuery,
+  imgInfo,
+  imgFile,
+} from '@/services/ant-design-pro/api';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+import Link from 'antd/es/typography/Link';
+import datasetForm1 from '../../../public/datasetForm1.png';
+import datasetForm2 from '../../../public/datasetForm2.png';
+import tableDataForm from '../../../public/tableDataForm.png';
+import { useModel } from '@@/plugin-model/useModel';
 
+const { Search } = Input;
 
-const {Search} = Input;
-
-const IconText = ({icon, text}: { icon: any; text: string }) => (
+const IconText = ({ icon, text }: { icon: any; text: string }) => (
   <span>
-    {React.createElement(icon, {style: {marginInlineEnd: 8}})}
+    {React.createElement(icon, { style: { marginInlineEnd: 8 } })}
     {text}
   </span>
 );
@@ -60,28 +66,27 @@ export type TableListItem = {
   createdAt: number;
 };
 
-
 const columns: ProColumns[] = [
   {
     title: <b>数据ID</b>,
     dataIndex: 'id',
     ellipsis: true,
     width: '40',
-    align: 'center'
+    align: 'center',
   },
   {
     title: <b>数据名称</b>,
     dataIndex: 'dataName',
     ellipsis: true,
     width: '15%',
-    align: 'center'
+    align: 'center',
   },
   {
     title: <b>数据描述</b>,
     dataIndex: 'dataDesc',
     ellipsis: true,
     width: '15%',
-    align: 'center'
+    align: 'center',
   },
   {
     title: <b>任务类型</b>,
@@ -91,20 +96,20 @@ const columns: ProColumns[] = [
     onFilter: true,
     valueType: 'select',
     valueEnum: {
-      1: {text: '图像分类'},
-/*      2: {text: '文本分类'},
+      1: { text: '图像分类' },
+      /*      2: {text: '文本分类'},
       3: {text: '表格分类'},*/
     },
     ellipsis: true,
     width: '12.5%',
-    align: 'center'
+    align: 'center',
   },
   {
     title: <b>样本量</b>,
     dataIndex: 'dataLength',
     ellipsis: true,
     width: '12.5%',
-    align: 'center'
+    align: 'center',
     // sorter: (a, b) => a.dataLength - b.dataLength,
   },
   {
@@ -112,7 +117,7 @@ const columns: ProColumns[] = [
     dataIndex: 'belong',
     ellipsis: true,
     width: '12.5%',
-    align: 'center'
+    align: 'center',
   },
   {
     title: <b>创建时间</b>,
@@ -121,7 +126,7 @@ const columns: ProColumns[] = [
     // sorter: (a, b) => a.createTime - b.createTime,
     ellipsis: true,
     width: '12.5%',
-    align: 'center'
+    align: 'center',
   },
   {
     title: <b>数据状态</b>,
@@ -131,11 +136,11 @@ const columns: ProColumns[] = [
     valueType: 'select',
     ellipsis: true,
     valueEnum: {
-      0: {text: '正在上传', status: 'Processing'},
-      1: {text: '上传成功', status: 'Success'},
+      0: { text: '正在上传', status: 'Processing' },
+      1: { text: '上传成功', status: 'Success' },
     },
     width: '12.5%',
-    align: 'center'
+    align: 'center',
   },
   /*  {
       title: '操作',
@@ -146,14 +151,13 @@ const columns: ProColumns[] = [
     },*/
 ];
 
-
 export default () => {
-  const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
+  const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
   }));
 
-  const {evaConfig, setEvaConfig} = useModel('config', (ret) => ({
+  const { evaConfig, setEvaConfig } = useModel('config', (ret) => ({
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
@@ -162,7 +166,6 @@ export default () => {
     setEvaConfig({});
     setRobustEvaluationConfig({});
   }, []);
-
 
   const ref = useRef<ActionType>();
 
@@ -191,7 +194,7 @@ export default () => {
   const handleTestDataInfo = async (values) => {
     const msg = values;
     msg.dataUrl = dataSetUrl;
-    //console.log(msg);
+    console.log(msg);
     const data = await dataSetInfo(msg);
     //console.log(data);
     if (data.code === '00000') {
@@ -203,7 +206,7 @@ export default () => {
     }
     // modalForm.resetFields();
     return true;
-  }
+  };
   //上传图片集信息
   const handleTestImgInfo = async (values) => {
     const msg = values;
@@ -222,17 +225,15 @@ export default () => {
     }
     // modalForm.resetFields();
     return true;
-  }
+  };
 
   //中断网络请求
   let controller = new AbortController(); // 创建一个控制器
-  let {signal} = controller; // 返回一个 AbortSignal 对象实例，它可以用来 with/abort 一个 DOM 请求。
-
-
+  let { signal } = controller; // 返回一个 AbortSignal 对象实例，它可以用来 with/abort 一个 DOM 请求。
 
   return (
     <>
-      <ProCard title={<div style={{fontSize: '20px', fontWeight: 'bold'}}>数据集列表</div>}>
+      <ProCard title={<div style={{ fontSize: '20px', fontWeight: 'bold' }}>数据集列表</div>}>
         <ProTable
           loading={false}
           columns={columns}
@@ -254,7 +255,7 @@ export default () => {
             if (filter.taskTypeId !== null) {
               taskType = filter.taskTypeId.map((item) => {
                 return Number(item);
-              })
+              });
             } else {
               taskType = [1, 2, 3];
             }
@@ -270,8 +271,7 @@ export default () => {
                 // 不传会使用 data 的长度，如果是分页一定要传
                 total: msg.data.total,
               };
-            else
-              message.error(msg.message);
+            else message.error(msg.message);
             return false;
           }}
           /*      options={{
@@ -283,34 +283,37 @@ export default () => {
                   onChange: setColumnsStateMap,
                 }}*/
           toolbar={{
-            search: (<Input.Group compact>
-              <Select
-                defaultValue=""
-                style={{width: 100}}
-                onChange={event => setQueryType(event)}
-                options={[
-                  {
-                    value: 0,
-                    label: 'ID',
-                  },
-                  {
-                    value: 1,
-                    label: '数据名称',
-                  },
-                ]}
-              />
-              <Search onChange={event => setQueryContent(event.target.value)}
-                      enterButton={true}
-                      allowClear={true}
-                      style={{width: '70%'}}
-                      onReset={() => {
-                        //console.log('hello');
-                      }}
-                      onSearch={(value: string, event) => {
-                        ref.current?.reload();
-                      }}
-              />
-            </Input.Group>)
+            search: (
+              <Input.Group compact>
+                <Select
+                  defaultValue=""
+                  style={{ width: 100 }}
+                  onChange={(event) => setQueryType(event)}
+                  options={[
+                    {
+                      value: 0,
+                      label: 'ID',
+                    },
+                    {
+                      value: 1,
+                      label: '数据名称',
+                    },
+                  ]}
+                />
+                <Search
+                  onChange={(event) => setQueryContent(event.target.value)}
+                  enterButton={true}
+                  allowClear={true}
+                  style={{ width: '70%' }}
+                  onReset={() => {
+                    //console.log('hello');
+                  }}
+                  onSearch={(value: string, event) => {
+                    ref.current?.reload();
+                  }}
+                />
+              </Input.Group>
+            ),
             /*{
               onSearch: (value: string, event) => {
                 //console.log(value);
@@ -342,10 +345,8 @@ export default () => {
                     controller.abort();
                     controller = new AbortController();
                     signal = controller.signal;
-                  } catch {
-                  }
-                  ;
-                }
+                  } catch {}
+                },
               }}
               preserve={false}
               form={modalForm}
@@ -359,7 +360,7 @@ export default () => {
               }}
               onFinish={async (values) => {
                 //console.log(dataSetUrl);
-                if(evaTypeId === 2){
+                if (evaTypeId !== 1) {
                   if (dataSetUrl === '') {
                     message.error('请等待文件上传完成');
                     return false;
@@ -367,9 +368,8 @@ export default () => {
                   await handleTestDataInfo(values);
                   ref.current?.reload();
                   return true;
-                }
-                else{
-                  if(Object.values(imgUrls).length !== imgNumber){
+                } else {
+                  if (Object.values(imgUrls).length !== imgNumber) {
                     message.error('请等待图片上传完成');
                     return false;
                   }
@@ -377,8 +377,7 @@ export default () => {
                   ref.current?.reload();
                   return true;
                 }
-              }
-              }
+              }}
             >
               <Form.Item>
                 <ProFormText
@@ -387,7 +386,7 @@ export default () => {
                   name="dataName"
                   label="数据名称"
                   placeholder="请输入数据名称"
-                  rules={[{required: true, message: '请输入名称'}]}
+                  rules={[{ required: true, message: '请输入名称' }]}
                 />
               </Form.Item>
 
@@ -400,7 +399,8 @@ export default () => {
                   width="md"
                   name="dataDesc"
                   placeholder="请输入数据信息"
-                  rules={[{required: true}]}/>
+                  rules={[{ required: true }]}
+                />
               </Form.Item>
 
               <Form.Item>
@@ -410,18 +410,18 @@ export default () => {
                   name="taskTypeId"
                   label="任务类型"
                   tooltip={'请选择上传数据集的应用类型'}
-                  rules={[{required: true}]}
+                  rules={[{ required: true }]}
                   fieldProps={{
                     onChange: (e) => {
                       setTaskTypeId(e);
-                    }
+                    },
                   }}
                   options={[
                     {
                       value: 1,
                       label: '图像分类',
                     },
-/*                    {
+                    /*                    {
                       value: 2,
                       label: '文本分类',
                     },*/
@@ -429,8 +429,8 @@ export default () => {
                                           value: 3,
                                           label: '表格分类',
                                         },*/
-                  ]
-                  }/>
+                  ]}
+                />
               </Form.Item>
 
               <Form.Item>
@@ -440,17 +440,17 @@ export default () => {
                   name="evaTypeId"
                   label="测评类型"
                   tooltip={'请选择上传数据集的测评任务类型'}
-                  rules={[{required: true}]}
+                  rules={[{ required: true }]}
                   fieldProps={{
                     onChange: (e) => {
                       setEvaTypeId(e);
                       console.log(e);
-                      if(e === 1){
+                      if (e === 1) {
                         controller.abort();
                         controller = new AbortController();
                         signal = controller.signal;
                       }
-                    }
+                    },
                   }}
                   options={[
                     {
@@ -473,8 +473,8 @@ export default () => {
                                           value: 3,
                                           label: '表格分类',
                                         },*/
-                  ]
-                  }/>
+                  ]}
+                />
               </Form.Item>
               {evaTypeId !== 1 && (
                 <Form.Item>
@@ -484,25 +484,28 @@ export default () => {
                     label="样本量"
                     tooltip={'图像数据请输入图像数量'}
                     name="dataLength"
-                    rules={[{required: true}]}
-                    fieldProps={{precision: 0}}/>
+                    rules={[{ required: true }]}
+                    fieldProps={{ precision: 0 }}
+                  />
                 </Form.Item>
               )}
 
-              {evaTypeId ===1 && (
+              {evaTypeId === 1 && (
                 <Form.Item>
                   <ProFormUploadButton
-                    rules={[{required: true, message: '请上传图像数据文件'}]}
-                    label={"图像数据文件"}
-                    name={"imgFile"}
-                    accept={".jpg,.png"}
+                    rules={[{ required: true, message: '请上传图像数据文件' }]}
+                    label={'图像数据文件'}
+                    name={'imgFile'}
+                    accept={'.jpg,.png'}
                     //fileList={fileList}
                     max={10}
                     listType={'picture-card'}
                     fieldProps={{
                       beforeUpload: (file) => {
                         //console.log(file);
-                        const isImg = (file.name.split('.').reverse()[0] === 'zip' || file.name.split('.').reverse()[0] === 'jpg');
+                        const isImg =
+                          file.name.split('.').reverse()[0] === 'zip' ||
+                          file.name.split('.').reverse()[0] === 'jpg';
                         //console.log(isZip);
                         if (!isImg) {
                           message.error(`${file.name}文件格式不正确`);
@@ -522,7 +525,7 @@ export default () => {
                           if (data.code === '00000') {
                             message.success('图片上传成功');
                             console.log(data.data.url);
-                            setImgUrls(prevState => {
+                            setImgUrls((prevState) => {
                               console.log(prevState);
                               prevState[info.file.uid] = data.data.url;
                               return prevState;
@@ -532,8 +535,7 @@ export default () => {
                             message.error(data.message);
                           }
                         } else if (info.file.status === 'removed') {
-
-                          setImgUrls(prevState => {
+                          setImgUrls((prevState) => {
                             console.log(prevState);
                             delete prevState[info.file.uid];
                             return prevState;
@@ -545,7 +547,6 @@ export default () => {
                       },
                     }}
                   />
-
                 </Form.Item>
               )}
 
@@ -557,19 +558,19 @@ export default () => {
                                    'content-type': 'multipart/form-data; boundary=<calculated when request is sent>'}
                                 }}*/
                     //fileList={fileList}
-                    rules={[{required: true}]}
+                    rules={[{ required: true }]}
                     tooltip={'请上传.zip文件，并于提示文件上传成功后点击确定上传数据集信息'}
                     label="数据文件"
                     name=" file"
                     title="选取文件"
                     max={1}
                     /*accept={".zip,.csv"}*/
-                    accept={".zip"}
+                    accept={'.zip'}
                     //action={'/api/micro-model-dataset-service/minio/dataset/upload'}
                     fieldProps={{
                       beforeUpload: (file) => {
                         //console.log(file);
-                        const isZip = (file.name.split('.').reverse()[0] === 'zip');
+                        const isZip = file.name.split('.').reverse()[0] === 'zip';
                         //console.log(isZip);
                         if (!isZip) {
                           message.error(`${file.name}文件格式不正确`);
@@ -601,7 +602,7 @@ export default () => {
                         }
                         return false;
                       },
-                      listType: "text"
+                      listType: 'text',
                     }}
                     /*            onChange={async (info) => {
                                   if(info.file.status === 'done'){
@@ -616,9 +617,7 @@ export default () => {
                                   }
                                 }
                                 }*/
-                  >
-                  </ProFormUploadButton>
-
+                  ></ProFormUploadButton>
                 </Form.Item>
               )}
 
@@ -627,18 +626,14 @@ export default () => {
                   name: string;
                   company: string;
                 }>
-                  trigger={
-                    <Link>
-                      数据集压缩文件组织形式
-                    </Link>
-                  }
+                  trigger={<Link>数据集压缩文件组织形式</Link>}
                   autoFocusFirstInput
                   modalProps={{
                     destroyOnClose: true,
                   }}
                   submitter={false}
                 >
-                  <div style={{fontSize: "medium", fontWeight: "bold"}}>图像数据</div>
+                  <div style={{ fontSize: 'medium', fontWeight: 'bold' }}>图像数据</div>
                   <ProList<{ title: string }>
                     /*        toolBarRender={() => {
                               return [
@@ -672,16 +667,11 @@ export default () => {
                       extra: {
                         render: (dom, entity, index, action, schema) => {
                           if (index === 0) {
-                            return (
-                              <img src={datasetForm1}></img>
-                            )
+                            return <img src={datasetForm1}></img>;
                           } else if (index === 1) {
-                            return (
-                              <img src={datasetForm2}></img>
-                            )
+                            return <img src={datasetForm2}></img>;
                           }
-
-                        }
+                        },
                       },
                       content: {
                         render: (dom, entity, index, action, schema) => {
@@ -693,7 +683,7 @@ export default () => {
                                   上传的图像数据格式应为zip压缩文件，文件内应包含test文件夹,train文件夹,test.txt文件,train.txt文件,如右图所示
                                 </li>
                               </ul>
-                            )
+                            );
                           } else if (index === 1) {
                             return (
                               <ul>
@@ -701,7 +691,7 @@ export default () => {
                                   txt文件应说明数据集文件与标签的对应关系，每一行对应文件夹内的一条数据文件名，以及对应的分类标签,如右图所示
                                 </li>
                               </ul>
-                            )
+                            );
                           }
                         },
                       },
@@ -723,18 +713,14 @@ export default () => {
                   name: string;
                   company: string;
                 }>
-                  trigger={
-                    <Link>
-                      数据集文件组织形式
-                    </Link>
-                  }
+                  trigger={<Link>数据集文件组织形式</Link>}
                   autoFocusFirstInput
                   modalProps={{
                     destroyOnClose: true,
                   }}
                   submitter={false}
                 >
-                  <div style={{fontSize: "medium", fontWeight: "bold"}}>表格数据</div>
+                  <div style={{ fontSize: 'medium', fontWeight: 'bold' }}>表格数据</div>
                   <ProList<{ title: string }>
                     /*        toolBarRender={() => {
                               return [
@@ -746,9 +732,11 @@ export default () => {
                     itemLayout="vertical"
                     rowKey="title"
                     //headerTitle="结果说明"
-                    dataSource={[{
-                      title: ''
-                    }]}
+                    dataSource={[
+                      {
+                        title: '',
+                      },
+                    ]}
                     metas={{
                       title: {},
                       /*          description: {
@@ -769,16 +757,21 @@ export default () => {
                                 },*/
                       extra: {
                         render: (dom, entity, index, action, schema) => {
-                          return <Image src={tableDataForm}></Image>
-                        }
+                          return <Image src={tableDataForm}></Image>;
+                        },
                       },
                       content: {
                         render: (dom, entity, index, action, schema) => {
-                          return <div className="row row-margin-top">
-                            zip压缩文件内，
-                            <div>1.需同时包含训练集与测试集，</div>
-                            <div>2. 其中训练集的命名格式为：数据集名称_train.csv，测试集的命名格式为：数据集名称_test.csv，如右图所示</div>
-                          </div>
+                          return (
+                            <div className="row row-margin-top">
+                              zip压缩文件内，
+                              <div>1.需同时包含训练集与测试集，</div>
+                              <div>
+                                2.
+                                其中训练集的命名格式为：数据集名称_train.csv，测试集的命名格式为：数据集名称_test.csv，如右图所示
+                              </div>
+                            </div>
+                          );
                         },
                       },
                     }}
@@ -792,13 +785,10 @@ export default () => {
               <ProFormText width="xs" name="mangerName" disabled label="商务经理" initialValue="启途" />*/}
                 </ModalForm>
               )}
-
-            </ModalForm>
-          ]
-          }
+            </ModalForm>,
+          ]}
         />
       </ProCard>
     </>
   );
 };
-

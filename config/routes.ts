@@ -1,5 +1,9 @@
 ﻿export default [
   {
+    path: '/',
+    component: './Home',
+  },
+  {
     path: '/user',
     layout: false,
     routes: [
@@ -19,18 +23,19 @@
       },
     ],
   },
-  {
+/*   {
     path: '/welcome',
     layout: 'top',
     name: '首页',
     //icon: 'smile',
     icon: 'home',
     component: './Home',
-  },
-  {
+  }, */
+/*   {
     path: '/',
-    redirect: '/welcome',
-  },
+    redirect: '/dataset',
+  }, */
+
   {
     path: '/dataset',
     layout: 'top',

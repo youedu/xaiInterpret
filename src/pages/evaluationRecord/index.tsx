@@ -182,7 +182,7 @@ export default () => {
       /*    ellipsis: false,*/
       width: 300,
       render: (_, {methodName}) => {
-        //console.log(methodName);
+        console.log(methodName);
         return (
           <>
             {methodName.map((method, index) => {
@@ -444,10 +444,10 @@ export default () => {
                     label: '图像',
                     value: 1,
                   },
-                  {
+/*                   {
                     label: '文本',
                     value: 2,
-                  },
+                  }, */
                   /*                  {
                                       label: '表格',
                                       value: 3,

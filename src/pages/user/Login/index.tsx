@@ -90,6 +90,7 @@ const Login: React.FC = () => {
         //console.log(userInfo_base64);
         //token.save(1);
         token.save(data.data.token);
+        console.log(data.data.token);
         userinfo.save({account: form.getFieldValue('account'), password: form.getFieldValue('password')});
         // base64解码
         const userInfo_string = Buffer.from(userInfo_base64, 'base64').toString('binary');

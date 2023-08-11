@@ -2,9 +2,9 @@
 /* eslint-disable */
 /*import { request } from 'umi';*/
 import token from '@/utils/token';
+import taskId from '@/utils/taskId';
 import {request as umirequest} from "umi";
-import {ResponseError} from "_umi-request@1.4.0@umi-request";
-import {message} from 'antd';
+
 
 const request = (url: any, options: any) => {
   return umirequest(url, {
@@ -321,13 +321,13 @@ export async function modelQueryById(id: number) {
 
 /*测试用，获取评测记录信息接口*/
 export async function evaluationRecordQuery(params, choose, keyWord, taskTypeId) {
-  //console.log(taskTypeId);
   return request('/api/micro-evaluate-service/evaluateRecord/list', {
     method: 'GET',
     headers: {
       Authorization: 'Bearer ' + token.get(),
     },
     params: {
+      userId: taskId.get(),
       choose: choose,
       keyWord: keyWord,
       pageSize: params.pageSize,
@@ -489,6 +489,7 @@ export async function imgInterpretEvaluation(values) {
       Accept: '*/*',
     },
     data: {
+      "userId": taskId.get(),
       "dataSetId": values.dataSetId,
       "evaluateTypeId": 1,
       "methodConfigList": values.methodConfigList,

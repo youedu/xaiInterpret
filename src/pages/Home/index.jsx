@@ -1,6 +1,7 @@
 /* eslint no-undef: 0 */
 /* eslint arrow-parens: 0 */
 import React from 'react';
+import {history} from 'umi';
 import { enquireScreen } from 'enquire-js';
 
 import Banner5 from './Banner5';
@@ -27,6 +28,8 @@ const { location = {} } = typeof window !== 'undefined' ? window : {};
 export default class Home extends React.Component {
 
   constructor(props) {
+    console.log(props);
+    history.push('/dataset?taskId='+props.location.query.taskId)
     super(props);
     this.state = {
       isMobile,

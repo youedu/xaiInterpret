@@ -179,7 +179,7 @@ const interpretColumns: ProColumns<interpretTableListItem>[] = [
     render: (_, row) => {
       return <><CheckCircleOutlined/><Link
         onClick={() => {
-          window.location.replace('/evaluationresult?resultId=' + row.evaluateRecordId.toString() + '&evaluateType=2&imgId=' + row.id.toString())
+          window.location.replace('/evaluationresult?resultId=' + row.evaluateRecordId.toString() + '&evaluateType=2&imgId=' + row.id.toString());
         }}>查看解释</Link></>;
     },
   },
@@ -722,8 +722,8 @@ export default (params: object) => {
           methodList.push({label: i, value: i});
           final.push({
             methodName: i,
-            originalImg: 'http://10.105.240.103:9000/images/' + data.data.imageUrl,
-            Img: 'http://10.105.240.103:9000/images/' + result[i]
+            originalImg: 'http://10.105.240.33:9000/images/' + data.data.imageUrl,
+            Img: 'http://10.105.240.33:9000/images/' + result[i]
           });
         }
         console.log(final);

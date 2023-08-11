@@ -13,6 +13,8 @@ import {
 import type { ProColumns, ProFormInstance, ColumnsState } from '@ant-design/pro-components';
 import { Button, Input, Select, Form, message, Upload, Image } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
+import token from "@/utils/token";
+import taskId from '@/utils/taskId';
 import {
   dataSetFile,
   dataSetInfo,
@@ -151,7 +153,16 @@ const columns: ProColumns[] = [
     },*/
 ];
 
-export default () => {
+export default (params: any) => {
+  console.log(params.location.query.token);
+  console.log(params.location.query.taskId)
+  if(params.location.query.token !== undefined){
+    token.save(params.location.query.token);
+  }
+  if(params.location.query.taskId !== undefined){
+    taskId.save(params.location.query.taskId);
+  }
+  
   const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
@@ -161,8 +172,13 @@ export default () => {
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
-
+  const tokenGet = async () => {
+    const msg = await dataSetQuery({current: 1, pageSize: 10}, null, null, [1,2,3]);
+    console.log('msg:', msg);
+    token.save("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJMem0iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNjkxOTA4NzQzLCJ1c2VySWQiOjcsImF1dGhvcml0aWVzIjpbInVzZXIiXSwianRpIjoiNDljZTkxYzQtMmY3OC00NDhlLThmMGEtY2IwY2I3ZWMxMDI4IiwiY2xpZW50X2lkIjoiY2xpZW50LWFwcCJ9.ImTgbx7XFHM760qvNimK-6TzecZolJayWBJuUruuZATFVb-BJU0rWjfB21h_gxXmWGTvaqxJngcIxh4G7twQYYlD9dnLJEdMwGgjmxitpFj8D3aJkklrTEUT_y3owuGLNVVyQ0zqtoqonL9xGqoIhILSyJzpuZq8ue0xH5A9TOM")
+  }
   useEffect(() => {
+    tokenGet();
     setEvaConfig({});
     setRobustEvaluationConfig({});
   }, []);
@@ -457,7 +473,7 @@ export default () => {
                       value: 1,
                       label: '可解释性测评',
                     },
-                    {
+/*                     {
                       value: 2,
                       label: '正确性测评',
                     },
@@ -468,7 +484,7 @@ export default () => {
                     {
                       value: 4,
                       label: '适应性测评',
-                    },
+                    }, */
                     /*                    {
                                           value: 3,
                                           label: '表格分类',

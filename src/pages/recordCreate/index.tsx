@@ -54,9 +54,9 @@ export default (params) => {
   const config = async () => {
     //console.log(taskTypeId, typeof (taskTypeId));
     const data = await evaluateTypesByDataType();
-    //console.log(data);
+    console.log(data);
     if (Number(taskTypeId) === 1) {
-      //console.log(data.data[0].taskList[0].supportEvaluateTypes);
+      console.log(data.data[0].taskList[0].supportEvaluateTypes);
       setEvaMethod(data.data[0].taskList[0].supportEvaluateTypes);
     } else if (Number(taskTypeId) === 2) {
       setEvaMethod('');
@@ -488,12 +488,8 @@ export default (params) => {
               }
               setImgUrl([
                 'https://s1.aigei.com/src/img/png/b6/b6ad95546ea34e7a8485b17ba5f98061.png?imageMogr2/auto-orient/thumbnail/!132x132r/gravity/Center/crop/132x132/quality/85/%7Cwatermark/3/image/aHR0cHM6Ly9zMS5haWdlaS5jb20vd2F0ZXJtYXJrLzYwLTEucG5nP2U9MTczNTQ4ODAwMCZ0b2tlbj1QN1MyWHB6ZnoxMXZBa0FTTFRrZkhON0Z3LW9PWkJlY3FlSmF4eXBMOmZTYlRIZ1Q2aGhxSnQ4bGczaWZ1dWlVWldNQT0=/dissolve/20/gravity/NorthWest/dx/36/dy/67/ws/0.0/wst/0&e=1735488000&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:2bFiBCyTqsiPP9ZF07Qpl0ygIzQ=',
-                'https://s1.aigei.com/src/img/png/b6/b6ad95546ea34e7a8485b17ba5f98061.png?imageMogr2/auto-orient/thumbnail/!132x132r/gravity/Center/crop/132x132/quality/85/%7Cwatermark/3/image/aHR0cHM6Ly9zMS5haWdlaS5jb20vd2F0ZXJtYXJrLzYwLTEucG5nP2U9MTczNTQ4ODAwMCZ0b2tlbj1QN1MyWHB6ZnoxMXZBa0FTTFRrZkhON0Z3LW9PWkJlY3FlSmF4eXBMOmZTYlRIZ1Q2aGhxSnQ4bGczaWZ1dWlVWldNQT0=/dissolve/20/gravity/NorthWest/dx/36/dy/67/ws/0.0/wst/0&e=1735488000&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:2bFiBCyTqsiPP9ZF07Qpl0ygIzQ=',
-                'https://zos.alipayobjects.com/rmsportal/EkXWVvAaFJKCzhMmQYiX.png',
                 'https://zos.alipayobjects.com/rmsportal/EkXWVvAaFJKCzhMmQYiX.png',
                 'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',
-                'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',
-
               ]);
               //console.log(dataSetRef.current.openModal()[0]);
               setDataSetId(dataSetRef.current.openModal()[0]);
@@ -510,6 +506,15 @@ export default (params) => {
                 setImgUrl(imgUrl);
                 setEvaMethod('INTERPRET');
               }else{
+/*                 let imgUrl = datainfo.data.dataUrl;
+                imgUrl = imgUrl.split(',');
+                imgUrl = imgUrl.map( (item, index) => {
+                  item = 'http://10.105.240.103:9000/images/' + item;
+                  return item;
+                })
+                console.log(imgUrl);
+                setImgUrl(imgUrl);
+                setEvaMethod('INTERPRET'); */
                 setDataSetNumber(datainfo.data.dataLength);
               }
               modelSetRef.current.openModal();

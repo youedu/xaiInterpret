@@ -34,12 +34,13 @@ export async function getInitialState(): Promise<{
       const msg = await queryCurrentUser();
       return msg.data;
     } catch (error) {
+      console.log('error');
       history.push(loginPath);
     }
     return undefined;
   };
   // 如果不是登录页面且不是welcome界面，执行
-  if (history.location.pathname !== loginPath /*&& history.location.pathname !== '/welcome'*/) {
+/*   if (history.location.pathname !== loginPath) {
     const tokenValue = token.get();
     if (tokenValue !== null && tokenValue !== 'null') {
       //代替下方的获取用户信息函数
@@ -65,7 +66,7 @@ export async function getInitialState(): Promise<{
       settings: defaultSettings,
     };
 
-  }
+  } */
   return {
     fetchUserInfo,
     settings: defaultSettings,
@@ -88,7 +89,7 @@ export const request: RequestConfig = {
 
 const demoResponseInterceptors = (response: Response, options: RequestConfig) => {
   if (response.status === 401) {
-    //console.log(401);
+    console.log(401);
     token.save(null);
 
     const {query = {}, search, pathname} = history.location;
@@ -96,6 +97,7 @@ const demoResponseInterceptors = (response: Response, options: RequestConfig) =>
     // Note: There may be security issues, please note
 
     if (window.location.pathname !== '/user/login' && !redirect) {
+      console.log('401')
       history.replace({
         pathname: '/user/login',
 /*        search: stringify({
@@ -160,15 +162,15 @@ const errorConfig = (error) => {
         // do nothing
         break;
       case ErrorShowType.WARN_MESSAGE:
-        //console.log(1);
+        console.log(1);
         message.warn(errorMessage || '异常');
         break;
       case ErrorShowType.ERROR_MESSAGE:
-        //console.log(2);
+        console.log(2);
         message.error(errorMessage || '异常');
         break;
       case ErrorShowType.NOTIFICATION:
-        //console.log(3);
+        console.log(3);
         notification.open({
           description: errorMessage,
           message: errorCode,
@@ -214,11 +216,11 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     onPageChange: () => {
       const {location} = history;
       // 如果没有登录，重定向到 login(且当前页面不是首页或重置密码页面)
-      if (location.pathname !== '/user/pwdReset')
+/*       if (location.pathname !== '/user/pwdReset')
         if (!initialState?.currentUser && location.pathname !== loginPath) {
           if (location.pathname != '/welcome')
             history.push(loginPath);
-        }
+        } */
     },
     links: []/*isDev
       ? [

@@ -1,8 +1,11 @@
 import {ProCard} from '@ant-design/pro-components';
 import RcResizeObserver from 'rc-resize-observer';
 import {useState} from 'react';
+import { history } from 'umi';
 
-export default () => {
+export default (params: any) => {
+  console.log(params);
+  history.push('/dataset?taskId='+params.location.query.taskId)
   const [responsive, setResponsive] = useState(false);
 
   return (

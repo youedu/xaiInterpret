@@ -33,7 +33,7 @@ const GlobalHeaderRight: React.FC = () => {
         // }}
       />*/}
 
-      <Avatar />
+      {/* <Avatar /> */}
       {/*<SelectLang className={styles.action} />*/}
       <div style={{width: '80px'}}></div>
     </Space>

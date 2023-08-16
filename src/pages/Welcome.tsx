@@ -1,8 +1,10 @@
 import {PageContainer, ProCard} from '@ant-design/pro-components';
 import {Alert, Card, Typography, Image} from 'antd';
-import React from 'react';
-import {FormattedMessage, useIntl} from 'umi';
+import React, { useEffect } from 'react';
+import {FormattedMessage, useIntl, history} from 'umi';
 import styles from './Welcome.less';
+import { tokenByCookie } from '@/services/ant-design-pro/api';
+import token from '@/utils/token';
 
 
 const CodePreview: React.FC = ({children}) => (
@@ -13,8 +15,21 @@ const CodePreview: React.FC = ({children}) => (
   </pre>
 );
 
-const Welcome: React.FC = () => {
+const Welcome: React.FC = (props) => {
   // const intl = useIntl();
+
+  console.log(props);
+  const tokencookie = async ()=>{
+    const data = await tokenByCookie();
+    console.log(data);
+    const data2 = await tokenByCookie();
+    console.log(data2);
+  }
+  useEffect(()=>{
+    //tokencookie();
+  })
+
+  history.push('/evaluationrecord?MS_SESSION_ID='+props.location.query.MS_SESSION_ID+'&taskId='+props.location.query.taskId+'&projectId='+props.location.query.projectId)
 
   return (
     <>

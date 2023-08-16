@@ -201,18 +201,18 @@ export default forwardRef((props, ref) => {
                   onChange: setColumnsStateMap,
                 }}*/
           toolbar={{
-            /*          search: (<Input.Group compact>
+                      search: (<Input.Group compact>
                         <Select
                           defaultValue=""
                           style={{ width: 100 }}
                           onChange={event => setQueryType(event)}
                           options={[
                             {
-                              value: 'ID',
+                              value: 0,
                               label: 'ID',
                             },
                             {
-                              value: 'name',
+                              value: 1,
                               label: '任务名称',
                             },
                           ]}
@@ -225,17 +225,18 @@ export default forwardRef((props, ref) => {
                                   console.log('hello');
                                 }}
                                 onSearch={(value: string, event) => {
+                                  console.log('search');
                                   actionRef.current?.reload();
                                 }}
                         />
-                      </Input.Group>)*/
+                      </Input.Group>)
             /*{
               onSearch: (value: string, event) => {
                 console.log(value);
                 ref.current?.reload();
               },
               enterButton: true,
-            }*/
+            } */
           }}
           rowKey="id"
           actionRef={actionRef}

@@ -53,6 +53,20 @@ export async function testLogin(values: API.LoginParams) {
   });
 }
 
+/*测试用,通过cookie获取token POST /api/micro-user-service/user/login*/
+export async function tokenByCookie() {
+  return request('/api/micro-model-dataset-service/dataset/data', {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + token.get(),
+    },
+    params: {
+      pageSize: 10,
+      pageNum: 1,
+    },
+  });
+}
+
 /*测试用，注册接口 /api/micro-user-service/user/register*/
 export async function testRegister(values: API.RegisterParams) {
   return request('/api/micro-user-service/user/register', {

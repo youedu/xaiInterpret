@@ -1,6 +1,6 @@
 /* eslint no-undef: 0 */
 /* eslint arrow-parens: 0 */
-import React from 'react';
+import React, { useEffect } from 'react';
 import {history} from 'umi';
 import { enquireScreen } from 'enquire-js';
 
@@ -28,8 +28,11 @@ const { location = {} } = typeof window !== 'undefined' ? window : {};
 export default class Home extends React.Component {
 
   constructor(props) {
+
     console.log(props);
-    history.push('/dataset?taskId='+props.location.query.taskId)
+
+
+    history.push('/evaluationrecord?MS_SESSION_ID='+props.location.query.MS_SESSION_ID+'&taskId='+props.location.query.taskId+'&projectId='+props.location.query.projectId)
     super(props);
     this.state = {
       isMobile,

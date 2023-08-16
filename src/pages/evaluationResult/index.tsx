@@ -2882,7 +2882,9 @@ export default (params: object) => {
           </>)}*/}
         {evaluateType === 'ImgListINTERPRET' && (
           <>
-            <ProCard colSpan={16}>
+          <ProCard split='vertical'>
+          <ProCard colSpan={4}>指标</ProCard>
+            <ProCard colSpan={20}>
               <ProTable
                 columns={interpretColumns}
                 search={false}
@@ -2897,6 +2899,7 @@ export default (params: object) => {
                   }
                 }}
               ></ProTable>
+            </ProCard>
             </ProCard>
           </>
         )}
@@ -2943,6 +2946,9 @@ export default (params: object) => {
                               <br/>
                               <div>（右）{item.methodName}可解释性输出结果 右图色深部分表示模型在做出决策时更关注的部分</div>
                             </ProCard>
+                            <ProCard split={"vertical"}
+                                     title={<Typography.Title level={3}>指标</Typography.Title>}
+                                     layout={"center"}></ProCard>
                           </ProCard>
                         )
                       )

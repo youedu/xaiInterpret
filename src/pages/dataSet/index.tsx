@@ -158,6 +158,7 @@ export default (params: any) => {
   console.log(params.location.query.taskId)
   if(params.location.query.token !== undefined){
     token.save(params.location.query.token);
+    console.log(1);
   }
   if(params.location.query.taskId !== undefined){
     taskId.save(params.location.query.taskId);
@@ -175,7 +176,7 @@ export default (params: any) => {
   const tokenGet = async () => {
     const msg = await dataSetQuery({current: 1, pageSize: 10}, null, null, [1,2,3]);
     console.log('msg:', msg);
-    token.save("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJMem0iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNjkxOTA4NzQzLCJ1c2VySWQiOjcsImF1dGhvcml0aWVzIjpbInVzZXIiXSwianRpIjoiNDljZTkxYzQtMmY3OC00NDhlLThmMGEtY2IwY2I3ZWMxMDI4IiwiY2xpZW50X2lkIjoiY2xpZW50LWFwcCJ9.ImTgbx7XFHM760qvNimK-6TzecZolJayWBJuUruuZATFVb-BJU0rWjfB21h_gxXmWGTvaqxJngcIxh4G7twQYYlD9dnLJEdMwGgjmxitpFj8D3aJkklrTEUT_y3owuGLNVVyQ0zqtoqonL9xGqoIhILSyJzpuZq8ue0xH5A9TOM")
+    //token.save("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJMem0iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNjkxOTA4NzQzLCJ1c2VySWQiOjcsImF1dGhvcml0aWVzIjpbInVzZXIiXSwianRpIjoiNDljZTkxYzQtMmY3OC00NDhlLThmMGEtY2IwY2I3ZWMxMDI4IiwiY2xpZW50X2lkIjoiY2xpZW50LWFwcCJ9.ImTgbx7XFHM760qvNimK-6TzecZolJayWBJuUruuZATFVb-BJU0rWjfB21h_gxXmWGTvaqxJngcIxh4G7twQYYlD9dnLJEdMwGgjmxitpFj8D3aJkklrTEUT_y3owuGLNVVyQ0zqtoqonL9xGqoIhILSyJzpuZq8ue0xH5A9TOM")
   }
   useEffect(() => {
     tokenGet();

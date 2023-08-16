@@ -1,7 +1,7 @@
 ﻿export default [
   {
     path: '/',
-    component: './Home',
+    component: './Welcome',
   },
   {
     path: '/user',
@@ -42,6 +42,7 @@
     name: '测评数据',
     icon: 'TableOutlined',
     component: './dataSet',
+
   },
   {
     path: '/modelset',
@@ -49,11 +50,12 @@
     name: '模型列表',
     icon: 'DeploymentUnitOutlined',
     component: './modelSet',
+
   },
   {
     path: '/evaluationrecord',
     layout: 'top',
-    name: ' 测评记录',
+    name: ' 测评子任务记录',
     icon: 'ContainerOutlined',
     component: './evaluationRecord',
   },

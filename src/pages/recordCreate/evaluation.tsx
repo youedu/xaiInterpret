@@ -10,7 +10,7 @@ import {
   ProForm
 } from '@ant-design/pro-components';
 import type {ProColumns, ProFormInstance} from '@ant-design/pro-components';
-import {Input, Form, message, Space, Button, Upload, Image, Col, Row, Checkbox, Card} from 'antd';
+import {Input, Form, message, Space, Button, Upload, Image, Col, Row, Checkbox, Card, InputNumber} from 'antd';
 import React, {useRef, useState, forwardRef, useImperativeHandle, Key, useEffect} from 'react';
 import type {TableRowSelection} from 'antd/es/table/interface';
 import {ReloadOutlined} from '@ant-design/icons';
@@ -51,6 +51,17 @@ interface ActionType {
   clearSelected?: () => void;
   startEditable: (rowKey: Key) => boolean;
   cancelEditable: (rowKey: Key) => boolean;
+}
+function myRandom(arr: any[], length: number){
+  var newArr = []; // 组成的新数组初始化
+  var arrCopy = arr.slice();
+  for(var i = 0; i < length; i++){
+    var index = Math.floor(Math.random()*arrCopy.length);
+    var item =  arrCopy[index];
+    newArr.push(item)
+    arrCopy.splice(index, 1)
+  }
+  return newArr.reverse()
 }
 
 //适应性编辑配置组件项
@@ -764,6 +775,8 @@ export default forwardRef((props, ref, params: any) => {
   console.log(props, params);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
+
+  const [randomImgNumber, setRandomImgNumber] = useState(0);
 
   const getWindowInfo = () => {
     setScreenWidth(window.innerWidth);
@@ -1583,11 +1596,29 @@ export default forwardRef((props, ref, params: any) => {
                   width: 'auto',
                   //position: 'absolute',
                   //left: "0"
-                }}>待解释图片选择</div>
+                }}>待解释图片选择</div><Checkbox onChange={(e)=>{
+                  console.log(e.target.checked);
+                  if(e.target.checked === true){
+                    setInterpretImg(props.imgUrl);
+                  }
+                  else{
+                    setInterpretImg([]);
+                  }
+                }}>全选</Checkbox>
+                <div>随机选择<InputNumber max={props.imgUrl.length} min={1} onChange={(e)=>{
+                  console.log(e, typeof(e));
+                  setRandomImgNumber(e);
+                }} style={{width: '100px'}}></InputNumber>张<Button onClick={(e)=>{
+                  const randomImg = myRandom(props.imgUrl, randomImgNumber);
+                  console.log(randomImg);
+                  setInterpretImg(randomImg);
+                }}>确定</Button></div>
                   <Checkbox.Group style={{width: '100%'}} onChange={(e)=> {
                     console.log(e);
                     setInterpretImg(e);
-                  }}>
+                  }}
+                  value={interpretImg}
+                  >
                     <Row>
                       {
                         props.imgUrl.map((item: string) => {

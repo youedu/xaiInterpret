@@ -3,13 +3,16 @@ import type {ProColumns, ProFormInstance, ColumnsState} from '@ant-design/pro-co
 import {Button, Input, Select, Form, message, Tag, Progress} from 'antd';
 import React, {useEffect, useRef, useState} from 'react';
 import {history, Link} from "umi";
-import {dataSetQuery, evaluationRecordQuery} from "@/services/ant-design-pro/api";
+import {dataSetQuery, evaluationRecordQuery, tokenByCookie} from "@/services/ant-design-pro/api";
 import {
   CloseCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
 import {useModel} from "@@/plugin-model/useModel";
+import token from '@/utils/token';
+import taskId from '@/utils/taskId';
+import cookie from '@/utils/cookie';
 
 const {Search} = Input;
 
@@ -21,6 +24,8 @@ interface ActionType {
   startEditable: (rowKey: Key) => boolean;
   cancelEditable: (rowKey: Key) => boolean;
 }
+
+
 
 
 const statusEnum = {
@@ -73,7 +78,15 @@ const tableListDataSource: TableListItem[] = [];
 // @ts-ignore
 
 
-export default () => {
+export default (params) => {
+  
+  if(params.location.query.MS_SESSION_ID !== undefined){
+    cookie.save(params.location.query.MS_SESSION_ID);
+  
+  }
+  if(params.location.query.taskId !== undefined){
+    taskId.save(params.location.query.taskId);
+  }
 
   const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
@@ -99,8 +112,16 @@ export default () => {
   const [queryType, setQueryType] = useState('');
   const [queryContent, setQueryContent] = useState('');
 
-
+  const tokencookie = async ()=>{
+    const data = await tokenByCookie();
+    console.log(data);
+    
+    ref.current?.reload();
+  }
   useEffect(() => {
+    
+    tokencookie();
+    
     setEvaConfig({});
     setRobustEvaluationConfig({});
     setInterpretEvaluationConfig({});
@@ -132,14 +153,14 @@ export default () => {
   //表格列
   const columns: ProColumns<TableListItem>[] = [
     {
-      title: <b>测评ID</b>,
+      title: <b>测评子任务ID</b>,
       dataIndex: 'id',
       width: '200px',
       ellipsis: true,
       align: 'center',
     },
     {
-      title: <b>任务类型</b>,
+      title: <b>测评子任务类型</b>,
       dataIndex: 'taskTypeId',
       initialValue: 'all',
       ellipsis: true,
@@ -154,13 +175,13 @@ export default () => {
       align: 'center',
     },
     {
-      title: <b>任务名称</b>,
+      title: <b>测评子任务名称</b>,
       dataIndex: 'taskName',
       ellipsis: true,
       align: 'center',
     },
     {
-      title: <b>测评类型</b>,
+      title: <b>测评子任务类型</b>,
       dataIndex: 'evaluateType',
       ellipsis: true,
       initialValue: 'all',
@@ -177,7 +198,7 @@ export default () => {
       align: 'center',
     },
     {
-      title: <b>测评方法</b>,
+      title: <b>测评子任务方法</b>,
       dataIndex: 'methodName',
       /*    ellipsis: false,*/
       width: 300,
@@ -205,13 +226,13 @@ export default () => {
       align: 'center',
     },
     {
-      title: <b>测评模型</b>,
+      title: <b>测评子任务模型</b>,
       dataIndex: 'modelName',
       ellipsis: true,
       align: 'center',
     },
     {
-      title: <b>测评数据</b>,
+      title: <b>测评子任务数据</b>,
       dataIndex: 'dataSetName',
       ellipsis: true,
       align: 'center',
@@ -226,7 +247,7 @@ export default () => {
       // sorter: (a, b) => a.createdAt - b.createdAt,
     },
     {
-      title: <b>测评状态</b>,
+      title: <b>测评子任务状态</b>,
       dataIndex: 'id',
       ellipsis: true,
       render: (_, row) => {
@@ -244,7 +265,7 @@ export default () => {
 
 
   return (<>
-      <ProCard title={<div style={{fontSize: '20px', fontWeight: 'bold'}}>测评记录</div>}>
+      <ProCard title={<div style={{fontSize: '20px', fontWeight: 'bold'}}>测评子任务记录</div>}>
         <ProTable<TableListItem, { keyWord?: string }>
           loading={false}
           columns={columns}
@@ -398,12 +419,12 @@ export default () => {
               preserve={false}
               form={modalForm}
               formRef={modalRef}
-              title="测评类型"
+              title="测评子任务类型"
               trigger={<Button type="primary" onClick={() => {
                 setDataType(1);
                 //setFirst(1);
               }
-              }>新建测评</Button>}
+              }>新建测评子任务</Button>}
               submitter={{
                 searchConfig: {
                   submitText: '确认',
@@ -436,6 +457,7 @@ export default () => {
                   setDataType(modalForm.getFieldValue('dataType'));
                 }}
                 initialValue={1}
+                fieldProps={{value: 1}}
                 name="dataType"
                 label="数据类型"
                 radioType="button"
@@ -443,6 +465,16 @@ export default () => {
                   {
                     label: '图像',
                     value: 1,
+                  },
+                  {
+                    label: '文本',
+                    value: 2,
+                    disabled: true,
+                  },
+                  {
+                    label: '结构化数据',
+                    value: 3,
+                    disabled: true,
                   },
 /*                   {
                     label: '文本',
@@ -464,6 +496,7 @@ export default () => {
                   request={() => {
                     return [
                       {value: 1, label: '图像分类'},
+                      {value: 2, label: '目标检测'}
                     ];
                   }}
                 />

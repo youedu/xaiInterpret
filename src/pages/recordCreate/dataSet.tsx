@@ -1,13 +1,13 @@
 // 未完成: request请求数据
-import {ProTable, ProCard} from '@ant-design/pro-components';
-import type {ProColumns, ProFormInstance} from '@ant-design/pro-components';
-import {Input, Select, Table} from 'antd';
-import React, {useRef, useState, forwardRef, useImperativeHandle, Key} from 'react';
-import type {TableRowSelection} from 'antd/es/table/interface';
-import {dataSetQuery} from "@/services/ant-design-pro/api";
+import { ProTable, ProCard } from '@ant-design/pro-components';
+import type { ProColumns, ProFormInstance } from '@ant-design/pro-components';
+import { Input, Select, Table } from 'antd';
+import React, { useRef, useState, forwardRef, useImperativeHandle, Key } from 'react';
+import type { TableRowSelection } from 'antd/es/table/interface';
+import { dataSetQuery } from "@/services/ant-design-pro/api";
 
 
-const {Search} = Input;
+const { Search } = Input;
 
 interface ActionType {
   reload: (resetPageIndex?: boolean) => void;
@@ -51,14 +51,14 @@ const columns: ProColumns[] = [
   {
     title: <b>任务类型</b>,
     dataIndex: 'taskTypeId',
-/*    initialValue: 2,
-    filters: true,
-    onFilter: true,*/
+    /*    initialValue: 2,
+        filters: true,
+        onFilter: true,*/
     valueType: 'select',
     valueEnum: {
-      1: {text: '图像分类'},
-      2: {text: '文本分类'},
-      3: {text: '表格分类'},
+      1: { text: '图像分类' },
+      2: { text: '文本分类' },
+      3: { text: '表格分类' },
     },
     align: 'center',
   },
@@ -83,13 +83,13 @@ const columns: ProColumns[] = [
   {
     title: <b>数据状态</b>,
     dataIndex: 'dataState',
-/*    initialValue: '1',
-    filters: true,
-    onFilter: true,*/
+    /*    initialValue: '1',
+        filters: true,
+        onFilter: true,*/
     valueType: 'select',
     valueEnum: {
-      0: {text: '正在上传', status: 'Processing'},
-      1: {text: '上传成功', status: 'Success'},
+      0: { text: '正在上传', status: 'Processing' },
+      1: { text: '上传成功', status: 'Success' },
     },
     align: 'center',
   },
@@ -178,7 +178,7 @@ export default forwardRef((props, ref) => {
             // 如果需要转化参数可以在这里进行修改
             //console.log(props);
             const msg = await dataSetQuery(params, queryType, queryContent, props.props.location.query.taskTypeId);
-            //console.log(msg);
+            console.log(msg.data.records);
             if (msg.code === '00000') {
               return {
                 data: msg.data.records,
@@ -201,35 +201,35 @@ export default forwardRef((props, ref) => {
                   onChange: setColumnsStateMap,
                 }}*/
           toolbar={{
-                      search: (<Input.Group compact>
-                        <Select
-                          defaultValue=""
-                          style={{ width: 100 }}
-                          onChange={event => setQueryType(event)}
-                          options={[
-                            {
-                              value: 0,
-                              label: 'ID',
-                            },
-                            {
-                              value: 1,
-                              label: '任务名称',
-                            },
-                          ]}
-                        />
-                        <Search onChange={event => setQueryContent(event.target.value)}
-                                enterButton={true}
-                                allowClear={true}
-                                style={{ width: '70%' }}
-                                onReset={() => {
-                                  console.log('hello');
-                                }}
-                                onSearch={(value: string, event) => {
-                                  console.log('search');
-                                  actionRef.current?.reload();
-                                }}
-                        />
-                      </Input.Group>)
+            search: (<Input.Group compact>
+              <Select
+                defaultValue=""
+                style={{ width: 100 }}
+                onChange={event => setQueryType(event)}
+                options={[
+                  {
+                    value: 0,
+                    label: 'ID',
+                  },
+                  {
+                    value: 1,
+                    label: '任务名称',
+                  },
+                ]}
+              />
+              <Search onChange={event => setQueryContent(event.target.value)}
+                enterButton={true}
+                allowClear={true}
+                style={{ width: '70%' }}
+                onReset={() => {
+                  console.log('hello');
+                }}
+                onSearch={(value: string, event) => {
+                  console.log('search');
+                  actionRef.current?.reload();
+                }}
+              />
+            </Input.Group>)
             /*{
               onSearch: (value: string, event) => {
                 console.log(value);

@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import {Column} from '@ant-design/plots';
-import {ProTable} from "@ant-design/pro-components";
-import type {ProColumns} from "@ant-design/pro-components";
-import {message, Modal, Progress, Typography, Image, Space} from 'antd';
-import {ProCard, ProFormSelect} from '@ant-design/pro-components';
-import {evaluateResult, evaluateConfigResult, evaluateImgList, evaluateImgResult} from "@/services/ant-design-pro/api";
-import {history, Link} from "umi";
+import React, { useState, useEffect } from 'react';
+import { Column, Line } from '@ant-design/plots';
+import { ProTable } from "@ant-design/pro-components";
+import type { ProColumns } from "@ant-design/pro-components";
+import { message, Modal, Progress, Typography, Image, Space, Card } from 'antd';
+import { ProCard, ProFormSelect } from '@ant-design/pro-components';
+import { evaluateResult, evaluateConfigResult, evaluateImgList, evaluateImgResult } from "@/services/ant-design-pro/api";
+import { history, Link } from "umi";
 
 
 //柱状图组件
@@ -26,7 +26,7 @@ import Grey_ahp_tree from "@/pages/evaluationResult/interpretResult/grey_ahp_tre
 import Rsr_ahp_tree from "@/pages/evaluationResult/interpretResult/rsr_ahp_tree";
 import Topsis_ahp_tree from "@/pages/evaluationResult/interpretResult/topsis_ahp_tree";
 import Topsis_ahp_entropy_tree from "@/pages/evaluationResult/interpretResult/topsis_ahp_entropy_tree";
-import {CheckCircleOutlined, CloseCircleOutlined} from "@ant-design/icons";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 
 
 //(正确性表格
@@ -162,7 +162,9 @@ const interpretColumns: ProColumns<interpretTableListItem>[] = [
     dataIndex: 'imageUrl',
     align: "center",
     render: (_, row) => {
-      return <><Image src={'http://10.105.240.103:9000/images/' + row.imageUrl} height={100} width={100}></Image></>;
+      console.log(row.imageUrl);
+
+      return <><Image src={'http://120.53.91.149:9000/images/' + row.imageUrl} height={100} width={100}></Image></>;
     },
   },
   {
@@ -177,7 +179,7 @@ const interpretColumns: ProColumns<interpretTableListItem>[] = [
     valueType: 'text',
     align: "center",
     render: (_, row) => {
-      return <><CheckCircleOutlined/><Link
+      return <><CheckCircleOutlined /><Link
         onClick={() => {
           window.location.replace('/evaluationresult?resultId=' + row.evaluateRecordId.toString() + '&evaluateType=2&imgId=' + row.id.toString());
         }}>查看解释</Link></>;
@@ -229,7 +231,7 @@ export default (params: object) => {
   //图片可解释性评测图片列表
   const [interpretImgList, setInterpretImgList] = useState([]);
   //图片可解释性评测结果图片
-  const [interpretImgResult, setInterpretImgResult] = useState();
+  const [interpretImgResult, setInterpretImgResult] = useState([]);
   //图片可解释性评测结果方法列表
   const [interpretImgMethodList, setInterpretImgMethodList] = useState();
 
@@ -494,19 +496,19 @@ export default (params: object) => {
             //设置可解释性结果类型
             if (first[0].proxy_type === 'rule') {
               switch (first[0].method_name) {
-                case  'fuzzy_ahp':
+                case 'fuzzy_ahp':
                   setInterpretType('fuzzy_ahp_rule');
                   break;
                 case 'grey_ahp':
                   setInterpretType('grey_ahp_rule');
                   break;
-                case  'rsr_ahp':
+                case 'rsr_ahp':
                   setInterpretType('rsr_ahp_rule');
                   break;
-                case  'topsis_ahp':
+                case 'topsis_ahp':
                   setInterpretType('topsis_ahp_rule');
                   break;
-                case  'topsis_ahp_entropy':
+                case 'topsis_ahp_entropy':
                   setInterpretType('topsis_ahp_entropy_rule');
                   break;
                 default:
@@ -514,19 +516,19 @@ export default (params: object) => {
               }
             } else if (first[0].proxy_type === 'tree') {
               switch (first[0].method_name) {
-                case  'fuzzy_ahp':
+                case 'fuzzy_ahp':
                   setInterpretType('fuzzy_ahp_tree');
                   break;
                 case 'grey_ahp':
                   setInterpretType('grey_ahp_tree');
                   break;
-                case  'rsr_ahp':
+                case 'rsr_ahp':
                   setInterpretType('rsr_ahp_tree');
                   break;
-                case  'topsis_ahp':
+                case 'topsis_ahp':
                   setInterpretType('topsis_ahp_tree');
                   break;
-                case  'topsis_ahp_entropy':
+                case 'topsis_ahp_entropy':
                   setInterpretType('topsis_ahp_entropy_tree');
                   break;
                 default:
@@ -715,22 +717,24 @@ export default (params: object) => {
         console.log(data);
         let result = JSON.parse(data.data.result);
         console.log(result);
-        let key = Object.keys(result);
-        const methodList = [];
-        let final = [];
-        for (let i of key) {
-          methodList.push({label: i, value: i});
-          final.push({
-            methodName: i,
-            originalImg: 'http://10.105.240.33:9000/images/' + data.data.imageUrl,
-            Img: 'http://10.105.240.33:9000/images/' + result[i]
-          });
+        if (result !== null) {
+          let key = Object.keys(result);
+          const methodList = [];
+          let final = [];
+          for (let i of key) {
+            methodList.push({ label: i, value: i });
+            final.push({
+              methodName: i,
+              originalImg: 'http://120.53.91.149:9000/images/' + data.data.imageUrl,
+              Img: 'http://120.53.91.149:9000/images/' + result[i]
+            });
+          }
+          console.log(final);
+          setInterpretImgResult(final);
+          setInterpretImgMethodList(methodList);
+          setImgInterpretMethodType(methodList[0].label);
+          console.log(result);
         }
-        console.log(final);
-        setInterpretImgResult(final);
-        setInterpretImgMethodList(methodList);
-        setImgInterpretMethodType(methodList[0].label);
-        console.log(result);
         setEvaluateType('ImgResultINTERPRET');
       }
     }
@@ -806,17 +810,17 @@ export default (params: object) => {
                 setAdaptBarType(e);
               }}
               options={[
-                {label: '准确率', value: 'Acc'},
-                {label: '召回率', value: 'Recall'},
-                {label: '精确率', value: 'Precision'},
-                {label: 'F1分数', value: 'F1Score'},
+                { label: '准确率', value: 'Acc' },
+                { label: '召回率', value: 'Recall' },
+                { label: '精确率', value: 'Precision' },
+                { label: 'F1分数', value: 'F1Score' },
               ]
               }
             />
             {adaptBarType === 'Acc' && (
               <ProCard split={"horizontal"} colSpan={12} layout={"center"}>
                 {/*准确率柱状图*/}
-                <ProCard style={{height: '500px'}}>
+                <ProCard style={{ height: '500px' }}>
                   <Column
                     autoFit={true}
                     data={adaptData2.noiseMethodList}
@@ -833,7 +837,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             )
                           });
@@ -855,7 +859,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                     }}
                     yAxis={{
                       title: {
@@ -864,7 +868,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                       tickCount: 6,
                       min: 0,
                       max: 100,
@@ -874,7 +878,7 @@ export default (params: object) => {
                     label={{
                       position: 'top',
                       offsetY: 10,
-                      style: {fontSize: 9}
+                      style: { fontSize: 9 }
                     }}
                     /*            label={{
                                   // 可手动配置 label 数据标签位置
@@ -905,7 +909,7 @@ export default (params: object) => {
             {adaptBarType === 'Recall' && (
               <ProCard split={"horizontal"} colSpan={12} layout={"center"}>
                 {/*召回率柱状图*/}
-                <ProCard style={{height: '500px'}}>
+                <ProCard style={{ height: '500px' }}>
                   <Column
                     autoFit={true}
                     data={adaptData2.noiseMethodList}
@@ -922,7 +926,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             )
                           });
@@ -944,7 +948,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                     }}
                     yAxis={{
                       title: {
@@ -953,7 +957,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                       tickCount: 6,
                       min: 0,
                       max: 100,
@@ -963,7 +967,7 @@ export default (params: object) => {
                     label={{
                       position: 'top',
                       offsetY: 10,
-                      style: {fontSize: 9}
+                      style: { fontSize: 9 }
                     }}
                     meta={{
                       methodName: {
@@ -984,7 +988,7 @@ export default (params: object) => {
             {adaptBarType === 'Precision' && (
               <ProCard split={"horizontal"} colSpan={12} layout={"center"}>
                 {/*精确率柱状图*/}
-                <ProCard style={{height: '500px'}}>
+                <ProCard style={{ height: '500px' }}>
                   <Column
                     autoFit={true}
                     data={adaptData2.noiseMethodList}
@@ -1001,7 +1005,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             )
                           });
@@ -1023,7 +1027,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                     }}
                     yAxis={{
                       title: {
@@ -1032,7 +1036,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                       tickCount: 6,
                       min: 0,
                       max: 100,
@@ -1042,7 +1046,7 @@ export default (params: object) => {
                     label={{
                       position: 'top',
                       offsetY: 10,
-                      style: {fontSize: 9}
+                      style: { fontSize: 9 }
                     }}
                     /*            label={{
                                   // 可手动配置 label 数据标签位置
@@ -1073,7 +1077,7 @@ export default (params: object) => {
             {adaptBarType === 'F1Score' && (
               <ProCard split={"horizontal"} colSpan={12} layout={"center"}>
                 {/*F1分数柱状图*/}
-                <ProCard style={{height: '500px'}}>
+                <ProCard style={{ height: '500px' }}>
                   <Column
                     autoFit={true}
                     data={adaptData2.noiseMethodList}
@@ -1090,7 +1094,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             )
                           });
@@ -1112,7 +1116,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                     }}
                     yAxis={{
                       title: {
@@ -1121,7 +1125,7 @@ export default (params: object) => {
                           fontSize: 18,
                         }
                       },
-                      label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                      label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                       tickCount: 6,
                       min: 0,
                       max: 1,
@@ -1131,7 +1135,7 @@ export default (params: object) => {
                     label={{
                       position: 'top',
                       offsetY: 10,
-                      style: {fontSize: 9}
+                      style: { fontSize: 9 }
                     }}
                     /*            label={{
                                   // 可手动配置 label 数据标签位置
@@ -1317,7 +1321,7 @@ export default (params: object) => {
                             {contextHolder}
                           </ProCard>
                         </ProCard.TabPane>
-
+  
                         <ProCard.TabPane key={'distortion'} tab={'平均失真度'}>
                           <ProCard>
                             <Column
@@ -1487,7 +1491,7 @@ export default (params: object) => {
                       <Space>在XXX张测试图片上，使用了XX种对抗攻击，在对抗噪声干扰下，攻击成功率平均达到XXX，准确率平均下降XXX</Space>
                     </ProCard>*!/}
                       </ProCard>
-
+  
                     </>*/
           <ProCard split={"horizontal"} title={<Typography.Title level={3}>鲁棒性</Typography.Title>} layout={"center"}>
             <ProFormSelect
@@ -1510,23 +1514,23 @@ export default (params: object) => {
                 setRobustBarType(e);
               }}
               options={[
-                {label: '攻击成功率', value: 'success_attack_rate'},
-                {label: '平均结构相似度', value: 'ssim'},
-                {label: '峰值信噪比', value: 'psnr'},
-                {label: '平均失真度', value: 'distortion'},
-                {label: '平均扰动大小（L1范数）', value: 'epsilonL1'},
-                {label: '平均扰动大小（L2范数）', value: 'epsilonL2'},
-                {label: '平均扰动大小（L∞范数）', value: 'epsilonLInfinity'},
+                { label: '攻击成功率', value: 'success_attack_rate' },
+                { label: '平均结构相似度', value: 'ssim' },
+                { label: '峰值信噪比', value: 'psnr' },
+                { label: '平均失真度', value: 'distortion' },
+                { label: '平均扰动大小（L1范数）', value: 'epsilonL1' },
+                { label: '平均扰动大小（L2范数）', value: 'epsilonL2' },
+                { label: '平均扰动大小（L∞范数）', value: 'epsilonLInfinity' },
               ]
               }
             />
             {/*<ProCard split={"vertical"}>*/}
             {robustBarType === 'success_attack_rate' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} colSpan={24} style={{height: '500px'}}>
+                <ProCard gutter={30} colSpan={24} style={{ height: '500px' }}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       <Typography>
                         攻击成功率是指攻击成功的样本数在全部样本中的占比, 攻击成功率越高表明模型的鲁棒性越差。
                       </Typography>
@@ -1610,7 +1614,7 @@ export default (params: object) => {
                     f(x)为模型输出结果。*/}
 
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <Column
                       data={robustData2.attacks}
                       //animation={false}
@@ -1627,7 +1631,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             ),
                           });
@@ -1659,7 +1663,7 @@ export default (params: object) => {
                             fontSize: 18,
                           }
                         },
-                        label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                        label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                         tickCount: 6,
                         min: 0,
                         max: 100,
@@ -1690,7 +1694,7 @@ export default (params: object) => {
                       label={{
                         position: 'top',
                         offsetY: 10,
-                        style: {fontSize: 9}
+                        style: { fontSize: 9 }
                       }}
                       /*                label={{
                                         // 可手动配置 label 数据标签位置
@@ -1718,10 +1722,10 @@ export default (params: object) => {
             )}
             {robustBarType === 'ssim' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} style={{height: '500px'}} colSpan={24}>
+                <ProCard gutter={30} style={{ height: '500px' }} colSpan={24}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       <Typography>
                         平均结构相似度是指对抗样本与原样本的总体相似程度，相似度越高表明对抗样本对原原样本的改动越小。
                       </Typography>
@@ -1732,7 +1736,7 @@ export default (params: object) => {
                     {/*                    平均结构相似度（Average Structural Similarity，ASS）是指所有对抗样本和对应的原始样本之间的平均结构相似性，
                     结构相似性（Structual Similarity，SSIM）基于两幅图片之间的亮度、对比度和结构来衡量样本的相似性。*/}
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <Column
                       data={robustData2.attacks}
                       //animation={false}
@@ -1748,7 +1752,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             ),
                           });
@@ -1778,7 +1782,7 @@ export default (params: object) => {
                             fontSize: 18,
                           }
                         },
-                        label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                        label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                         tickCount: 7,
                         min: 0,
                         max: 100,
@@ -1788,7 +1792,7 @@ export default (params: object) => {
                       label={{
                         position: 'top',
                         offsetY: 10,
-                        style: {fontSize: 9}
+                        style: { fontSize: 9 }
                       }}
                       /*                  label={{
                                           // 可手动配置 label 数据标签位置
@@ -1816,10 +1820,10 @@ export default (params: object) => {
             )}
             {robustBarType === 'distortion' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} style={{height: '500px'}} colSpan={24}>
+                <ProCard gutter={30} style={{ height: '500px' }} colSpan={24}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       <Typography>
                         平均失真度用于描述生成的图片对抗样本和原始图片样本之间的距离，该指标越大，说明需要改变更多原始样本上的像素才能生成对抗样本。
                       </Typography>
@@ -1845,7 +1849,7 @@ export default (params: object) => {
                     </Typography>*/}
 
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <Column
                       /*                data={robustData2.attacks}*/
                       data={newDistortionFactor}
@@ -1862,7 +1866,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             ),
                           });
@@ -1884,7 +1888,7 @@ export default (params: object) => {
                             fontSize: 18,
                           }
                         },
-                        label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                        label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                       }}
                       yAxis={{
                         title: {
@@ -1893,14 +1897,14 @@ export default (params: object) => {
                             fontSize: 18,
                           }
                         },
-                        label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                        label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                         min: 0,
                         max: distortionFactor * 1.2,
                       }}
                       label={{
                         position: 'top',
                         offsetY: 10,
-                        style: {fontSize: 9}
+                        style: { fontSize: 9 }
                       }}
                       /*                label={{
                                         // 可手动配置 label 数据标签位置
@@ -1928,10 +1932,10 @@ export default (params: object) => {
             )}
             {robustBarType === 'psnr' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} style={{height: '500px'}} colSpan={24}>
+                <ProCard gutter={30} style={{ height: '500px' }} colSpan={24}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       峰值信噪比用于描述生成的图片对抗样本与原始图片样本的接近程度，该指标越大，对抗样本就越接近于原图。该指标实际上衡量两张图片中各个像素点的均方差，即两张图片中每一个像素点的差异大小。
                     </Typography>
                     {/*                    峰值信噪比（Peak Signal-to-Noise
@@ -2039,7 +2043,7 @@ export default (params: object) => {
                     其中MAXI为图像的最大像素值，PSNR的单位为dB。若每个像素由8位二进制表示，则其值为2^8-1=255，
                     若原始图像是彩色图像，可以由以下方法进行计算： 计算RGB图像三个通道每个通道的MSE值再求平均值，进而求PSNR。*/}
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <Column
                       data={robustData2.attacks}
                       //mation={false}
@@ -2055,7 +2059,7 @@ export default (params: object) => {
                           modal.info({
                             title: '配置信息', content: (
                               <>
-                                <div style={{whiteSpace: 'pre-line'}}>{item}</div>
+                                <div style={{ whiteSpace: 'pre-line' }}>{item}</div>
                               </>
                             ),
                           });
@@ -2086,14 +2090,14 @@ export default (params: object) => {
                             fontSize: 18,
                           }
                         },
-                        label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                        label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                         min: 0,
                         max: 160,
                       }}
                       label={{
                         position: 'top',
                         offsetY: 10,
-                        style: {fontSize: 9}
+                        style: { fontSize: 9 }
                       }}
                       maxColumnWidth={40}
                       minColumnWidth={40}
@@ -2123,10 +2127,10 @@ export default (params: object) => {
             )}
             {robustBarType === 'epsilonL1' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} style={{height: '500px'}} colSpan={24}>
+                <ProCard gutter={30} style={{ height: '500px' }} colSpan={24}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       <Typography>
                         全部样本的扰动大小平均值即为平均扰动大小。该指标越大，说明想对该模型攻击成功需要的扰动幅度就越大。
                       </Typography>
@@ -2283,7 +2287,7 @@ export default (params: object) => {
                       是差值中的第像素。
                     </Typography>*/}
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <ProCard bordered={false}>
                       <Column
                         data={avgEpsilonL1}
@@ -2305,7 +2309,7 @@ export default (params: object) => {
                               fontSize: 18,
                             }
                           },
-                          label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                          label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                         }}
                         yAxis={{
                           title: {
@@ -2314,14 +2318,14 @@ export default (params: object) => {
                               fontSize: 18,
                             }
                           },
-                          label: {style: {fontWeight: 'bolder', fontSize: 12}},
+                          label: { style: { fontWeight: 'bolder', fontSize: 12 } },
                           /*                  min: 0,
                                             max: epsilon * 1.5,*/
                         }}
                         label={{
                           position: 'top',
                           offsetY: 10,
-                          style: {fontSize: 9}
+                          style: { fontSize: 9 }
                         }}
                         /*                label={{
                                           // 可手动配置 label 数据标签位置
@@ -2350,10 +2354,10 @@ export default (params: object) => {
             )}
             {robustBarType === 'epsilonL2' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} style={{height: '500px'}} colSpan={24}>
+                <ProCard gutter={30} style={{ height: '500px' }} colSpan={24}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       <Typography>
                         全部样本的扰动大小平均值即为平均扰动大小。该指标越大，说明想对该模型攻击成功需要的扰动幅度就越大。
                       </Typography>
@@ -2510,7 +2514,7 @@ export default (params: object) => {
                       是差值中的第像素。
                     </Typography>*/}
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <ProCard bordered={false}>
                       <Column
                         data={avgEpsilonL2}
@@ -2532,12 +2536,12 @@ export default (params: object) => {
                               fontSize: 18,
                             }
                           },
-                          label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                          label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                         }}
                         label={{
                           position: 'top',
                           offsetY: 10,
-                          style: {fontSize: 9}
+                          style: { fontSize: 9 }
                         }}
                         /*                label={{
                                           // 可手动配置 label 数据标签位置
@@ -2565,10 +2569,10 @@ export default (params: object) => {
             )}
             {robustBarType === 'epsilonLInfinity' && (
               <ProCard split={"horizontal"} layout={"center"}>
-                <ProCard gutter={30} style={{height: '500px'}} colSpan={24}>
+                <ProCard gutter={30} style={{ height: '500px' }} colSpan={24}>
                   <ProCard type={"inner"} title={<Typography.Title type={'success'} level={3}>指标说明</Typography.Title>}
-                           style={{height: '450px'}} bordered={true} colSpan={"30%"}>
-                    <Typography style={{textIndent: '1em', fontSize: '15px'}}>
+                    style={{ height: '450px' }} bordered={true} colSpan={"30%"}>
+                    <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       <Typography>
                         全部样本的扰动大小平均值即为平均扰动大小。该指标越大，说明想对该模型攻击成功需要的扰动幅度就越大。
                       </Typography>
@@ -2725,7 +2729,7 @@ export default (params: object) => {
                       是差值中的第像素。
                     </Typography>*/}
                   </ProCard>
-                  <ProCard type={"inner"} style={{height: '450px'}} bordered={true}>
+                  <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <ProCard bordered={false}>
                       <Column
                         data={avgEpsilonLInfinity}
@@ -2747,12 +2751,12 @@ export default (params: object) => {
                               fontSize: 18,
                             }
                           },
-                          label: {style: {fontWeight: 'bolder', fontSize: 10}},
+                          label: { style: { fontWeight: 'bolder', fontSize: 10 } },
                         }}
                         label={{
                           position: 'top',
                           offsetY: 10,
-                          style: {fontSize: 9},
+                          style: { fontSize: 9 },
                         }}
                         /*                label={{
                                           // 可手动配置 label 数据标签位置
@@ -2787,7 +2791,7 @@ export default (params: object) => {
                 loading={false}
                 search={false}
                 options={false}
-                scroll={{x: 1500}}
+                scroll={{ x: 1500 }}
                 request={async () => {
                   const data = robustDataTable.attacks;
                   for (let attack of data) {
@@ -2882,24 +2886,122 @@ export default (params: object) => {
           </>)}*/}
         {evaluateType === 'ImgListINTERPRET' && (
           <>
-          <ProCard split='vertical'>
-          <ProCard colSpan={4}>指标</ProCard>
-            <ProCard colSpan={20}>
-              <ProTable
-                columns={interpretColumns}
-                search={false}
-                tableAlertRender={false}
-                options={false}
-                request={async () => {
-                  const data = interpretImgList;
+            <ProCard split='vertical'>
+              <ProCard colSpan={8}>指标
+                <Line data={[{
+                  "Date": "1",
+                  "scales": 10
+                },
+                {
+                  "Date": "2",
+                  "scales": 20
+                },
+                {
+                  "Date": "3",
+                  "scales": 10
+                },
+                {
+                  "Date": "4",
+                  "scales": 20
+                },
+                {
+                  "Date": "5",
+                  "scales": 10
+                },
+                {
+                  "Date": "6",
+                  "scales": 20
+                },
+                {
+                  "Date": "7",
+                  "scales": 10
+                },
+                {
+                  "Date": "8",
+                  "scales": 20
+                },
+                {
+                  "Date": "9",
+                  "scales": 10
+                },
+                {
+                  "Date": "10",
+                  "scales": 20
+                },
+                {
+                  "Date": "11",
+                  "scales": 10
+                },
+                {
+                  "Date": "12",
+                  "scales": 20
+                },
 
-                  return {
-                    data: data,
-                    success: true,
-                  }
-                }}
-              ></ProTable>
-            </ProCard>
+                {
+                  "Date": "13",
+                  "scales": 10
+                },
+                {
+                  "Date": "14",
+                  "scales": 20
+                },
+                {
+                  "Date": "15",
+                  "scales": 10
+                },
+                {
+                  "Date": "16",
+                  "scales": 20
+                },
+
+                {
+                  "Date": "17",
+                  "scales": 20
+                },
+
+                {
+                  "Date": "18",
+                  "scales": 20
+                },
+                {
+                  "Date": "19",
+                  "scales": 10
+                },
+                {
+                  "Date": "20",
+                  "scales": 20
+                },
+                ]}
+                  padding='auto'
+                  xField='Date'
+                  yField='scales'
+                />
+                <Card title="精确性指标折线图的曲线下面积(AUC)">
+                  <p></p>
+                </Card>
+                <Card title="敏感性指标" >
+                  <p></p>
+                </Card>
+                <Card title="一致性指标" >
+                  <p></p>
+                </Card>
+              </ProCard>
+              <ProCard colSpan={16}>
+                <ProTable
+                  columns={interpretColumns}
+                  search={false}
+                  tableAlertRender={false}
+                  options={false}
+                  request={async () => {
+                    const data = interpretImgList;
+
+                    return {
+                      data: data,
+                      success: true,
+                    }
+                  }}
+                ></ProTable>
+              </ProCard>
             </ProCard>
           </>
         )}
@@ -2930,29 +3032,55 @@ export default (params: object) => {
               <ProCard colSpan={20}>
                 {
                   interpretImgResult.map((item) => {
-                      return (
-                        imgInterpretMethodType === item.methodName &&
-                        (<ProCard split={"horizontal"}>
-                            <ProCard split={"vertical"}
-                                     title={<Typography.Title level={3}>{item.methodName}</Typography.Title>}
-                                     layout={"center"}>
-                              <Space>
-                                <Image src={item.originalImg} height={200} width={200}></Image>
-                                <Image src={item.Img} height={200} width={200}></Image>
-                              </Space>
-                            </ProCard>
-                            <ProCard layout={"center"}>
-                              <div>（左）输入实例；</div>
-                              <br/>
-                              <div>（右）{item.methodName}可解释性输出结果 右图色深部分表示模型在做出决策时更关注的部分</div>
-                            </ProCard>
-                            <ProCard split={"vertical"}
-                                     title={<Typography.Title level={3}>指标</Typography.Title>}
-                                     layout={"center"}></ProCard>
+                    return (
+                      imgInterpretMethodType === item.methodName &&
+                      (<ProCard split={"horizontal"}>
+                        <ProCard split={"vertical"}
+                          title={<Typography.Title level={3}>{item.methodName}</Typography.Title>}
+                          layout={"center"}>
+                          <Space>
+                            <Image src={item.originalImg} height={200} width={200}></Image>
+                            <Image src={item.Img} height={200} width={200}></Image>
+                          </Space>
+                        </ProCard>
+                        <ProCard layout={"center"}>
+                          <div>（左）输入实例；</div>
+                          <br />
+                          <div>（右）{item.methodName}可解释性输出结果 右图色深部分表示模型在做出决策时更关注的部分</div>
+                        </ProCard>
+                        <ProCard split={"vertical"}
+                          title={<Typography.Title level={3}>指标</Typography.Title>}
+                          layout={"center"}>
+                          <ProCard>
+                            <Line data={[{
+                              "Date": "1",
+                              "scales": 10
+                            },
+                            {
+                              "Date": "2",
+                              "scales": 20
+                            },]}
+                              padding='auto'
+                              xField='Date'
+                              yField='scales'
+                            />
                           </ProCard>
-                        )
+                          <ProCard>
+                            <Card title="精确性指标折线图的曲线下面积(AUC)">
+                              <p></p>
+                            </Card>
+                            <Card title="敏感性指标" >
+                              <p></p>
+                            </Card>
+                            <Card title="一致性指标" >
+                              <p></p>
+                            </Card>
+                          </ProCard>
+                        </ProCard>
+                      </ProCard>
                       )
-                    }
+                    )
+                  }
                   )
                 }
               </ProCard>

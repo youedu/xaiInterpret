@@ -22,8 +22,8 @@ const GlobalHeaderRight: React.FC = () => {
     className = `${styles.right}  ${styles.dark}`;
   }
   return (
-    <Space className={className} style={{height: '70px'}} size={'middle'}>
-     {/* <HeaderSearch
+    <Space className={className} style={{ height: '70px' }} size={'middle'}>
+      {/* <HeaderSearch
         className={`${styles.action} ${styles.search}`}
         placeholder="站内搜索"
         defaultValue=""
@@ -33,9 +33,10 @@ const GlobalHeaderRight: React.FC = () => {
         // }}
       />*/}
 
-      {/* <Avatar /> */}
+      {/*  */}
       {/*<SelectLang className={styles.action} />*/}
-      <div style={{width: '80px'}}></div>
+      {/* <Avatar /> */}
+      <div style={{ width: '80px' }}></div>
     </Space>
   );
 };

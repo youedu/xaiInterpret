@@ -4,6 +4,7 @@
 import token from '@/utils/token';
 import taskId from '@/utils/taskId';
 import {request as umirequest} from "umi";
+import cookie from '@/utils/cookie';
 
 
 const request = (url: any, options: any) => {
@@ -55,14 +56,14 @@ export async function testLogin(values: API.LoginParams) {
 
 /*测试用,通过cookie获取token POST /api/micro-user-service/user/login*/
 export async function tokenByCookie() {
-  return request('/api/micro-model-dataset-service/dataset/data', {
+  return request('/api/micro-model-dataset-service/user/token', {
     method: 'GET',
     headers: {
       Authorization: 'Bearer ' + token.get(),
     },
     params: {
-      pageSize: 10,
-      pageNum: 1,
+      cookie: 'MS_SESSION_ID=' + cookie.get(),
+    
     },
   });
 }
@@ -201,6 +202,20 @@ export async function dataSetQuery(params, choose, keyWord, taskTypeId) {
     },
   });
 }
+/*测试用，获取主平台数据集信息接口*/
+export async function dataSetQueryMP(params, keyWord) {
+  return request('/api/micro-model-dataset-service/dataset/getFileFromMP', {
+    method: 'GET',
+    headers: {
+      Authorization: token.get(),
+    },
+    params: {
+      prefix: keyWord,
+      pageSize: params.pageSize,
+      page: params.current,
+    },
+  });
+}
 
 /*测试用，通过id获取数据集信息接口*/
 export async function dataSetQueryById(id: number) {
@@ -284,6 +299,21 @@ export async function modelQuery(params: object, choose: number | null, keyWord:
       pageSize: params.pageSize || null,
       pageNum: params.current || null,
       taskTypeIds: taskTypeId,
+    },
+  });
+}
+
+/*测试用，获取主平台模型信息接口*/
+export async function modelQueryMp(params: object, keyWord: string | null) {
+  return request('/api/micro-model-dataset-service/model/getModelFormMP', {
+    method: 'POST',
+    headers: {
+      Authorization: token.get(),
+    },
+    data: {
+      info: keyWord,
+      pageSize: params.pageSize || null,
+      page: params.current || null,
     },
   });
 }
@@ -606,7 +636,7 @@ export async function evaluateImgList(evaluateResultId) {
   return request('/api/micro-evaluate-service/evaluateResult/imageClassifyXai/record/' + evaluateResultId, {
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + token.get(),
+      Authorization: token.get(),
     },
     params: {
       "id": evaluateResultId,

@@ -1,13 +1,15 @@
-import {PageContainer, ProCard} from '@ant-design/pro-components';
-import {Alert, Card, Typography, Image} from 'antd';
+import { PageContainer, ProCard } from '@ant-design/pro-components';
+import { Alert, Card, Typography, Image } from 'antd';
 import React, { useEffect } from 'react';
-import {FormattedMessage, useIntl, history} from 'umi';
+import { FormattedMessage, useIntl, history } from 'umi';
 import styles from './Welcome.less';
 import { tokenByCookie } from '@/services/ant-design-pro/api';
 import token from '@/utils/token';
+import cookie from '@/utils/cookie';
+import taskId from '@/utils/taskId';
 
 
-const CodePreview: React.FC = ({children}) => (
+const CodePreview: React.FC = ({ children }) => (
   <pre className={styles.pre}>
     <code>
       <Typography.Text copyable>{children}</Typography.Text>
@@ -15,21 +17,24 @@ const CodePreview: React.FC = ({children}) => (
   </pre>
 );
 
-const Welcome: React.FC = (props) => {
+const Welcome: React.FC = (params) => {
   // const intl = useIntl();
 
-  console.log(props);
-  const tokencookie = async ()=>{
-    const data = await tokenByCookie();
-    console.log(data);
-    const data2 = await tokenByCookie();
-    console.log(data2);
-  }
-  useEffect(()=>{
+
+  useEffect(() => {
+    if (params.location.query.MS_SESSION_ID !== undefined) {
+      cookie.save(params.location.query.MS_SESSION_ID);
+    }
+    /*     else {
+          cookie.save("854a7c82-b25b-460a-acc6-ffb9a656bda1");
+        } */
+    if (params.location.query.taskId !== undefined) {
+      taskId.save(params.location.query.taskId);
+    }
     //tokencookie();
   })
 
-  history.push('/evaluationrecord?MS_SESSION_ID='+props.location.query.MS_SESSION_ID+'&taskId='+props.location.query.taskId+'&projectId='+props.location.query.projectId)
+  history.push('/evaluationrecord?MS_SESSION_ID=' + params.location.query.MS_SESSION_ID + '&taskId=' + params.location.query.taskId + '&projectId=' + params.location.query.projectId)
 
   return (
     <>
@@ -104,26 +109,26 @@ const Welcome: React.FC = (props) => {
         left: '135px',
         top: '330px',
       }}
-               title={<label style={{
-                 fontFamily: 'Poppins',
-                 fontStyle: "normal",
-                 fontWeight: 700,
-                 fontSize: '32px',
-                 lineHeight: '24px',
-                 color: '#FF5300',
-                 width: '370px',
-                 height: '270px',
-               }}>一站式模型检测平台</label>}
-               bodyStyle={{
-                 fontFamily: 'Poppins',
-                 fontStyle: "normal",
-                 fontWeight: 400,
-                 fontSize: '20px',
-                 lineHeight: '24px',
-                 color: '#7b7b7b',
-                 width: '370px',
-                 height: '200px',
-               }}>
+        title={<label style={{
+          fontFamily: 'Poppins',
+          fontStyle: "normal",
+          fontWeight: 700,
+          fontSize: '32px',
+          lineHeight: '24px',
+          color: '#FF5300',
+          width: '370px',
+          height: '270px',
+        }}>一站式模型检测平台</label>}
+        bodyStyle={{
+          fontFamily: 'Poppins',
+          fontStyle: "normal",
+          fontWeight: 400,
+          fontSize: '20px',
+          lineHeight: '24px',
+          color: '#7b7b7b',
+          width: '370px',
+          height: '200px',
+        }}>
         平台提供一站式AI模型安全评测服务，平台支持用户在线上传模型，自动对模型的鲁棒性、可解释性等开展评测。
       </ProCard>
       <ProCard style={{
@@ -138,26 +143,26 @@ const Welcome: React.FC = (props) => {
         left: '550px',
         top: '330px',
       }}
-               title={<label style={{
-                 fontFamily: 'Poppins',
-                 fontStyle: "normal",
-                 fontWeight: 700,
-                 fontSize: '32px',
-                 lineHeight: '24px',
-                 color: '#FF5300',
-                 width: '370px',
-                 height: '270px',
-               }}>自定义数据集</label>}
-               bodyStyle={{
-                 fontFamily: 'Poppins',
-                 fontStyle: "normal",
-                 fontWeight: 400,
-                 fontSize: '20px',
-                 lineHeight: '24px',
-                 color: '#7b7b7b',
-                 width: '370px',
-                 height: '200px',
-               }}>
+        title={<label style={{
+          fontFamily: 'Poppins',
+          fontStyle: "normal",
+          fontWeight: 700,
+          fontSize: '32px',
+          lineHeight: '24px',
+          color: '#FF5300',
+          width: '370px',
+          height: '270px',
+        }}>自定义数据集</label>}
+        bodyStyle={{
+          fontFamily: 'Poppins',
+          fontStyle: "normal",
+          fontWeight: 400,
+          fontSize: '20px',
+          lineHeight: '24px',
+          color: '#7b7b7b',
+          width: '370px',
+          height: '200px',
+        }}>
         除内置测试集以外，平台支持用户根据实际业务场景需求创建自定义数据集，深度测评模型安全性。
       </ProCard>
       <ProCard style={{
@@ -172,26 +177,26 @@ const Welcome: React.FC = (props) => {
         left: '965px',
         top: '330px',
       }}
-               title={<label style={{
-                 fontFamily: 'Poppins',
-                 fontStyle: "normal",
-                 fontWeight: 700,
-                 fontSize: '32px',
-                 lineHeight: '24px',
-                 color: '#FF5300',
-                 width: '370px',
-                 height: '270px',
-               }}>标准化可信测评体系</label>}
-               bodyStyle={{
-                 fontFamily: 'Poppins',
-                 fontStyle: "normal",
-                 fontWeight: 400,
-                 fontSize: '20px',
-                 lineHeight: '24px',
-                 color: '#7b7b7b',
-                 width: '370px',
-                 height: '200px',
-               }}>
+        title={<label style={{
+          fontFamily: 'Poppins',
+          fontStyle: "normal",
+          fontWeight: 700,
+          fontSize: '32px',
+          lineHeight: '24px',
+          color: '#FF5300',
+          width: '370px',
+          height: '270px',
+        }}>标准化可信测评体系</label>}
+        bodyStyle={{
+          fontFamily: 'Poppins',
+          fontStyle: "normal",
+          fontWeight: 400,
+          fontSize: '20px',
+          lineHeight: '24px',
+          color: '#7b7b7b',
+          width: '370px',
+          height: '200px',
+        }}>
         平台拥有一套科学的、分层级多维度的AI可信度量标准和评分体系，由点及面全方位测评AI可信性。
       </ProCard>
 

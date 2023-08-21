@@ -1,11 +1,11 @@
-import type {ProFormInstance} from '@ant-design/pro-components';
+import type { ProFormInstance } from '@ant-design/pro-components';
 import {
   ProCard,
   StepsForm,
 } from '@ant-design/pro-components';
-import {message, Tooltip, Button, Form, Space, Row, Col} from 'antd';
-import {useModel} from "umi";
-import React, {useEffect, useRef, useState} from 'react';
+import { message, Tooltip, Button, Form, Space, Row, Col } from 'antd';
+import { useModel } from "umi";
+import React, { useEffect, useRef, useState } from 'react';
 import DataSetTable from './dataSet';
 import ModelSetTable from './modelSet';
 import EvaluationTable from "./evaluation";
@@ -17,9 +17,9 @@ import {
   interpretEvaluationNew,
   evaluateTypesByDataType, imgInterpretEvaluation,
 } from "@/services/ant-design-pro/api";
-import {dataSetQueryById, modelQueryById, dataSetUrlQueryById} from "@/services/ant-design-pro/api";
-import {history} from "umi";
-import {QuestionCircleOutlined} from '@ant-design/icons';
+import { dataSetQueryById, modelQueryById, dataSetUrlQueryById } from "@/services/ant-design-pro/api";
+import { history } from "umi";
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -32,17 +32,17 @@ const waitTime = (time: number = 100) => {
 export default (params) => {
   const [screenWidth, screenHeight] = [window.screen.width, window.screen.height];
 
-  const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
+  const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
   }));
 
-  const {evaConfig, setEvaConfig} = useModel('config', (ret) => ({
+  const { evaConfig, setEvaConfig } = useModel('config', (ret) => ({
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
 
-  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+  const { interpretEvaluationConfig, setInterpretEvaluationConfig } = useModel('interpretConfig', (ret) => ({
     interpretEvaluationConfig: ret.interpretEvaluationConfig,
     setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
   }));
@@ -76,16 +76,16 @@ export default (params) => {
   const modelSetRef = useRef(null);
   const evaluationRef = useRef(null);
 
-  const {dataSetId, setDataSetId} = useModel("demo");
-  const {modelName, setModelName} = useModel("modelName");
+  const { dataSetId, setDataSetId } = useModel("demo");
+  const { modelName, setModelName } = useModel("modelName");
   //const [modelName, setModelName] = useState({});
-  const {dataSetNumber, setDataSetNumber} = useModel("datasetNumber");
+  const { dataSetNumber, setDataSetNumber } = useModel("datasetNumber");
 
   const [imgUrl, setImgUrl] = useState([]);
 
   return (
     <>
-      <div style={{fontSize: '20px', fontWeight: 'bold'}}>新建评测</div>
+      <div style={{ fontSize: '20px', fontWeight: 'bold' }}>新建评测</div>
       <ProCard>
         <StepsForm<{
           name: string;
@@ -103,9 +103,9 @@ export default (params) => {
                                   </div>*/
                   <div
                     //style={{position: 'fixed', top: '90%', left: '50%', transform: 'translate(-50%, -50%)'}}
-                    style={{position: 'absolute', width: '100%'}}
+                    style={{ position: 'absolute', width: '100%' }}
                   >
-                    <Button style={{position: 'absolute', left: '45%', bottom: '10%'}} type="primary" onClick={() => props.onSubmit?.()}>
+                    <Button style={{ position: 'absolute', left: '45%', bottom: '10%' }} type="primary" onClick={() => props.onSubmit?.()}>
                       下一步
                     </Button>
                   </div>
@@ -115,9 +115,9 @@ export default (params) => {
                 return (
                   <div
                     //style={{position: 'fixed', top: '90%', left: '50%', transform: 'translate(-50%, -50%)'}}
-                    style={{position: 'absolute', width: '100%'}}
+                    style={{ position: 'absolute', width: '100%' }}
                   >
-                    <Space style={{position: 'absolute', left: '45%', bottom: '10%'}}>
+                    <Space style={{ position: 'absolute', left: '45%', bottom: '10%' }}>
                       <Button type="primary" key="pre" onClick={() => props.onPre?.()}>
                         上一步
                       </Button>
@@ -138,9 +138,9 @@ export default (params) => {
                                   }}*/
                   //style={{display: "flex", justifyContent: 'center'}}
                   //style={{position: 'fixed', top: '90%', left: '50%', transform: 'translate(-50%, -50%)'}}
-                  style={{position: 'absolute', width: '100%'}}
+                  style={{ position: 'absolute', width: '100%' }}
                 >
-                  <Space style={{position: 'absolute', left: '45%', bottom: '10%'}}>
+                  <Space style={{ position: 'absolute', left: '45%', bottom: '10%' }}>
                     <Button type="primary" key="pre" onClick={() => props.onPre?.()}>
                       上一步
                     </Button>
@@ -156,7 +156,7 @@ export default (params) => {
               )
             },
           }}
-          containerStyle={{width: "100%"}}
+          containerStyle={{ width: "100%" }}
           formRef={formRef}
           onFinish={async () => {
             //console.log(params.location.query.taskTypeId);
@@ -227,7 +227,7 @@ export default (params) => {
                 let obj = {};
                 //console.log(i);
                 if (i.indexOf('.') !== -1) {
-                  if(robustConfig[i]) {
+                  if (robustConfig[i]) {
                     obj.methodName = i.split('.')[0];
                     obj.methodId = Number(i.split('.')[1]);
                     obj.value = robustConfig[i.split('.')[0]];
@@ -290,7 +290,7 @@ export default (params) => {
                 let obj = {};
                 //console.log(i);
                 if (i.indexOf('.') !== -1) {
-                  if(adaptConfig[i]) {
+                  if (adaptConfig[i]) {
                     obj.methodName = i.split('.')[0];
                     obj.methodId = Number(i.split('.')[1]);
                     obj.value = adaptConfig[i.split('.')[0]];
@@ -355,7 +355,7 @@ export default (params) => {
                 alert('请选择配置');
                 return false;
               }
-              imgUrls = imgUrls.map((item)=>{
+              imgUrls = imgUrls.map((item) => {
                 return item.substring(34);
               })
               const methodParamsContent = [];
@@ -363,7 +363,7 @@ export default (params) => {
                 let obj = {};
                 //console.log(i);
                 if (i.indexOf('.') !== -1) {
-                  if(interpretConfig[i]) {
+                  if (interpretConfig[i]) {
                     obj.methodName = i.split('.')[0];
                     obj.methodId = Number(i.split('.')[1]);
                     obj.value = interpretConfig[i.split('.')[0]];
@@ -373,14 +373,14 @@ export default (params) => {
               }
               //console.log('params:', methodParamsContent);
 
-/*              if (evaluationRef.current.accConfigNew().deviceType === null || evaluationRef.current.accConfigNew().datasetNumber === null) {
-                alert('请选择下方配置');
-                return false;
-              }*/
-/*              if (evaluationRef.current.accConfigNew().datasetNumber > dataSetNumber) {
-                alert('请选择需要的测评数据量');
-                return false;
-              }*/
+              /*              if (evaluationRef.current.accConfigNew().deviceType === null || evaluationRef.current.accConfigNew().datasetNumber === null) {
+                              alert('请选择下方配置');
+                              return false;
+                            }*/
+              /*              if (evaluationRef.current.accConfigNew().datasetNumber > dataSetNumber) {
+                              alert('请选择需要的测评数据量');
+                              return false;
+                            }*/
 
               const value = {
                 "methodConfigList": methodParamsContent,
@@ -495,26 +495,26 @@ export default (params) => {
               setDataSetId(dataSetRef.current.openModal()[0]);
               const datainfo = await dataSetQueryById(dataSetRef.current.openModal()[0]);
               console.log(datainfo);
-              if(datainfo.data.isXai === 1){
+              if (datainfo.data.isXai === 1) {
                 let imgUrl = datainfo.data.dataUrl;
                 imgUrl = imgUrl.split(',');
-                imgUrl = imgUrl.map( (item, index) => {
-                  item = 'http://10.105.240.103:9000/images/' + item;
+                imgUrl = imgUrl.map((item, index) => {
+                  item = 'http://120.53.91.149:9000/images/' + item;
                   return item;
                 })
                 console.log(imgUrl);
                 setImgUrl(imgUrl);
                 setEvaMethod('INTERPRET');
-              }else{
-/*                 let imgUrl = datainfo.data.dataUrl;
-                imgUrl = imgUrl.split(',');
-                imgUrl = imgUrl.map( (item, index) => {
-                  item = 'http://10.105.240.103:9000/images/' + item;
-                  return item;
-                })
-                console.log(imgUrl);
-                setImgUrl(imgUrl);
-                setEvaMethod('INTERPRET'); */
+              } else {
+                /*                 let imgUrl = datainfo.data.dataUrl;
+                                imgUrl = imgUrl.split(',');
+                                imgUrl = imgUrl.map( (item, index) => {
+                                  item = 'http://10.105.240.103:9000/images/' + item;
+                                  return item;
+                                })
+                                console.log(imgUrl);
+                                setImgUrl(imgUrl);
+                                setEvaMethod('INTERPRET'); */
                 setDataSetNumber(datainfo.data.dataLength);
               }
               modelSetRef.current.openModal();
@@ -527,7 +527,7 @@ export default (params) => {
             }}
           >
             {/*// 第一步(引入数据集table)*/}
-            <div style={{width: '100%'}}>
+            <div style={{ width: '100%' }}>
               {/*            <div>数据集</div>*/}
               <DataSetTable ref={dataSetRef} props={params}></DataSetTable>
             </div>
@@ -557,9 +557,9 @@ export default (params) => {
             }}
           >
             {/*第二步 选择模型*/}
-            <div style={{width: '100%'}}>
+            <div style={{ width: '100%' }}>
               {/*            <div>模型</div>*/}
-              <ModelSetTable ref={modelSetRef}/>
+              <ModelSetTable ref={modelSetRef} />
             </div>
 
 
@@ -576,7 +576,7 @@ export default (params) => {
             }}
           >
             {/*第三步 评测设置*/}
-            <div style={{width: '100%'}}>
+            <div style={{ width: '100%' }}>
               <span style={{
                 fontSize: '18px',
                 height: '30px',
@@ -588,10 +588,10 @@ export default (params) => {
                 //left: "0"
               }}>测评类型</span>
               <Tooltip title={"请选择一种测评类型进行测评"}>
-                <QuestionCircleOutlined/>
+                <QuestionCircleOutlined />
               </Tooltip>
               <EvaluationTable ref={evaluationRef} props={params} params={dataSetId} evaMethod={evaMethod}
-                               modelName={modelName} imgUrl = {imgUrl}></EvaluationTable>
+                modelName={modelName} imgUrl={imgUrl}></EvaluationTable>
             </div>
           </StepsForm.StepForm>
         </StepsForm>

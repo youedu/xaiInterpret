@@ -1,15 +1,15 @@
 import RightContent from '@/components/RightContent';
-import type {Settings as LayoutSettings} from '@ant-design/pro-components';
-import {PageLoading} from '@ant-design/pro-components';
-import type {RunTimeLayoutConfig} from 'umi';
-import {history,} from 'umi';
+import type { Settings as LayoutSettings } from '@ant-design/pro-components';
+import { PageLoading } from '@ant-design/pro-components';
+import type { RunTimeLayoutConfig } from 'umi';
+import { history, } from 'umi';
 import defaultSettings from '../config/defaultSettings';
-import {currentUser as queryCurrentUser} from './services/ant-design-pro/api';
-import {ErrorShowType, RequestConfig} from "@@/plugin-request/request";
+import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+import { ErrorShowType, RequestConfig } from "@@/plugin-request/request";
 import logo from '../public/ai.png'
 import token from "@/utils/token";
-import {message, notification} from "antd";
-import {stringify} from "querystring";
+import { message, notification } from "antd";
+import { stringify } from "querystring";
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -17,7 +17,7 @@ const loginPath = '/user/login';
 
 /** 获取用户信息比较慢的时候会展示一个 loading */
 export const initialStateConfig = {
-  loading: <PageLoading/>,
+  loading: <PageLoading />,
 };
 
 /**
@@ -40,33 +40,33 @@ export async function getInitialState(): Promise<{
     return undefined;
   };
   // 如果不是登录页面且不是welcome界面，执行
-/*   if (history.location.pathname !== loginPath) {
-    const tokenValue = token.get();
-    if (tokenValue !== null && tokenValue !== 'null') {
-      //代替下方的获取用户信息函数
-      const userInfo = token.get();
-      const userInfo_base64 = userInfo.split('.')[1];
-      // base64解码
-      const userInfo_string = Buffer.from(userInfo_base64, 'base64').toString('binary');
-      const userInfo_obj = JSON.parse(userInfo_string);
-      //console.log(typeof(userInfo_obj), userInfo_obj);
-      userInfo_obj.name = userInfo_obj.user_name;
-      userInfo_obj.userid = userInfo_obj.id;
-
-      // const currentUser = await fetchUserInfo();
+  /*   if (history.location.pathname !== loginPath) {
+      const tokenValue = token.get();
+      if (tokenValue !== null && tokenValue !== 'null') {
+        //代替下方的获取用户信息函数
+        const userInfo = token.get();
+        const userInfo_base64 = userInfo.split('.')[1];
+        // base64解码
+        const userInfo_string = Buffer.from(userInfo_base64, 'base64').toString('binary');
+        const userInfo_obj = JSON.parse(userInfo_string);
+        //console.log(typeof(userInfo_obj), userInfo_obj);
+        userInfo_obj.name = userInfo_obj.user_name;
+        userInfo_obj.userid = userInfo_obj.id;
+  
+        // const currentUser = await fetchUserInfo();
+        return {
+          fetchUserInfo,
+          currentUser: userInfo_obj,
+          settings: defaultSettings,
+        };
+      };
       return {
         fetchUserInfo,
-        currentUser: userInfo_obj,
+        currentUser: undefined,
         settings: defaultSettings,
       };
-    };
-    return {
-      fetchUserInfo,
-      currentUser: undefined,
-      settings: defaultSettings,
-    };
-
-  } */
+  
+    } */
   return {
     fetchUserInfo,
     settings: defaultSettings,
@@ -92,17 +92,17 @@ const demoResponseInterceptors = (response: Response, options: RequestConfig) =>
     console.log(401);
     token.save(null);
 
-    const {query = {}, search, pathname} = history.location;
-    const {redirect} = query;
+    const { query = {}, search, pathname } = history.location;
+    const { redirect } = query;
     // Note: There may be security issues, please note
 
     if (window.location.pathname !== '/user/login' && !redirect) {
       console.log('401')
       history.replace({
         pathname: '/user/login',
-/*        search: stringify({
-          redirect: pathname + search,
-        }),*/
+        /*        search: stringify({
+                  redirect: pathname + search,
+                }),*/
       });
     }
   }
@@ -181,7 +181,7 @@ const errorConfig = (error) => {
         // @ts-ignore
         history.push({
           pathname: errorPage,
-          query: {errorCode, errorMessage},
+          query: { errorCode, errorMessage },
         });
         // redirect to error page
         break;
@@ -203,24 +203,25 @@ export const request: RequestConfig = {
 };
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => {
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  console.log(3);
   return {
     //logo: <img src="https://icons.iconarchive.com/icons/bensow/trapez-for-adobe-cs6/128/Ai-icon.png"/>,
     logo: logo,
-    rightContentRender: () => <RightContent/>,
+    rightContentRender: () => <RightContent />,
     disableContentMargin: false,
     waterMarkProps: {
       content: initialState?.currentUser?.name,
     },
     footerRender: () => /*<Footer />*/ <div></div>,
     onPageChange: () => {
-      const {location} = history;
+      const { location } = history;
       // 如果没有登录，重定向到 login(且当前页面不是首页或重置密码页面)
-/*       if (location.pathname !== '/user/pwdReset')
-        if (!initialState?.currentUser && location.pathname !== loginPath) {
-          if (location.pathname != '/welcome')
-            history.push(loginPath);
-        } */
+      /*       if (location.pathname !== '/user/pwdReset')
+              if (!initialState?.currentUser && location.pathname !== loginPath) {
+                if (location.pathname != '/welcome')
+                  history.push(loginPath);
+              } */
     },
     links: []/*isDev
       ? [
@@ -244,17 +245,17 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
         <>
           {children}
           {!props.location?.pathname?.includes('/login') && (
-/*            <SettingDrawer
-              disableUrlParams
-              enableDarkTheme
-              settings={initialState?.settings}
-              onSettingChange={(settings) => {
-                setInitialState((preInitialState) => ({
-                  ...preInitialState,
-                  settings,
-                }));
-              }}
-            />*/
+            /*            <SettingDrawer
+                          disableUrlParams
+                          enableDarkTheme
+                          settings={initialState?.settings}
+                          onSettingChange={(settings) => {
+                            setInitialState((preInitialState) => ({
+                              ...preInitialState,
+                              settings,
+                            }));
+                          }}
+                        />*/
             <></>
           )}
         </>

@@ -22,13 +22,15 @@ import {
   taskTypeQuery,
   imgInfo,
   imgFile,
+  dataSetQueryMP,
 } from '@/services/ant-design-pro/api';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import Link from 'antd/es/typography/Link';
+import { history, useModel } from 'umi';
 import datasetForm1 from '../../../public/datasetForm1.png';
 import datasetForm2 from '../../../public/datasetForm2.png';
 import tableDataForm from '../../../public/tableDataForm.png';
-import { useModel } from '@@/plugin-model/useModel';
+//import { useModel } from '@@/plugin-model/useModel';
 
 const { Search } = Input;
 
@@ -153,17 +155,47 @@ const columns: ProColumns[] = [
     },*/
 ];
 
+const columnsMP: ProColumns[] = [
+  {
+    title: <b>数据ID</b>,
+    dataIndex: 'md5Sum',
+    ellipsis: true,
+    width: '40%',
+    align: 'center',
+  },
+  {
+    title: <b>数据名称</b>,
+    dataIndex: 'name',
+    ellipsis: true,
+
+    align: 'center',
+  },
+  {
+    title: <b>数据大小</b>,
+    dataIndex: 'size',
+    ellipsis: true,
+
+    align: 'center',
+    // sorter: (a, b) => a.dataLength - b.dataLength,
+  },
+  {
+    title: <b>创建时间</b>,
+    valueType: 'dateTime',
+    dataIndex: 'lastModified',
+    // sorter: (a, b) => a.createTime - b.createTime,
+    ellipsis: true,
+
+    align: 'center',
+  },
+];
+
 export default (params: any) => {
-  console.log(params.location.query.token);
-  console.log(params.location.query.taskId)
-  if(params.location.query.token !== undefined){
-    token.save(params.location.query.token);
-    console.log(1);
-  }
-  if(params.location.query.taskId !== undefined){
-    taskId.save(params.location.query.taskId);
-  }
-  
+  const { initialState, setInitialState } = useModel('@@initialState');
+  const { currentUser, setCurrentUser } = useModel('currentUser');
+
+
+
+
   const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
@@ -173,13 +205,15 @@ export default (params: any) => {
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
-  const tokenGet = async () => {
-    const msg = await dataSetQuery({current: 1, pageSize: 10}, null, null, [1,2,3]);
-    console.log('msg:', msg);
-    //token.save("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX25hbWUiOiJMem0iLCJzY29wZSI6WyJhbGwiXSwiZXhwIjoxNjkxOTA4NzQzLCJ1c2VySWQiOjcsImF1dGhvcml0aWVzIjpbInVzZXIiXSwianRpIjoiNDljZTkxYzQtMmY3OC00NDhlLThmMGEtY2IwY2I3ZWMxMDI4IiwiY2xpZW50X2lkIjoiY2xpZW50LWFwcCJ9.ImTgbx7XFHM760qvNimK-6TzecZolJayWBJuUruuZATFVb-BJU0rWjfB21h_gxXmWGTvaqxJngcIxh4G7twQYYlD9dnLJEdMwGgjmxitpFj8D3aJkklrTEUT_y3owuGLNVVyQ0zqtoqonL9xGqoIhILSyJzpuZq8ue0xH5A9TOM")
-  }
+
   useEffect(() => {
-    tokenGet();
+    /*     setInitialState({
+          settings: initialState?.settings,
+          fetchUserInfo: initialState?.fetchUserInfo,
+          currentUser: {
+            'name': 'zxy'
+          }
+        }) */
     setEvaConfig({});
     setRobustEvaluationConfig({});
   }, []);
@@ -253,7 +287,7 @@ export default (params: any) => {
       <ProCard title={<div style={{ fontSize: '20px', fontWeight: 'bold' }}>数据集列表</div>}>
         <ProTable
           loading={false}
-          columns={columns}
+          columns={columnsMP}
           // dataSource={tableListDataSource}
           request={async (
             // 第一个参数 params 查询表单和 params 参数的结合
@@ -268,26 +302,45 @@ export default (params: any) => {
             // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
             // 如果需要转化参数可以在这里进行修改
             //console.log(filter);
-            let taskType;
-            if (filter.taskTypeId !== null) {
-              taskType = filter.taskTypeId.map((item) => {
-                return Number(item);
-              });
-            } else {
-              taskType = [1, 2, 3];
-            }
+            /*             let taskType;
+                        if (filter.taskTypeId !== null) {
+                          taskType = filter.taskTypeId.map((item) => {
+                            return Number(item);
+                          });
+                        } else {
+                          taskType = [1, 2, 3];
+                        } */
             //console.log(taskType);
-            const msg = await dataSetQuery(params, queryType, queryContent, taskType);
+            //const msg = await dataSetQuery(params, queryType, queryContent, taskType);
+            const data = await dataSetQueryMP(params, queryContent);
+            console.log(JSON.parse(data.data));
+            const dataInfo = JSON.parse(data.data);
+            //window.location.replace("http://101.200.198.205");
+
             //console.log(msg);
-            if (msg.code === '00000')
-              return {
-                data: msg.data.records,
-                // success 请返回 true，
-                // 不然 table 会停止解析数据，即使有数据
-                success: true,
-                // 不传会使用 data 的长度，如果是分页一定要传
-                total: msg.data.total,
-              };
+            if (dataInfo.code === 200) {
+              console.log(1);
+              if (dataInfo.data.items !== null) {
+                return {
+                  data: dataInfo.data.items,
+                  total: dataInfo.data.total,
+                  //data: msg.data.records,
+                  // success 请返回 true，
+                  // 不然 table 会停止解析数据，即使有数据
+                  success: true,
+                  // 不传会使用 data 的长度，如果是分页一定要传
+                  //total: msg.data.total,
+                };
+              }
+              else {
+                console.log(1);
+                return {
+                  data: [],
+                  total: dataInfo.data.total,
+                  success: true,
+                }
+              }
+            }
             else message.error(msg.message);
             return false;
           }}
@@ -362,7 +415,7 @@ export default (params: any) => {
                     controller.abort();
                     controller = new AbortController();
                     signal = controller.signal;
-                  } catch {}
+                  } catch { }
                 },
               }}
               preserve={false}
@@ -474,18 +527,18 @@ export default (params: any) => {
                       value: 1,
                       label: '可解释性测评',
                     },
-/*                     {
-                      value: 2,
-                      label: '正确性测评',
-                    },
-                    {
-                      value: 3,
-                      label: '鲁棒性测评',
-                    },
-                    {
-                      value: 4,
-                      label: '适应性测评',
-                    }, */
+                    /*                     {
+                                          value: 2,
+                                          label: '正确性测评',
+                                        },
+                                        {
+                                          value: 3,
+                                          label: '鲁棒性测评',
+                                        },
+                                        {
+                                          value: 4,
+                                          label: '适应性测评',
+                                        }, */
                     /*                    {
                                           value: 3,
                                           label: '表格分类',
@@ -621,19 +674,19 @@ export default (params: any) => {
                       },
                       listType: 'text',
                     }}
-                    /*            onChange={async (info) => {
-                                  if(info.file.status === 'done'){
-                                    const data = await dataSetFile(info.file.originFileObj);
-                                    if(data.code === '00000') {
-                                      //console.log(data.data.url);
-                                      setDataSetUrl(data.data.url);
-                                    }
-                                    else{
-                                      message.error(data.message);
-                                    }
+                  /*            onChange={async (info) => {
+                                if(info.file.status === 'done'){
+                                  const data = await dataSetFile(info.file.originFileObj);
+                                  if(data.code === '00000') {
+                                    //console.log(data.data.url);
+                                    setDataSetUrl(data.data.url);
+                                  }
+                                  else{
+                                    message.error(data.message);
                                   }
                                 }
-                                }*/
+                              }
+                              }*/
                   ></ProFormUploadButton>
                 </Form.Item>
               )}

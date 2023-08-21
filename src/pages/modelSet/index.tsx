@@ -8,21 +8,22 @@ import {
   ProFormTextArea,
   ProCard,
 } from '@ant-design/pro-components';
-import type {ProColumns, ProFormInstance, ColumnsState} from '@ant-design/pro-components';
-import {Button, Input, message, Select, Form, Upload, Row, Col} from 'antd';
-import React, {useEffect, useRef, useState} from 'react';
+import type { ProColumns, ProFormInstance, ColumnsState } from '@ant-design/pro-components';
+import { Button, Input, message, Select, Form, Upload, Row, Col } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   blackModelQuery,
   dataSetQuery,
   modelFile,
   modelInfo,
   modelQuery,
-  taskTypeQuery
+  taskTypeQuery,
+  modelQueryMp,
 } from "@/services/ant-design-pro/api";
-import type {TableRowSelection} from "_antd@4.24.1@antd/es/table/interface";
-import {useModel} from "@@/plugin-model/useModel";
+import type { TableRowSelection } from "_antd@4.24.1@antd/es/table/interface";
+import { useModel } from "@@/plugin-model/useModel";
 
-const {Search} = Input;
+const { Search } = Input;
 
 interface ActionType {
   reload: (resetPageIndex?: boolean) => void;
@@ -46,112 +47,87 @@ export type TableListItem = {
 };
 
 
-const columns: ProColumns<TableListItem>[] = [
+const columnsMP: ProColumns<TableListItem>[] = [
   {
     title: <b>模型ID</b>,
     dataIndex: 'id',
     //ellipsis: true,
-    width: '40',
-    align: 'center'
-  },
-  {
-    title: <b>模型名称</b>,
-    dataIndex: 'modelName',
-    //ellipsis: true,
-    width: '13%',
-    align: 'center'
-  },
-  {
-    title: <b>模型描述</b>,
-    dataIndex: 'modelDesc',
-    ellipsis: true,
-    width: '13%',
-    align: 'center'
-  },
-  {
-    title: <b>任务类型</b>,
-    dataIndex: 'taskTypeId',
-    initialValue: 1,
-    filters: true,
-    onFilter: true,
-    valueType: 'select',
-    valueEnum: {
-      1: {text: '图像分类'},
-/*      2: {text: '文本分类'},
-      3: {text: '表格分类'},*/
-    },
-    ellipsis: true,
-    width: '11%',
-    align: 'center'
-  },
-  {
-    title: <b>模型框架</b>,
-    dataIndex: 'type',
-    initialValue: 1,
-    /*    filters: true,
-        onFilter: true,*/
-    valueType: 'select',
-    valueEnum: {
-      0: {text: 'PyTorch'},
-      1: {text: 'TensorFlow'},
-      2: {text: '其他'},
-    },
-    ellipsis: true,
-    width: '11%',
+    width: '40%',
     align: 'center'
   },
   {
     title: <b>模型大小</b>,
-    dataIndex: 'modelSize',
+    dataIndex: 'size',
     ellipsis: true,
-    width: '11%',
+
     align: 'center'
     // sorter: (a, b) => parseFloat(a.size) - parseFloat(b.size),
   },
   {
-    title: <b>创建者</b>,
-    dataIndex: 'belong',
+    title: <b>标签</b>,
+    dataIndex: 'tags',
     ellipsis: true,
-    width: '11%',
+
+    render: (_, row) => {
+      return row.tags.join(',');
+    },
     align: 'center'
   },
   {
     title: <b>创建时间</b>,
     valueType: 'dateTime',
-    dataIndex: 'createTime',
+    dataIndex: 'createdAt',
     ellipsis: true,
-    width: '11%',
+
     align: 'center'
     // sorter: (a, b) => a.createdAt - b.createdAt,
   },
+];
+
+const columns: ProColumns<TableListItem>[] = [
   {
-    title: <b>模型状态</b>,
-    dataIndex: 'modelState',
-    // initialValue: 'all',
-    // filters: true,
-    // onFilter: true,
-    valueType: 'select',
+    title: <b>模型ID</b>,
+    dataIndex: 'id',
     ellipsis: true,
-    valueEnum: {
-      0: {text: '正在上传', status: 'Processing'},
-      1: {text: '上传成功', status: 'Success'},
-    },
-    width: '11%',
+    width: '40%',
     align: 'center'
+  },
+  {
+    title: <b>模型大小</b>,
+    dataIndex: 'size',
+    ellipsis: true,
+    width: '10%',
+    align: 'center'
+    // sorter: (a, b) => parseFloat(a.size) - parseFloat(b.size),
+  },
+  /*   {
+      title: <b>标签</b>,
+      dataIndex: 'tags',
+      ellipsis: true,
+      width: '20%',
+      align: 'center'
+    }, */
+  {
+    title: <b>创建时间</b>,
+    dataIndex: 'createdAt',
+    ellipsis: true,
+    width: '50%',
+    align: 'center'
+    // sorter: (a, b) => a.createdAt - b.createdAt,
   },
 ];
 
 export default () => {
 
-/*  const [screenWidth, screenHeight] = [window.screen.width, window.screen.height];
-  console.log(screenWidth, screenHeight)*/
+  /*  const [screenWidth, screenHeight] = [window.screen.width, window.screen.height];
+    console.log(screenWidth, screenHeight)*/
 
-  const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
+  const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
   }));
 
-  const {evaConfig, setEvaConfig} = useModel('config', (ret) => ({
+  const { evaConfig, setEvaConfig } = useModel('config', (ret) => ({
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
@@ -181,7 +157,7 @@ export default () => {
   const [modelUpload, setModelUpload] = useState({});
 
   const handleTestModelInfo = async (values: any) => {
-    const msg = {...values, ...modelUpload};
+    const msg = { ...values, ...modelUpload };
     msg.taskTypeId = modalForm.getFieldValue('taskType1') ||
       modalForm.getFieldValue('taskType2') || modalForm.getFieldValue('taskType3');
     msg.modelType = modalForm.getFieldValue('modelType');
@@ -244,9 +220,9 @@ export default () => {
       valueType: 'select',
       ellipsis: true,
       valueEnum: {
-        1: {text: '图像分类'},
-/*        2: {text: '文本分类'},
-        3: {text: '表格分类'},*/
+        1: { text: '图像分类' },
+        /*        2: {text: '文本分类'},
+                3: {text: '表格分类'},*/
       },
       align: 'center',
     },
@@ -279,8 +255,8 @@ export default () => {
       valueType: 'select',
       ellipsis: true,
       valueEnum: {
-        0: {text: '正在上传', status: 'Processing'},
-        1: {text: '上传成功', status: 'Success'},
+        0: { text: '正在上传', status: 'Processing' },
+        1: { text: '上传成功', status: 'Success' },
       },
       align: 'center',
     },
@@ -359,15 +335,15 @@ export default () => {
 
   //中断网络请求
   let controller = new AbortController(); // 创建一个控制器
-  let {signal} = controller; // 返回一个 AbortSignal 对象实例，它可以用来 with/abort 一个 DOM 请求。
+  let { signal } = controller; // 返回一个 AbortSignal 对象实例，它可以用来 with/abort 一个 DOM 请求。
 
   return (
     <>
 
-      <ProCard title={<div style={{fontSize: '20px', fontWeight: 'bold'}}>模型列表</div>}>
-        <ProTable<TableListItem, { keyWord?: string }>
+      <ProCard title={<div style={{ fontSize: '20px', fontWeight: 'bold' }}>模型列表</div>}>
+        <ProTable
           loading={false}
-          columns={columns}
+          columns={columnsMP}
           request={async (
             // 第一个参数 params 查询表单和 params 参数的结合
             // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
@@ -375,42 +351,57 @@ export default () => {
               pageSize: number;
               current: number;
             },
-            sort,
-            filter,
+            /*             sort,
+                        filter, */
           ) => {
             // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
             // 如果需要转化参数可以在这里进行修改
-            let taskType;
-            if (filter.taskTypeId !== null) {
-              taskType = filter.taskTypeId.map((item) => {
-                return Number(item);
-              })
-            } else {
-              taskType = [1, 2, 3];
-            }
+            /*             let taskType;
+                        if (filter.taskTypeId !== null) {
+                          taskType = filter.taskTypeId.map((item) => {
+                            return Number(item);
+                          })
+                        } else {
+                          taskType = [1, 2, 3];
+                        } */
             //console.log(taskType);
-            const msg = await modelQuery(params, queryType, queryContent, null, taskType);
+            //const msg = await modelQuery(params, queryType, queryContent, null, taskType);
+            const data2 = await modelQueryMp(params, queryContent);
+            console.log(JSON.parse(data2.data));
+            const modelInfo = JSON.parse(data2.data);
             //console.log(msg);
-            const data = msg.data.records.map(item => {
-              if (item.modelSize < 1024) {
-                item.modelSize = item.modelSize.toString() + 'B';
-                return item;
-              } else if (item.modelSize >= 1024 && item.modelSize < 1024 * 1024) {
-                item.modelSize = Math.floor(item.modelSize / 1024).toString() + 'KB'
-                return item;
-              } else {
-                item.modelSize = Math.floor(item.modelSize / 1024 / 1024).toString() + 'MB'
-                return item;
+            /*             const data = msg.data.records.map(item => {
+                          if (item.modelSize < 1024) {
+                            item.modelSize = item.modelSize.toString() + 'B';
+                            return item;
+                          } else if (item.modelSize >= 1024 && item.modelSize < 1024 * 1024) {
+                            item.modelSize = Math.floor(item.modelSize / 1024).toString() + 'KB'
+                            return item;
+                          } else {
+                            item.modelSize = Math.floor(item.modelSize / 1024 / 1024).toString() + 'MB'
+                            return item;
+                          }
+                        }) */
+            if (modelInfo.data.items !== null) {
+              return {
+                data: modelInfo.data.items,
+                total: modelInfo.data.total,
+                //data: data,
+                // success 请返回 true，
+                // 不然 table 会停止解析数据，即使有数据
+                success: true,
+                // 不传会使用 data 的长度，如果是分页一定要传
+                //total: msg.data.total,
+              };
+            }
+            else {
+              return {
+                data: [],
+                total: modelInfo.data.total,
+                success: true,
               }
-            })
-            return {
-              data: data,
-              // success 请返回 true，
-              // 不然 table 会停止解析数据，即使有数据
-              success: true,
-              // 不传会使用 data 的长度，如果是分页一定要传
-              total: msg.data.total,
-            };
+            }
+
           }}
           /*      options={{
                   search: true,
@@ -424,7 +415,7 @@ export default () => {
             search: (<Input.Group compact>
               <Select
                 defaultValue=""
-                style={{width: 100}}
+                style={{ width: 100 }}
                 onChange={event => setQueryType(event)}
                 options={[
                   {
@@ -438,15 +429,15 @@ export default () => {
                 ]}
               />
               <Search onChange={event => setQueryContent(event.target.value)}
-                      enterButton={true}
-                      allowClear={true}
-                      style={{width: '70%'}}
-                      onReset={() => {
-                        //console.log('hello');
-                      }}
-                      onSearch={(value: string, event) => {
-                        ref.current?.reload();
-                      }}
+                enterButton={true}
+                allowClear={true}
+                style={{ width: '70%' }}
+                onReset={() => {
+                  //console.log('hello');
+                }}
+                onSearch={(value: string, event) => {
+                  ref.current?.reload();
+                }}
               />
             </Input.Group>)
             /*{
@@ -491,74 +482,74 @@ export default () => {
                 render: (props, dom) => {
                   return [
 
-                      <ProCard colSpan={20}>
-                        <ModalForm
-                          modalProps={{
-                            destroyOnClose: true,
-                            onCancel: () => {
-                              setSelectedRowKeys([]);
-                              setSelectedRowKey([]);
-                              setModelUpload({});
-                              controller.abort();
-                              controller = new AbortController();
-                              signal = controller.signal;
-                            },
-                            width: "70%" ,
-                          }}
-                          title="上传模型"
-                          trigger={<Button type="primary" onClick={() => {
-                          }}>上传模型</Button>}
-                          submitter={{
-                            searchConfig: {
-                              submitText: '确认',
-                              resetText: '取消',
-                            },
+                    <ProCard colSpan={20}>
+                      <ModalForm
+                        modalProps={{
+                          destroyOnClose: true,
+                          onCancel: () => {
+                            setSelectedRowKeys([]);
+                            setSelectedRowKey([]);
+                            setModelUpload({});
+                            controller.abort();
+                            controller = new AbortController();
+                            signal = controller.signal;
+                          },
+                          width: "70%",
+                        }}
+                        title="上传模型"
+                        trigger={<Button type="primary" onClick={() => {
+                        }}>上传模型</Button>}
+                        submitter={{
+                          searchConfig: {
+                            submitText: '确认',
+                            resetText: '取消',
+                          },
+                        }
+                        }
+                        onFinish={async (values) => {
+                          //console.log(modelUpload);
+                          if (!modelUpload.hasOwnProperty('url')) {
+                            message.error('请等待文件上传完成');
+                            return false;
                           }
-                          }
-                          onFinish={async (values) => {
-                            //console.log(modelUpload);
-                            if (!modelUpload.hasOwnProperty('url')) {
-                              message.error('请等待文件上传完成');
-                              return false;
-                            }
-                            await handleTestModelInfo(values);
-                            modalRef.current?.submit();
-                            ref.current?.reload();
-                            return true;
-                          }}
-                        >
-                          <ProFormText
-                            width="md"
-                            name="modelName"
-                            label="模型名称"
-                            tooltip="最长为 24 位"
-                            placeholder="请输入名称"
-                            required={true}
-                          />
-                          <ProFormTextArea label="模型描述" width="md" name="modelDesc" placeholder="请输入模型信息"
-                                           required={true}/>
-                          <ProFormSelect
-                            width="sm"
-                            name="modelFrame"
-                            allowClear={false}
-                            initialValue={0}
-                            label="模型框架"
-                            options={[
-                              {
-                                value: 0,
-                                label: 'Pytorch',
-                              },
-                              {
-                                value: 1,
-                                label: 'TensorFlow',
-                              },
-                              {
-                                value: 2,
-                                label: '其他',
-                              },
-                            ]
-                            }/>
-                          {/*<ProFormSelect
+                          await handleTestModelInfo(values);
+                          modalRef.current?.submit();
+                          ref.current?.reload();
+                          return true;
+                        }}
+                      >
+                        <ProFormText
+                          width="md"
+                          name="modelName"
+                          label="模型名称"
+                          tooltip="最长为 24 位"
+                          placeholder="请输入名称"
+                          required={true}
+                        />
+                        <ProFormTextArea label="模型描述" width="md" name="modelDesc" placeholder="请输入模型信息"
+                          required={true} />
+                        <ProFormSelect
+                          width="sm"
+                          name="modelFrame"
+                          allowClear={false}
+                          initialValue={0}
+                          label="模型框架"
+                          options={[
+                            {
+                              value: 0,
+                              label: 'Pytorch',
+                            },
+                            {
+                              value: 1,
+                              label: 'TensorFlow',
+                            },
+                            {
+                              value: 2,
+                              label: '其他',
+                            },
+                          ]
+                          } />
+                        {/*<ProFormSelect
                     width="md"
                     name="taskTypeId"
                     initialValue={modalForm.getFieldValue('dataType')}
@@ -585,236 +576,236 @@ export default () => {
                     ]
                     }/>*/}
 
-                          <Form.Item>
-                            <ProFormUploadButton
-                              /*            fieldProps={{
-                                            headers: { 'authorization': 'Bearer ' + token.get(),
-                                             'content-type': 'multipart/form-data; boundary=<calculated when request is sent>'}
-                                          }}*/
-                              rules={[{required: true}]}
-                              label="模型文件"
-                              tooltip={'请上传.pkl,.pt,.pth,.zip,.txt,.h5格式文件,，并于提示文件上传成功后点击确定上传模型信息'}
-                              name="file"
-                              title="选取文件"
-                              accept={".pkl,.pt,.zip,.txt,.h5,.pth"}
-                              max={1}
-                              //action={'/api/micro-model-dataset-service/minio/dataset/upload'}
-                              fieldProps={{
-                                beforeUpload: (file) => {
-                                  const fileFormat = ['pkl', 'pt', 'zip', 'txt', 'h5', 'pth'];
-                                  //console.log(fileFormat.indexOf(file.name.split('.').reverse()[0]));
-                                  const isPkl = fileFormat.indexOf(file.name.split('.').reverse()[0]);
-                                  if (isPkl === -1) {
-                                    message.error(`${file.name}文件格式不正确`);
-                                    return Upload.LIST_IGNORE;
-                                  }
-                                  if (file.size / 1024 / 1024 > 500) {
-                                    message.error(`${file.name}文件过大`);
-                                    return Upload.LIST_IGNORE;
-                                  }
-                                  return true;
-                                },
-                                onChange: async (info) => {
-                                  if (info.file.status === 'done') {
-                                    const data = await modelFile(info.file.originFileObj, signal);
-                                    if (data.code === '00000') {
-                                      message.success('模型文件上传成功');
-                                      setModelUpload({
-                                        'url': data.data.url,
-                                        'size': Number(data.data.size),
-                                        'unit': data.data.unit
-                                      });
-                                    } else
-                                      message.error(data.message);
-                                  } else if (info.file.status === 'removed') {
-                                    setModelUpload({});
-                                    controller.abort();
-                                    controller = new AbortController();
-                                    signal = controller.signal;
-                                  }
-                                },
-                                listType: 'text'
-                              }}
-                              /*                      onChange={async (info) => {
-                                                      if(info.file.status === 'done') {
-                                                        const data = await modelFile(info.file.originFileObj);
-                                                        //console.log(data.data.url);
-                                                        if (data.code === '00000') {
-                                                          setModelUpload({
-                                                            'url': data.data.url,
-                                                            'size': data.data.size,
-                                                            'unit': data.data.unit
-                                                          });
-                                                        }
-                                                        else
-                                                          message.error(data.message);
-                                                      }
+                        <Form.Item>
+                          <ProFormUploadButton
+                            /*            fieldProps={{
+                                          headers: { 'authorization': 'Bearer ' + token.get(),
+                                           'content-type': 'multipart/form-data; boundary=<calculated when request is sent>'}
+                                        }}*/
+                            rules={[{ required: true }]}
+                            label="模型文件"
+                            tooltip={'请上传.pkl,.pt,.pth,.zip,.txt,.h5格式文件,，并于提示文件上传成功后点击确定上传模型信息'}
+                            name="file"
+                            title="选取文件"
+                            accept={".pkl,.pt,.zip,.txt,.h5,.pth"}
+                            max={1}
+                            //action={'/api/micro-model-dataset-service/minio/dataset/upload'}
+                            fieldProps={{
+                              beforeUpload: (file) => {
+                                const fileFormat = ['pkl', 'pt', 'zip', 'txt', 'h5', 'pth'];
+                                //console.log(fileFormat.indexOf(file.name.split('.').reverse()[0]));
+                                const isPkl = fileFormat.indexOf(file.name.split('.').reverse()[0]);
+                                if (isPkl === -1) {
+                                  message.error(`${file.name}文件格式不正确`);
+                                  return Upload.LIST_IGNORE;
+                                }
+                                if (file.size / 1024 / 1024 > 500) {
+                                  message.error(`${file.name}文件过大`);
+                                  return Upload.LIST_IGNORE;
+                                }
+                                return true;
+                              },
+                              onChange: async (info) => {
+                                if (info.file.status === 'done') {
+                                  const data = await modelFile(info.file.originFileObj, signal);
+                                  if (data.code === '00000') {
+                                    message.success('模型文件上传成功');
+                                    setModelUpload({
+                                      'url': data.data.url,
+                                      'size': Number(data.data.size),
+                                      'unit': data.data.unit
+                                    });
+                                  } else
+                                    message.error(data.message);
+                                } else if (info.file.status === 'removed') {
+                                  setModelUpload({});
+                                  controller.abort();
+                                  controller = new AbortController();
+                                  signal = controller.signal;
+                                }
+                              },
+                              listType: 'text'
+                            }}
+                          /*                      onChange={async (info) => {
+                                                  if(info.file.status === 'done') {
+                                                    const data = await modelFile(info.file.originFileObj);
+                                                    //console.log(data.data.url);
+                                                    if (data.code === '00000') {
+                                                      setModelUpload({
+                                                        'url': data.data.url,
+                                                        'size': data.data.size,
+                                                        'unit': data.data.unit
+                                                      });
                                                     }
-                                                    }*/
-                            />
+                                                    else
+                                                      message.error(data.message);
+                                                  }
+                                                }
+                                                }*/
+                          />
+                        </Form.Item>
+
+                        {(modelType === 0 || modelType === 1) && (
+                          <Form.Item>
+                            <ProCard title={<div style={{ fontSize: '17px', fontWeight: 'bold' }}>可选关联数据集</div>}>
+                              <ProTable
+                                loading={false}
+                                columns={dataColumns}
+                                rowSelection={rowSelection}
+                                tableAlertRender={false}
+                                request={async (
+                                  // 第一个参数 params 查询表单和 params 参数的结合
+                                  // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
+                                  params: T & {
+                                    pageSize: number;
+                                    current: number;
+                                  },
+                                  sort,
+                                  filter,
+                                ) => {
+                                  // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
+                                  // 如果需要转化参数可以在这里进行修改
+                                  let msg;
+                                  if (modalForm.getFieldValue('dataType') === 1) {
+                                    msg = await dataSetQuery(params, null, null, modalForm.getFieldValue('taskType1'));
+                                  }
+                                  if (modalForm.getFieldValue('dataType') === 2) {
+                                    msg = await dataSetQuery(params, null, null, modalForm.getFieldValue('taskType2'));
+                                  }
+                                  if (modalForm.getFieldValue('dataType') === 3) {
+                                    msg = await dataSetQuery(params, null, null, modalForm.getFieldValue('taskType3'));
+                                  }
+                                  //console.log(msg);
+                                  /*                        let currentData = [];
+                                                          msg.data.records.map((item) => {
+                                                            currentData.push(item.id);
+                                                          });
+                                                          setCurrentDataSet(currentData);
+                                                          //console.log(currentDataSet);*/
+                                  if (msg.code === '00000')
+                                    return {
+                                      data: msg.data.records,
+                                      // success 请返回 true，
+                                      // 不然 table 会停止解析数据，即使有数据
+                                      success: true,
+                                      // 不传会使用 data 的长度，如果是分页一定要传
+                                      total: msg.data.total,
+                                    };
+                                  else
+                                    message.error(msg.message);
+                                  return false;
+                                }}
+                                /*      options={{
+                                        search: true,
+                                      }}
+
+                                      columnsState={{
+                                        value: columnsStateMap,
+                                        onChange: setColumnsStateMap,
+                                      }}*/
+                                rowKey="id"
+                                // formRef={formRef}
+                                pagination={{
+                                  pageSize: 10,
+                                  showSizeChanger: false,
+                                }}
+                                search={false}
+                                dateFormatter="string"
+                                options={false}
+                              />
+                            </ProCard>
                           </Form.Item>
-
-                          {(modelType === 0 || modelType === 1) && (
-                            <Form.Item>
-                              <ProCard title={<div style={{fontSize: '17px', fontWeight: 'bold'}}>可选关联数据集</div> }>
-                                <ProTable
-                                  loading={false}
-                                  columns={dataColumns}
-                                  rowSelection={rowSelection}
-                                  tableAlertRender={false}
-                                  request={async (
-                                    // 第一个参数 params 查询表单和 params 参数的结合
-                                    // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
-                                    params: T & {
-                                      pageSize: number;
-                                      current: number;
-                                    },
-                                    sort,
-                                    filter,
-                                  ) => {
-                                    // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
-                                    // 如果需要转化参数可以在这里进行修改
-                                    let msg;
-                                    if (modalForm.getFieldValue('dataType') === 1) {
-                                      msg = await dataSetQuery(params, null, null, modalForm.getFieldValue('taskType1'));
-                                    }
-                                    if (modalForm.getFieldValue('dataType') === 2) {
-                                      msg = await dataSetQuery(params, null, null, modalForm.getFieldValue('taskType2'));
-                                    }
-                                    if (modalForm.getFieldValue('dataType') === 3) {
-                                      msg = await dataSetQuery(params, null, null, modalForm.getFieldValue('taskType3'));
-                                    }
-                                    //console.log(msg);
-                                    /*                        let currentData = [];
-                                                            msg.data.records.map((item) => {
-                                                              currentData.push(item.id);
-                                                            });
-                                                            setCurrentDataSet(currentData);
-                                                            //console.log(currentDataSet);*/
-                                    if (msg.code === '00000')
-                                      return {
-                                        data: msg.data.records,
-                                        // success 请返回 true，
-                                        // 不然 table 会停止解析数据，即使有数据
-                                        success: true,
-                                        // 不传会使用 data 的长度，如果是分页一定要传
-                                        total: msg.data.total,
-                                      };
-                                    else
-                                      message.error(msg.message);
-                                    return false;
-                                  }}
-                                  /*      options={{
-                                          search: true,
-                                        }}
-
-                                        columnsState={{
-                                          value: columnsStateMap,
-                                          onChange: setColumnsStateMap,
-                                        }}*/
-                                  rowKey="id"
-                                  // formRef={formRef}
-                                  pagination={{
-                                    pageSize: 10,
-                                    showSizeChanger: false,
-                                  }}
-                                  search={false}
-                                  dateFormatter="string"
-                                  options={false}
-                                />
-                              </ProCard>
-                            </Form.Item>
-                          )}
-                          {(modelType === 3) && (
-                            <Form.Item>
-                              <ProFormSelect
-                                width="sm"
-                                name="proxyType"
-                                allowClear={false}
-                                initialValue={0}
-                                label="代理模型类型"
-                                options={[
-                                  {
-                                    value: 0,
-                                    label: '规则模型',
+                        )}
+                        {(modelType === 3) && (
+                          <Form.Item>
+                            <ProFormSelect
+                              width="sm"
+                              name="proxyType"
+                              allowClear={false}
+                              initialValue={0}
+                              label="代理模型类型"
+                              options={[
+                                {
+                                  value: 0,
+                                  label: '规则模型',
+                                },
+                                {
+                                  value: 1,
+                                  label: '决策树模型',
+                                },
+                              ]
+                              } />
+                            <ProCard title={<div style={{ fontSize: '17px', fontWeight: 'bold' }}>可选关联黑盒模型</div>}>
+                              <ProTable
+                                loading={false}
+                                columns={columns}
+                                rowSelection={rowSelectionNew}
+                                tableAlertRender={false}
+                                request={async (
+                                  // 第一个参数 params 查询表单和 params 参数的结合
+                                  // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
+                                  params: T & {
+                                    pageSize: number;
+                                    current: number;
                                   },
-                                  {
-                                    value: 1,
-                                    label: '决策树模型',
-                                  },
-                                ]
-                                }/>
-                              <ProCard title={<div style={{fontSize: '17px', fontWeight: 'bold'}}>可选关联黑盒模型</div>}>
-                                <ProTable
-                                  loading={false}
-                                  columns={columns}
-                                  rowSelection={rowSelectionNew}
-                                  tableAlertRender={false}
-                                  request={async (
-                                    // 第一个参数 params 查询表单和 params 参数的结合
-                                    // 第一个参数中一定会有 pageSize 和  current ，这两个参数是 antd 的规范
-                                    params: T & {
-                                      pageSize: number;
-                                      current: number;
-                                    },
-                                    sort,
-                                    filter,
-                                  ) => {
-                                    // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
-                                    // 如果需要转化参数可以在这里进行修改
-                                    let msg;
-                                    if (modalForm.getFieldValue('dataType') === 1) {
-                                      msg = await blackModelQuery(params, modalForm.getFieldValue('taskType1'));
-                                    }
-                                    if (modalForm.getFieldValue('dataType') === 2) {
-                                      msg = await blackModelQuery(params, modalForm.getFieldValue('taskType2'));
-                                    }
-                                    if (modalForm.getFieldValue('dataType') === 3) {
-                                      msg = await blackModelQuery(params, modalForm.getFieldValue('taskType3'));
-                                    }
-                                    //console.log(msg);
-                                    /*                        let currentData = [];
-                                                            msg.data.records.map((item) => {
-                                                              currentData.push(item.id);
-                                                            });
-                                                            setCurrentDataSet(currentData);
-                                                            //console.log(currentDataSet);*/
-                                    if (msg.code === '00000')
-                                      return {
-                                        data: msg.data.records,
-                                        // success 请返回 true，
-                                        // 不然 table 会停止解析数据，即使有数据
-                                        success: true,
-                                        // 不传会使用 data 的长度，如果是分页一定要传
-                                        total: msg.data.total,
-                                      };
-                                    else
-                                      message.error(msg.message);
-                                    return false;
-                                  }}
-                                  /*      options={{
-                                          search: true,
-                                        }}
+                                  sort,
+                                  filter,
+                                ) => {
+                                  // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
+                                  // 如果需要转化参数可以在这里进行修改
+                                  let msg;
+                                  if (modalForm.getFieldValue('dataType') === 1) {
+                                    msg = await blackModelQuery(params, modalForm.getFieldValue('taskType1'));
+                                  }
+                                  if (modalForm.getFieldValue('dataType') === 2) {
+                                    msg = await blackModelQuery(params, modalForm.getFieldValue('taskType2'));
+                                  }
+                                  if (modalForm.getFieldValue('dataType') === 3) {
+                                    msg = await blackModelQuery(params, modalForm.getFieldValue('taskType3'));
+                                  }
+                                  //console.log(msg);
+                                  /*                        let currentData = [];
+                                                          msg.data.records.map((item) => {
+                                                            currentData.push(item.id);
+                                                          });
+                                                          setCurrentDataSet(currentData);
+                                                          //console.log(currentDataSet);*/
+                                  if (msg.code === '00000')
+                                    return {
+                                      data: msg.data.records,
+                                      // success 请返回 true，
+                                      // 不然 table 会停止解析数据，即使有数据
+                                      success: true,
+                                      // 不传会使用 data 的长度，如果是分页一定要传
+                                      total: msg.data.total,
+                                    };
+                                  else
+                                    message.error(msg.message);
+                                  return false;
+                                }}
+                                /*      options={{
+                                        search: true,
+                                      }}
 
-                                        columnsState={{
-                                          value: columnsStateMap,
-                                          onChange: setColumnsStateMap,
-                                        }}*/
-                                  rowKey="id"
-                                  // formRef={formRef}
-                                  pagination={{
-                                    pageSize: 10,
-                                    showSizeChanger: false,
-                                  }}
-                                  search={false}
-                                  dateFormatter="string"
-                                  options={false}
-                                />
-                              </ProCard>
-                            </Form.Item>
-                          )}
-                        </ModalForm>
-                      </ProCard>
+                                      columnsState={{
+                                        value: columnsStateMap,
+                                        onChange: setColumnsStateMap,
+                                      }}*/
+                                rowKey="id"
+                                // formRef={formRef}
+                                pagination={{
+                                  pageSize: 10,
+                                  showSizeChanger: false,
+                                }}
+                                search={false}
+                                dateFormatter="string"
+                                options={false}
+                              />
+                            </ProCard>
+                          </Form.Item>
+                        )}
+                      </ModalForm>
+                    </ProCard>
                   ]
                 }
               }}
@@ -837,14 +828,14 @@ export default () => {
                     label: '图像',
                     value: 1,
                   },
-/*                  {
-                    label: '文本',
-                    value: 2,
-                  },*/
-/*                  {
-                    label: '表格',
-                    value: 3,
-                  },*/
+                  /*                  {
+                                      label: '文本',
+                                      value: 2,
+                                    },*/
+                  /*                  {
+                                      label: '表格',
+                                      value: 3,
+                                    },*/
                 ]}
               />
               {(first === 1) && (
@@ -856,7 +847,7 @@ export default () => {
                   initialValue={1}
                   request={() => {
                     return [
-                      {value: 1, label: '图像分类'},
+                      { value: 1, label: '图像分类' },
                     ];
                   }}
                 />
@@ -871,12 +862,12 @@ export default () => {
                   initialValue={2}
                   request={() => {
                     return [
-                      {value: 2, label: '文本分类'},
+                      { value: 2, label: '文本分类' },
                     ];
                   }}
                 />
               )}
-{/*              {first === 3 && (
+              {/*              {first === 3 && (
                 <ProFormRadio.Group
                   name="taskType3"
                   label="任务类型"

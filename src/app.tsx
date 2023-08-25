@@ -88,23 +88,22 @@ export const request: RequestConfig = {
 };*/
 
 const demoResponseInterceptors = (response: Response, options: RequestConfig) => {
+  //const response2 = response.clone();
   if (response.status === 401) {
     console.log(401);
-    token.save(null);
+    //token.save(null);
 
     const { query = {}, search, pathname } = history.location;
     const { redirect } = query;
     // Note: There may be security issues, please note
 
-    if (window.location.pathname !== '/user/login' && !redirect) {
-      console.log('401')
-      history.replace({
-        pathname: '/user/login',
-        /*        search: stringify({
-                  redirect: pathname + search,
-                }),*/
-      });
-    }
+    /*     if (window.location.pathname !== '/user/login' && !redirect) {
+          console.log('401')
+          history.replace({
+            pathname: '/user/login',
+          });
+        } */
+    window.location.replace("http://101.200.198.205/login");
   }
   return response;
 };

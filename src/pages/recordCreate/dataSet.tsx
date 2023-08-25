@@ -4,7 +4,7 @@ import type { ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { Input, Select, Table } from 'antd';
 import React, { useRef, useState, forwardRef, useImperativeHandle, Key } from 'react';
 import type { TableRowSelection } from 'antd/es/table/interface';
-import { dataSetQuery } from "@/services/ant-design-pro/api";
+import { dataSetQuery, dataSetQueryMP } from "@/services/ant-design-pro/api";
 
 
 const { Search } = Input;
@@ -95,6 +95,40 @@ const columns: ProColumns[] = [
   },
 ];
 
+const columnsMP: ProColumns[] = [
+  {
+    title: <b>数据ID</b>,
+    dataIndex: 'md5Sum',
+    ellipsis: true,
+    width: '40%',
+    align: 'center',
+  },
+  {
+    title: <b>数据名称</b>,
+    dataIndex: 'name',
+    ellipsis: true,
+
+    align: 'center',
+  },
+  {
+    title: <b>数据大小</b>,
+    dataIndex: 'size',
+    ellipsis: true,
+
+    align: 'center',
+    // sorter: (a, b) => a.dataLength - b.dataLength,
+  },
+  {
+    title: <b>创建时间</b>,
+    valueType: 'dateTime',
+    dataIndex: 'lastModified',
+    // sorter: (a, b) => a.createTime - b.createTime,
+    ellipsis: true,
+
+    align: 'center',
+  },
+];
+
 
 export default forwardRef((props, ref) => {
 
@@ -161,7 +195,7 @@ export default forwardRef((props, ref) => {
       <ProCard>
         <ProTable<TableListItem, { keyWord?: string }>
           loading={false}
-          columns={columns}
+          columns={columnsMP}
           rowSelection={rowSelection}
           tableAlertRender={false}
           request={async (
@@ -177,19 +211,47 @@ export default forwardRef((props, ref) => {
             // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
             // 如果需要转化参数可以在这里进行修改
             //console.log(props);
-            const msg = await dataSetQuery(params, queryType, queryContent, props.props.location.query.taskTypeId);
-            console.log(msg.data.records);
-            if (msg.code === '00000') {
-              return {
-                data: msg.data.records,
-                // success 请返回 true，
-                // 不然 table 会停止解析数据，即使有数据
-                success: true,
-                // 不传会使用 data 的长度，如果是分页一定要传
-                total: msg.data.total,
-              };
-            } else
-              message.error(msg.message);
+            /*             const msg = await dataSetQuery(params, queryType, queryContent, props.props.location.query.taskTypeId);
+                        console.log(msg.data.records);
+                        if (msg.code === '00000') {
+                          return {
+                            data: msg.data.records,
+                            // success 请返回 true，
+                            // 不然 table 会停止解析数据，即使有数据
+                            success: true,
+                            // 不传会使用 data 的长度，如果是分页一定要传
+                            total: msg.data.total,
+                          };
+                        } else
+                          message.error(msg.message);
+                        return false; */
+            const data = await dataSetQueryMP(params, queryContent);
+            console.log(JSON.parse(data.data));
+            const dataInfo = JSON.parse(data.data);
+            if (dataInfo.code === 200) {
+              console.log(1);
+              if (dataInfo.data.items !== null) {
+                return {
+                  data: dataInfo.data.items,
+                  total: dataInfo.data.total,
+                  //data: msg.data.records,
+                  // success 请返回 true，
+                  // 不然 table 会停止解析数据，即使有数据
+                  success: true,
+                  // 不传会使用 data 的长度，如果是分页一定要传
+                  //total: msg.data.total,
+                };
+              }
+              else {
+                console.log(1);
+                return {
+                  data: [],
+                  total: dataInfo.data.total,
+                  success: true,
+                }
+              }
+            }
+            else message.error(msg.message);
             return false;
           }}
           /*      options={{
@@ -202,7 +264,7 @@ export default forwardRef((props, ref) => {
                 }}*/
           toolbar={{
             search: (<Input.Group compact>
-              <Select
+              {/*               <Select
                 defaultValue=""
                 style={{ width: 100 }}
                 onChange={event => setQueryType(event)}
@@ -216,7 +278,7 @@ export default forwardRef((props, ref) => {
                     label: '任务名称',
                   },
                 ]}
-              />
+              /> */}
               <Search onChange={event => setQueryContent(event.target.value)}
                 enterButton={true}
                 allowClear={true}
@@ -238,7 +300,7 @@ export default forwardRef((props, ref) => {
               enterButton: true,
             } */
           }}
-          rowKey="id"
+          rowKey="name"
           actionRef={actionRef}
           formRef={formRef}
           pagination={{

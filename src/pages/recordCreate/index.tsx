@@ -13,11 +13,9 @@ import {
   accEvaluation,
   robustEvaluation,
   adaptEvaluation,
-  interpretEvaluation,
-  interpretEvaluationNew,
   evaluateTypesByDataType, imgInterpretEvaluation,
 } from "@/services/ant-design-pro/api";
-import { dataSetQueryById, modelQueryById, dataSetUrlQueryById } from "@/services/ant-design-pro/api";
+import { dataSetQueryById, modelQueryById } from "@/services/ant-design-pro/api";
 import { history } from "umi";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
@@ -30,7 +28,7 @@ const waitTime = (time: number = 100) => {
 };
 
 export default (params) => {
-  const [screenWidth, screenHeight] = [window.screen.width, window.screen.height];
+
 
   const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
@@ -47,7 +45,7 @@ export default (params) => {
     setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
   }));
 
-  const [evaMethod, setEvaMethod] = useState('');
+  const [evaMethod, setEvaMethod] = useState('INTERPRET');
 
   const [taskTypeId, setTaskTypeId] = useState(params.location.query.taskTypeId);
 
@@ -66,7 +64,7 @@ export default (params) => {
     }
   }
   useEffect(() => {
-    config();
+    //config();
   }, []);
 
 
@@ -133,9 +131,10 @@ export default (params) => {
               }
               return (
                 <div
-                  /*                  style={{position: 'relative', bottom: 0, left: (600 -145) * screenWidth / 1536, display: 'flex'
-                                      //transform: 'translate(-50%, -50%)'
-                                  }}*/
+                  /* style={{
+                    position: 'relative', bottom: 0, left: (600 - 145) * screenWidth / 1536, display: 'flex'
+                    //transform: 'translate(-50%, -50%)'
+                  }} */
                   //style={{display: "flex", justifyContent: 'center'}}
                   //style={{position: 'fixed', top: '90%', left: '50%', transform: 'translate(-50%, -50%)'}}
                   style={{ position: 'absolute', width: '100%' }}
@@ -384,9 +383,11 @@ export default (params) => {
 
               const value = {
                 "methodConfigList": methodParamsContent,
-                "modelId": modelSetRef.current.openModal()[0],
+                //"modelId": modelSetRef.current.openModal()[0],
+                "modelId": 1,
+                "dataSetId": 1,
                 "taskTypeId": params.location.query.taskTypeId,
-                "dataSetId": dataSetRef.current.openModal()[0],
+                //"dataSetId": dataSetRef.current.openModal()[0],
                 "taskName": '',
                 "deviceType": evaluationRef.current.accConfigNew().deviceType,
                 "imageUrls": imgUrls,
@@ -401,17 +402,18 @@ export default (params) => {
                           return true;
                           //console.log(msg);*/
 
-              const modelInfo = await modelQueryById(value.modelId);
-              const modelName = modelInfo.data.modelName;
-              //console.log(modelName);
-              const dataSetInfo = await dataSetQueryById(value.dataSetId);
-              const dataSetName = dataSetInfo.data.dataName;
+              /*               const modelInfo = await modelQueryById(value.modelId);
+                            const modelName = modelInfo.data.modelName;
+                            //console.log(modelName);
+                            const dataSetInfo = await dataSetQueryById(value.dataSetId);
+                            const dataSetName = dataSetInfo.data.dataName; */
               //console.log(dataSetName);
-              value.taskName = dataSetName + '数据集-' + modelName + '模型-' + '可解释性评测';
+              //value.taskName = dataSetName + '数据集-' + modelName + '模型-' + '可解释性评测';
+              value.taskName = dataSetId + '数据集-' + value.modelId + '模型-' + '可解释性评测';
               if (value.taskTypeId === 1)
                 value.taskName += '-图片分类'
               else
-                value.taskName += '-文本分类'
+                value.taskName += '-目标检测'
               console.log(value);
 
               const msg = await imgInterpretEvaluation(value);
@@ -487,36 +489,27 @@ export default (params) => {
                 return false;
               }
               setImgUrl([
-                'https://s1.aigei.com/src/img/png/b6/b6ad95546ea34e7a8485b17ba5f98061.png?imageMogr2/auto-orient/thumbnail/!132x132r/gravity/Center/crop/132x132/quality/85/%7Cwatermark/3/image/aHR0cHM6Ly9zMS5haWdlaS5jb20vd2F0ZXJtYXJrLzYwLTEucG5nP2U9MTczNTQ4ODAwMCZ0b2tlbj1QN1MyWHB6ZnoxMXZBa0FTTFRrZkhON0Z3LW9PWkJlY3FlSmF4eXBMOmZTYlRIZ1Q2aGhxSnQ4bGczaWZ1dWlVWldNQT0=/dissolve/20/gravity/NorthWest/dx/36/dy/67/ws/0.0/wst/0&e=1735488000&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:2bFiBCyTqsiPP9ZF07Qpl0ygIzQ=',
-                'https://zos.alipayobjects.com/rmsportal/EkXWVvAaFJKCzhMmQYiX.png',
-                'https://gw.alipayobjects.com/mdn/rms_ae7ad9/afts/img/A*-wAhRYnWQscAAAAAAAAAAABkARQnAQ',
+                "http://101.200.219.235:9099/kinghao/ori/11055.jpg",
+                "http://101.200.219.235:9099/kinghao/ori/11279.jpg",
+                "http://101.200.219.235:9099/kinghao/ori/21590.jpg",
               ]);
-              //console.log(dataSetRef.current.openModal()[0]);
+              console.log(dataSetRef.current.openModal()[0]);
               setDataSetId(dataSetRef.current.openModal()[0]);
-              const datainfo = await dataSetQueryById(dataSetRef.current.openModal()[0]);
-              console.log(datainfo);
-              if (datainfo.data.isXai === 1) {
-                let imgUrl = datainfo.data.dataUrl;
-                imgUrl = imgUrl.split(',');
-                imgUrl = imgUrl.map((item, index) => {
-                  item = 'http://120.53.91.149:9000/images/' + item;
-                  return item;
-                })
-                console.log(imgUrl);
-                setImgUrl(imgUrl);
-                setEvaMethod('INTERPRET');
-              } else {
-                /*                 let imgUrl = datainfo.data.dataUrl;
-                                imgUrl = imgUrl.split(',');
-                                imgUrl = imgUrl.map( (item, index) => {
-                                  item = 'http://10.105.240.103:9000/images/' + item;
-                                  return item;
-                                })
-                                console.log(imgUrl);
-                                setImgUrl(imgUrl);
-                                setEvaMethod('INTERPRET'); */
-                setDataSetNumber(datainfo.data.dataLength);
-              }
+              /*               const datainfo = await dataSetQueryById(dataSetRef.current.openModal()[0]);
+                            console.log(datainfo);
+                            if (datainfo.data.isXai === 1) {
+                              let imgUrl = datainfo.data.dataUrl;
+                              imgUrl = imgUrl.split(',');
+                              imgUrl = imgUrl.map((item, index) => {
+                                item = 'http://120.53.91.149:9000/images/' + item;
+                                return item;
+                              })
+                              console.log(imgUrl);
+                              setImgUrl(imgUrl);
+                              setEvaMethod('INTERPRET');
+                            } else {
+                              setDataSetNumber(datainfo.data.dataLength);
+                            } */
               modelSetRef.current.openModal();
               return true;
 
@@ -547,12 +540,12 @@ export default (params) => {
                 return false;
               }
               //console.log(modelSetRef.current.openModal()[0]);
-              const modelInfo = await modelQueryById(modelSetRef.current.openModal()[0]);
-              setModelName({
-                modelName: modelInfo.data.modelName,
-                modelId: modelInfo.data.id,
-                modelUrl: modelInfo.data.dataUrl
-              });
+              /*               const modelInfo = await modelQueryById(modelSetRef.current.openModal()[0]);
+                            setModelName({
+                              modelName: modelInfo.data.modelName,
+                              modelId: modelInfo.data.id,
+                              modelUrl: modelInfo.data.dataUrl
+                            }); */
               return true;
             }}
           >

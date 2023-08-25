@@ -1,13 +1,13 @@
-import {ProTable, ProCard} from '@ant-design/pro-components';
-import type {ProColumns, ProFormInstance, ColumnsState} from '@ant-design/pro-components';
-import {Input, Select, Table} from 'antd';
-import React, {useRef, useState, forwardRef, useImperativeHandle, Key, useEffect} from 'react';
-import type {TableRowSelection} from 'antd/es/table/interface';
-import {modelQuery} from "@/services/ant-design-pro/api";
-import {useModel} from 'umi';
+import { ProTable, ProCard } from '@ant-design/pro-components';
+import type { ProColumns, ProFormInstance, ColumnsState } from '@ant-design/pro-components';
+import { Input, Select, Table } from 'antd';
+import React, { useRef, useState, forwardRef, useImperativeHandle, Key, useEffect } from 'react';
+import type { TableRowSelection } from 'antd/es/table/interface';
+import { modelQuery, modelQueryMp } from "@/services/ant-design-pro/api";
+import { useModel } from 'umi';
 
 
-const {Search} = Input;
+const { Search } = Input;
 
 
 interface ActionType {
@@ -57,10 +57,10 @@ const columns: ProColumns<TableListItem>[] = [
     // onFilter: true,
     valueType: 'select',
     valueEnum: {
-      1: {text: '图像分类'},
-      2: {text: '文本分类'},
-      3: {text: '表格分类'},
-      4: {text: '图像识别'},
+      1: { text: '图像分类' },
+      2: { text: '文本分类' },
+      3: { text: '表格分类' },
+      4: { text: '图像识别' },
     },
     align: 'center',
   },
@@ -72,9 +72,9 @@ const columns: ProColumns<TableListItem>[] = [
         onFilter: true,*/
     valueType: 'select',
     valueEnum: {
-      0: {text: 'PyTorch'},
-      1: {text: 'TensorFlow'},
-      2: {text: '其他'},
+      0: { text: 'PyTorch' },
+      1: { text: 'TensorFlow' },
+      2: { text: '其他' },
     },
     ellipsis: true,
     align: 'center',
@@ -105,10 +105,47 @@ const columns: ProColumns<TableListItem>[] = [
     // onFilter: true,
     valueType: 'select',
     valueEnum: {
-      0: {text: '正在上传', status: 'Processing'},
-      1: {text: '上传成功', status: 'Success'},
+      0: { text: '正在上传', status: 'Processing' },
+      1: { text: '上传成功', status: 'Success' },
     },
     align: 'center',
+  },
+];
+
+const columnsMP: ProColumns<TableListItem>[] = [
+  {
+    title: <b>模型ID</b>,
+    dataIndex: 'id',
+    //ellipsis: true,
+    width: '40%',
+    align: 'center'
+  },
+  {
+    title: <b>模型大小</b>,
+    dataIndex: 'size',
+    ellipsis: true,
+
+    align: 'center'
+    // sorter: (a, b) => parseFloat(a.size) - parseFloat(b.size),
+  },
+  {
+    title: <b>标签</b>,
+    dataIndex: 'tags',
+    ellipsis: true,
+
+    /*     render: (_, row) => {
+          return row.tags.join(',');
+        }, */
+    align: 'center'
+  },
+  {
+    title: <b>创建时间</b>,
+    valueType: 'dateTime',
+    dataIndex: 'createdAt',
+    ellipsis: true,
+
+    align: 'center'
+    // sorter: (a, b) => a.createdAt - b.createdAt,
   },
 ];
 
@@ -134,7 +171,7 @@ export default forwardRef((props, ref) => {
   const [queryContent, setQueryContent] = useState('');
   const formRef = useRef<ProFormInstance>();
 
-  const {dataSetId, setDataSetId} = useModel("demo");
+  const { dataSetId, setDataSetId } = useModel("demo");
 
   useEffect(() => {
     actionRef.current?.reload();
@@ -151,7 +188,7 @@ export default forwardRef((props, ref) => {
     <>
       <ProCard>
         <ProTable<TableListItem, { keyWord?: string }>
-          columns={columns}
+          columns={columnsMP}
           rowSelection={rowSelection}
           tableAlertRender={false}
           request={async (
@@ -167,29 +204,51 @@ export default forwardRef((props, ref) => {
             // 这里需要返回一个 Promise,在返回之前你可以进行数据转化
             // 如果需要转化参数可以在这里进行修改
             //console.log(dataSetId);
-            const msg = await modelQuery(params, queryType, queryContent, dataSetId);
-            //console.log(msg);
-            const data = msg.data.records.map(item => {
-              //console.log(item.odelSize);
-              if (item.modelSize < 1024) {
-                item.modelSize = item.modelSize.toString() + 'B';
-                return item;
-              } else if (item.modelSize >= 1024 && item.modelSize < 1024 * 1024) {
-                item.modelSize = Math.floor(item.modelSize / 1024).toString() + 'KB'
-                return item;
-              } else {
-                item.modelSize = Math.floor(item.modelSize / 1024 / 1024).toString() + 'MB'
-                return item;
+            /*             const msg = await modelQuery(params, queryType, queryContent, dataSetId);
+                        //console.log(msg);
+                        const data = msg.data.records.map(item => {
+                          //console.log(item.odelSize);
+                          if (item.modelSize < 1024) {
+                            item.modelSize = item.modelSize.toString() + 'B';
+                            return item;
+                          } else if (item.modelSize >= 1024 && item.modelSize < 1024 * 1024) {
+                            item.modelSize = Math.floor(item.modelSize / 1024).toString() + 'KB'
+                            return item;
+                          } else {
+                            item.modelSize = Math.floor(item.modelSize / 1024 / 1024).toString() + 'MB'
+                            return item;
+                          }
+                        })
+                        return {
+                          data: data,
+                          // success 请返回 true，
+                          // 不然 table 会停止解析数据，即使有数据
+                          success: true,
+                          // 不传会使用 data 的长度，如果是分页一定要传
+                          total: msg.data.total,
+                        }; */
+            const data2 = await modelQueryMp(params, queryContent);
+            console.log(JSON.parse(data2.data));
+            const modelInfo = JSON.parse(data2.data);
+            if (modelInfo.data.items !== null) {
+              return {
+                data: modelInfo.data.items,
+                total: modelInfo.data.total,
+                //data: data,
+                // success 请返回 true，
+                // 不然 table 会停止解析数据，即使有数据
+                success: true,
+                // 不传会使用 data 的长度，如果是分页一定要传
+                //total: msg.data.total,
+              };
+            }
+            else {
+              return {
+                data: [],
+                total: modelInfo.data.total,
+                success: true,
               }
-            })
-            return {
-              data: data,
-              // success 请返回 true，
-              // 不然 table 会停止解析数据，即使有数据
-              success: true,
-              // 不传会使用 data 的长度，如果是分页一定要传
-              total: msg.data.total,
-            };
+            }
           }}
           /*      options={{
                   search: true,
@@ -201,34 +260,34 @@ export default forwardRef((props, ref) => {
                 }}*/
           rowKey="id"
           toolbar={{
-                      search: (<Input.Group compact>
-                        <Select
-                          defaultValue=""
-                          style={{ width: 100 }}
-                          onChange={event => setQueryType(event)}
-                          options={[
-                            {
-                              value: 0,
-                              label: 'ID',
-                            },
-                            {
-                              value: 1,
-                              label: '任务名称',
-                            },
-                          ]}
-                        />
-                        <Search onChange={event => setQueryContent(event.target.value)}
-                                enterButton={true}
-                                allowClear={true}
-                                style={{ width: '70%' }}
-                                onReset={() => {
-                                  console.log('hello');
-                                }}
-                                onSearch={(value: string, event) => {
-                                  actionRef.current?.reload();
-                                }}
-                        />
-                      </Input.Group>)
+            search: (<Input.Group compact>
+              {/*               <Select
+                defaultValue=""
+                style={{ width: 100 }}
+                onChange={event => setQueryType(event)}
+                options={[
+                  {
+                    value: 0,
+                    label: 'ID',
+                  },
+                  {
+                    value: 1,
+                    label: '任务名称',
+                  },
+                ]}
+              /> */}
+              <Search onChange={event => setQueryContent(event.target.value)}
+                enterButton={true}
+                allowClear={true}
+                style={{ width: '70%' }}
+                onReset={() => {
+                  console.log('hello');
+                }}
+                onSearch={(value: string, event) => {
+                  actionRef.current?.reload();
+                }}
+              />
+            </Input.Group>)
             /*{
               onSearch: (value: string, event) => {
                 console.log(value);

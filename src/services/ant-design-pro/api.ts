@@ -3,6 +3,7 @@
 /*import { request } from 'umi';*/
 import token from '@/utils/token';
 import taskId from '@/utils/taskId';
+import projectId from '@/utils/projectId';
 import {request as umirequest} from "umi";
 import cookie from '@/utils/cookie';
 
@@ -58,12 +59,12 @@ export async function testLogin(values: API.LoginParams) {
 export async function tokenByCookie() {
   return request('/api/micro-model-dataset-service/user/token', {
     method: 'GET',
-    headers: {
+/*     headers: {
       Authorization: 'Bearer ' + token.get(),
-    },
+    }, */
     params: {
       cookie: 'MS_SESSION_ID=' + cookie.get(),
-    
+      project: projectId.get(),
     },
   });
 }
@@ -208,6 +209,8 @@ export async function dataSetQueryMP(params, keyWord) {
     method: 'GET',
     headers: {
       Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),
     },
     params: {
       prefix: keyWord,
@@ -309,6 +312,8 @@ export async function modelQueryMp(params: object, keyWord: string | null) {
     method: 'POST',
     headers: {
       Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),
     },
     data: {
       info: keyWord,
@@ -368,7 +373,9 @@ export async function evaluationRecordQuery(params, choose, keyWord, taskTypeId)
   return request('/api/micro-evaluate-service/evaluateRecord/list', {
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + token.get(),
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),
     },
     params: {
       userId: taskId.get(),
@@ -529,7 +536,9 @@ export async function imgInterpretEvaluation(values) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + token.get(),
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),  
       Accept: '*/*',
     },
     data: {
@@ -594,7 +603,9 @@ export async function interpretImgMethod(taskTypeId: number) {
   return request('/api/micro-evaluate-service/evaluateType/image_classify/interpret_method', {
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + token.get(),
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),      
     },
     params: {
       "taskTypeId": taskTypeId,

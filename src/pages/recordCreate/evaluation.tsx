@@ -9,11 +9,11 @@ import {
   ProFormUploadButton, ProFormDigitRange, ProFormDigit,
   ProForm
 } from '@ant-design/pro-components';
-import type {ProColumns, ProFormInstance} from '@ant-design/pro-components';
-import {Input, Form, message, Space, Button, Upload, Image, Col, Row, Checkbox, Card, InputNumber} from 'antd';
-import React, {useRef, useState, forwardRef, useImperativeHandle, Key, useEffect} from 'react';
-import type {TableRowSelection} from 'antd/es/table/interface';
-import {ReloadOutlined} from '@ant-design/icons';
+import type { ProColumns, ProFormInstance } from '@ant-design/pro-components';
+import { Input, Form, message, Space, Button, Upload, Image, Col, Row, Checkbox, Card, InputNumber } from 'antd';
+import React, { useRef, useState, forwardRef, useImperativeHandle, Key, useEffect } from 'react';
+import type { TableRowSelection } from 'antd/es/table/interface';
+import { ReloadOutlined } from '@ant-design/icons';
 import styles from "./index.less"
 
 import {
@@ -33,16 +33,16 @@ import {
   ProxyByBlackBox,
   evaMethodMock,
 } from "@/services/ant-design-pro/api";
-import {useModel} from "@@/plugin-model/useModel";
-import {TableListItem} from "@/pages/modelSet";
-import {MinusOutlined, PlusOutlined} from "@ant-design/icons";
-import {useForm} from "antd/es/form/Form";
+import { useModel } from "@@/plugin-model/useModel";
+import { TableListItem } from "@/pages/modelSet";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
+import { useForm } from "antd/es/form/Form";
 import Link from "antd/es/typography/Link";
 import datasetForm1 from "../../../public/datasetForm1.png";
 import datasetForm2 from "../../../public/datasetForm2.png";
 
-const {Search} = Input;
-const {Divider} = ProCard;
+const { Search } = Input;
+const { Divider } = ProCard;
 
 interface ActionType {
   reload: (resetPageIndex?: boolean) => void;
@@ -52,12 +52,12 @@ interface ActionType {
   startEditable: (rowKey: Key) => boolean;
   cancelEditable: (rowKey: Key) => boolean;
 }
-function myRandom(arr: any[], length: number){
+function myRandom(arr: any[], length: number) {
   var newArr = []; // 组成的新数组初始化
   var arrCopy = arr.slice();
-  for(var i = 0; i < length; i++){
-    var index = Math.floor(Math.random()*arrCopy.length);
-    var item =  arrCopy[index];
+  for (var i = 0; i < length; i++) {
+    var index = Math.floor(Math.random() * arrCopy.length);
+    var item = arrCopy[index];
     newArr.push(item)
     arrCopy.splice(index, 1)
   }
@@ -80,8 +80,8 @@ const TagList: React.FC<{
       label: string;
     }[],
   ) => void;
-}> = ({value, onChange}) => {
-  const {evaConfig, setEvaConfig} = useModel('config', (ret) => ({
+}> = ({ value, onChange }) => {
+  const { evaConfig, setEvaConfig } = useModel('config', (ret) => ({
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
@@ -90,7 +90,7 @@ const TagList: React.FC<{
   return <ProFormCheckbox.Group
     disabled={true}
     layout={"vertical"}
-    style={{width: '100%'}}
+    style={{ width: '100%' }}
     fieldProps={{
       name: 'adaptConfig' + value?.length.toString()
     }}
@@ -99,7 +99,7 @@ const TagList: React.FC<{
       [<Row>
         <Col>
           <Checkbox
-            style={{width: '100%'}}
+            style={{ width: '100%' }}
             name={item.label}
             onChange={(e) => {
               console.log('e:', e);
@@ -139,24 +139,24 @@ const TagList: React.FC<{
 
                     }*/
             value={item.methodName + '.' + item.methodId}
-            /*        fieldProps={{
-                      value: item.methodName + '.' + item.methodId,
-                      onChange: {(e) => {
-                      console.log('e:', e);
-                      if (e.target.checked === true) {
-                      evaConfig[e.target.value] = true;
-                      evaConfig[item.methodName] = item.value;
-                      setEvaConfig(evaConfig);
-                      //console.log(evaConfig);
-                    }
-                      if (e.target.checked === false) {
-                      delete evaConfig[e.target.value];
-                      delete evaConfig[item.methodName];
-                      setEvaConfig(evaConfig);
-                      //console.log(evaConfig);
-                    }
-                    }}
-                    }}*/
+          /*        fieldProps={{
+                    value: item.methodName + '.' + item.methodId,
+                    onChange: {(e) => {
+                    console.log('e:', e);
+                    if (e.target.checked === true) {
+                    evaConfig[e.target.value] = true;
+                    evaConfig[item.methodName] = item.value;
+                    setEvaConfig(evaConfig);
+                    //console.log(evaConfig);
+                  }
+                    if (e.target.checked === false) {
+                    delete evaConfig[e.target.value];
+                    delete evaConfig[item.methodName];
+                    setEvaConfig(evaConfig);
+                    //console.log(evaConfig);
+                  }
+                  }}
+                  }}*/
           >{item.displayName}</Checkbox></Col>
         <Col>
           <ModalForm
@@ -178,7 +178,7 @@ const TagList: React.FC<{
                 resetText: false,
               },
             }}
-            fieldProps={{destroyOnClose: true}}
+            fieldProps={{ destroyOnClose: true }}
             onFinish={async (values) => {
               try {
                 console.log(values);
@@ -210,11 +210,11 @@ const TagList: React.FC<{
             <Form.Item>
               <ProFormTextArea
                 name={item.methodName}
-                fieldProps={{defaultValue: item.value, autoSize: true}}
+                fieldProps={{ defaultValue: item.value, autoSize: true }}
               />
             </Form.Item>
             <ProFormTextArea
-              fieldProps={{value: item.configDetailed, bordered: false, readOnly: true, autoSize: true}}/>
+              fieldProps={{ value: item.configDetailed, bordered: false, readOnly: true, autoSize: true }} />
           </ModalForm>
         </Col>
       </Row>])}
@@ -236,13 +236,13 @@ const RobustTagList: React.FC<{
       label: string;
     }[],
   ) => void;
-}> = ({value, onChange}) => {
-  const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
+}> = ({ value, onChange }) => {
+  const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
   }));
 
-  return <div style={{textAlign: 'center'}}>
+  return <div style={{ textAlign: 'center' }}>
     <ProFormCheckbox.Group
       disabled={true}
       layout={"vertical"}
@@ -298,77 +298,77 @@ const RobustTagList: React.FC<{
                   }
                 }
               }
-              /*        fieldProps={{
-                        value: item.methodName + '.' + item.methodId,
-                        onChange: (e) => {
-                          //console.log('e:', e);
-                          if (e.target.checked === true) {
-                            const newConfig = robustEvaluationConfig;
-                            newConfig[e.target.value] = true;
-                            newConfig[item.methodName] = item.value;
-                            setRobustEvaluationConfig(newConfig);
-                            /!*              robustEvaluationConfig[e.target.value] = true;
-                                          robustEvaluationConfig[item.methodName] = item.value;
-                                          setRobustEvaluationConfig(robustEvaluationConfig);*!/
+            /*        fieldProps={{
+                      value: item.methodName + '.' + item.methodId,
+                      onChange: (e) => {
+                        //console.log('e:', e);
+                        if (e.target.checked === true) {
+                          const newConfig = robustEvaluationConfig;
+                          newConfig[e.target.value] = true;
+                          newConfig[item.methodName] = item.value;
+                          setRobustEvaluationConfig(newConfig);
+                          /!*              robustEvaluationConfig[e.target.value] = true;
+                                        robustEvaluationConfig[item.methodName] = item.value;
+                                        setRobustEvaluationConfig(robustEvaluationConfig);*!/
 
-                            //console.log(robustEvaluationConfig);
-                          }
-                          if (e.target.checked === false) {
-                            delete robustEvaluationConfig[e.target.value];
-                            delete robustEvaluationConfig[item.methodName];
-                            setRobustEvaluationConfig(robustEvaluationConfig);
-                            //console.log(robustEvaluationConfig);
-                          }
+                          //console.log(robustEvaluationConfig);
                         }
-                      }}*/
-              /*addonAfter={
-                <ModalForm
-                  title="参数配置"
-                  //name={item.value}
-                  trigger={<a>{item.displayName}参数配置</a>}
-                  fieldProps={{destroyOnClose: true}}
-                  submitter={{
-                    searchConfig: {
-                      submitText: '确认',
-                      resetText: false,
-                    },
-                  }}
-                  onFinish={async (values) => {
-                    try {
-                      if (values[item.methodName] === undefined)
-                        return true;
-                      if (typeof JSON.parse(values[item.methodName]) == 'object' && values[item.methodName]) {
-                        //console.log('value:',values);
-                        robustEvaluationConfig[item.methodName] = values[item.methodName];
-                        setRobustEvaluationConfig(robustEvaluationConfig);
-                        //console.log(robustEvaluationConfig);
-                        //message.success(evaluationConfig[0]);
-                        return true;
+                        if (e.target.checked === false) {
+                          delete robustEvaluationConfig[e.target.value];
+                          delete robustEvaluationConfig[item.methodName];
+                          setRobustEvaluationConfig(robustEvaluationConfig);
+                          //console.log(robustEvaluationConfig);
+                        }
                       }
-                    } catch {
-                      //console.log(values[item.methodName]);
-                      message.error('参数配置格式不正确');
-                      return false;
+                    }}*/
+            /*addonAfter={
+              <ModalForm
+                title="参数配置"
+                //name={item.value}
+                trigger={<a>{item.displayName}参数配置</a>}
+                fieldProps={{destroyOnClose: true}}
+                submitter={{
+                  searchConfig: {
+                    submitText: '确认',
+                    resetText: false,
+                  },
+                }}
+                onFinish={async (values) => {
+                  try {
+                    if (values[item.methodName] === undefined)
+                      return true;
+                    if (typeof JSON.parse(values[item.methodName]) == 'object' && values[item.methodName]) {
+                      //console.log('value:',values);
+                      robustEvaluationConfig[item.methodName] = values[item.methodName];
+                      setRobustEvaluationConfig(robustEvaluationConfig);
+                      //console.log(robustEvaluationConfig);
+                      //message.success(evaluationConfig[0]);
+                      return true;
                     }
+                  } catch {
+                    //console.log(values[item.methodName]);
+                    message.error('参数配置格式不正确');
+                    return false;
+                  }
 
-                    /!*              //console.log('value:',values);
-                                  robustEvaluationConfig[item.methodName] = values[item.methodName];
-                                  setRobustEvaluationConfig(robustEvaluationConfig);
-                                  //console.log(robustEvaluationConfig);
-                                  //message.success(evaluationConfig[0]);
-                                  return true;*!/
-                  }}
-                >
-                  <Form.Item>
-                    <ProFormTextArea
-                      name={item.methodName}
-                      fieldProps={{defaultValue: item.value, autoSize: true}}
-                    />
-                    <ProFormTextArea
-                      fieldProps={{value: item.configDetailed, bordered: false, readOnly: true, autoSize: true}}/>
-                  </Form.Item>
-                </ModalForm>
-              }*/
+                  /!*              //console.log('value:',values);
+                                robustEvaluationConfig[item.methodName] = values[item.methodName];
+                                setRobustEvaluationConfig(robustEvaluationConfig);
+                                //console.log(robustEvaluationConfig);
+                                //message.success(evaluationConfig[0]);
+                                return true;*!/
+                }}
+              >
+                <Form.Item>
+                  <ProFormTextArea
+                    name={item.methodName}
+                    fieldProps={{defaultValue: item.value, autoSize: true}}
+                  />
+                  <ProFormTextArea
+                    fieldProps={{value: item.configDetailed, bordered: false, readOnly: true, autoSize: true}}/>
+                </Form.Item>
+              </ModalForm>
+            }*/
             >{item.displayName}</Checkbox>
           </Col>
           <Col>
@@ -376,7 +376,7 @@ const RobustTagList: React.FC<{
               title="参数配置"
               //name={item.value}
               trigger={<a>参数配置</a>}
-              fieldProps={{destroyOnClose: true}}
+              fieldProps={{ destroyOnClose: true }}
               submitter={{
                 searchConfig: {
                   submitText: '确认',
@@ -421,10 +421,10 @@ const RobustTagList: React.FC<{
               <Form.Item>
                 <ProFormTextArea
                   name={item.methodName}
-                  fieldProps={{defaultValue: item.value, autoSize: true}}
+                  fieldProps={{ defaultValue: item.value, autoSize: true }}
                 />
                 <ProFormTextArea
-                  fieldProps={{value: item.configDetailed, bordered: false, readOnly: true, autoSize: true}}/>
+                  fieldProps={{ value: item.configDetailed, bordered: false, readOnly: true, autoSize: true }} />
               </Form.Item>
             </ModalForm>
           </Col>
@@ -451,9 +451,9 @@ const InterpretTagList: React.FC<{
       label: string;
     }[],
   ) => void;
-}> = ({value, onChange}) => {
+}> = ({ value, onChange }) => {
 
-  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+  const { interpretEvaluationConfig, setInterpretEvaluationConfig } = useModel('interpretConfig', (ret) => ({
     interpretEvaluationConfig: ret.interpretEvaluationConfig,
     setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
   }));
@@ -462,7 +462,7 @@ const InterpretTagList: React.FC<{
   return <ProFormCheckbox.Group
     disabled={true}
     layout={"vertical"}
-    style={{width: '100%'}}
+    style={{ width: '100%' }}
     fieldProps={{
       name: 'interpretConfig' + value?.length.toString()
     }}
@@ -471,7 +471,7 @@ const InterpretTagList: React.FC<{
       [<Row>
         <Col>
           <Checkbox
-            style={{width: '100%'}}
+            style={{ width: '100%' }}
             name={item.label}
             onChange={(e) => {
               console.log('e:', e);
@@ -479,12 +479,12 @@ const InterpretTagList: React.FC<{
                 if (interpretEvaluationConfig[e.target.value] === undefined) {
                   if (interpretEvaluationConfig[item.methodName] === undefined) {
 
-/*                    let value = item.value;
-                    console.log(value);
-                    value = JSON.parse(value);
-                    value.method_name = item.methodName;
-                    value = JSON.stringify(value);
-                    console.log(value);*/
+                    /*                    let value = item.value;
+                                        console.log(value);
+                                        value = JSON.parse(value);
+                                        value.method_name = item.methodName;
+                                        value = JSON.stringify(value);
+                                        console.log(value);*/
 
                     interpretEvaluationConfig[e.target.value] = true;
                     interpretEvaluationConfig[item.methodName] = item.value;
@@ -512,24 +512,24 @@ const InterpretTagList: React.FC<{
 
                     }*/
             value={item.methodName + '.' + item.methodId}
-            /*        fieldProps={{
-                      value: item.methodName + '.' + item.methodId,
-                      onChange: {(e) => {
-                      console.log('e:', e);
-                      if (e.target.checked === true) {
-                      evaConfig[e.target.value] = true;
-                      evaConfig[item.methodName] = item.value;
-                      setEvaConfig(evaConfig);
-                      //console.log(evaConfig);
-                    }
-                      if (e.target.checked === false) {
-                      delete evaConfig[e.target.value];
-                      delete evaConfig[item.methodName];
-                      setEvaConfig(evaConfig);
-                      //console.log(evaConfig);
-                    }
-                    }}
-                    }}*/
+          /*        fieldProps={{
+                    value: item.methodName + '.' + item.methodId,
+                    onChange: {(e) => {
+                    console.log('e:', e);
+                    if (e.target.checked === true) {
+                    evaConfig[e.target.value] = true;
+                    evaConfig[item.methodName] = item.value;
+                    setEvaConfig(evaConfig);
+                    //console.log(evaConfig);
+                  }
+                    if (e.target.checked === false) {
+                    delete evaConfig[e.target.value];
+                    delete evaConfig[item.methodName];
+                    setEvaConfig(evaConfig);
+                    //console.log(evaConfig);
+                  }
+                  }}
+                  }}*/
           >{item.displayName}</Checkbox></Col>
         <Col>
           <ModalForm
@@ -551,7 +551,7 @@ const InterpretTagList: React.FC<{
                 resetText: false,
               },
             }}
-            fieldProps={{destroyOnClose: true}}
+            fieldProps={{ destroyOnClose: true }}
             onFinish={async (values) => {
               try {
                 console.log(values);
@@ -583,12 +583,12 @@ const InterpretTagList: React.FC<{
             <Form.Item>
               <ProFormTextArea
                 name={item.methodName}
-                fieldProps={{defaultValue: item.value, autoSize: true}}
+                fieldProps={{ defaultValue: item.value, autoSize: true }}
               />
             </Form.Item>
             <ProFormTextArea
               placeholder={''}
-              fieldProps={{value: item.configDetailed, bordered: false, readOnly: true, autoSize: true}}/>
+              fieldProps={{ value: item.configDetailed, bordered: false, readOnly: true, autoSize: true }} />
           </ModalForm>
         </Col>
       </Row>])}
@@ -652,8 +652,8 @@ const adaptColumns: ProColumns[] = [
         },
       ],
     },
-    renderFormItem: (row, {isEditable}) => {
-      return <TagList/>;//isEditable ? <TagList /> : <Input />;
+    renderFormItem: (row, { isEditable }) => {
+      return <TagList />;//isEditable ? <TagList /> : <Input />;
     },
     /*    render: (_, row) => {
           return <ProFormCheckbox.Group
@@ -706,8 +706,8 @@ const robustColumns: ProColumns[] = [
         },
       ],
     },
-    renderFormItem: (row, {isEditable}) => {
-      return (<RobustTagList/>);
+    renderFormItem: (row, { isEditable }) => {
+      return (<RobustTagList />);
     },
     /*    render: (_, row) => {
           return <ProFormCheckbox.Group
@@ -745,8 +745,8 @@ const interpretColumns: ProColumns[] = [
         },
       ],
     },
-    renderFormItem: (row, {isEditable}) => {
-      return <InterpretTagList/>;//isEditable ? <TagList /> : <Input />;
+    renderFormItem: (row, { isEditable }) => {
+      return <InterpretTagList />;//isEditable ? <TagList /> : <Input />;
     },
     /*    render: (_, row) => {
           return <ProFormCheckbox.Group
@@ -771,8 +771,8 @@ const interpretColumns: ProColumns[] = [
 ];
 
 
-export default forwardRef((props, ref, params: any) => {
-  console.log(props, params);
+export default forwardRef((props, ref) => {
+  console.log(props);
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
 
@@ -784,7 +784,7 @@ export default forwardRef((props, ref, params: any) => {
   };
   const debounce = (fn, delay) => {
     let timer;
-    return function() {
+    return function () {
       if (timer) {
         clearTimeout(timer);
       }
@@ -805,7 +805,7 @@ export default forwardRef((props, ref, params: any) => {
   //设备类型
   const [deviceType, setDeviceType] = useState('cpu');
   //已选数据集长度
-  const {dataSetNumber, setDataSetNumber} = useModel("datasetNumber");
+  const { dataSetNumber, setDataSetNumber } = useModel("datasetNumber");
 
   /*  const [evaMethod, setEvaMethod] = useState([]);
 
@@ -872,20 +872,20 @@ export default forwardRef((props, ref, params: any) => {
   const [accConfig, setAccConfig] = useState([1, 2, 3, 4]);
 
   //适应性选择内容
-  const {evaConfig, setEvaConfig} = useModel('config', (ret) => ({
+  const { evaConfig, setEvaConfig } = useModel('config', (ret) => ({
     evaConfig: ret.evaluationConfig,
     setEvaConfig: ret.setEvaluationConfig,
   }));
 
 
   //鲁棒性选择内容
-  const {robustEvaluationConfig, setRobustEvaluationConfig} = useModel('robustConfig', (ret) => ({
+  const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
     setRobustEvaluationConfig: ret.setRobustEvaluationConfig,
   }));
 
   //可解释性选择内容
-  const {interpretEvaluationConfig, setInterpretEvaluationConfig} = useModel('interpretConfig', (ret) => ({
+  const { interpretEvaluationConfig, setInterpretEvaluationConfig } = useModel('interpretConfig', (ret) => ({
     interpretEvaluationConfig: ret.interpretEvaluationConfig,
     setInterpretEvaluationConfig: ret.setInterpretEvaluationConfig,
   }));
@@ -925,7 +925,7 @@ export default forwardRef((props, ref, params: any) => {
   const [evaModelType, setEvaModelType] = useState<string>('');
 
   //可解释性第一个模型信息
-  const {modelName, setModelName} = useModel("modelName");
+  const { modelName, setModelName } = useModel("modelName");
   //console.log(modelName);
 
   //可解释性第一个代理模型选项数据
@@ -967,7 +967,7 @@ export default forwardRef((props, ref, params: any) => {
       return accConfig;
     },
     accConfigNew: () => {
-      return {deviceType: deviceType, datasetNumber: datasetNumber};
+      return { deviceType: deviceType, datasetNumber: datasetNumber };
     },
     adaptConfig: () => {
       //console.log('adaptConfig', evaConfig);
@@ -981,71 +981,71 @@ export default forwardRef((props, ref, params: any) => {
       console.log('interpretConfig', interpretEvaluationConfig);
       return [interpretEvaluationConfig, interpretImg];
     },
-/*    interpretConfig: () => {
-      //console.log(evaModelType);
-      const values = {};
-      values.dataSetId = props.params;
-      values.evaModel = evaModelType.split(',')[0];
-      values.evaModelConfig = evaModelConfig;
-      values.evaModelId = Number(evaModelType.split(',')[1]);
-      if (proxyModelType === '0')
-        values.proxyType = 'rule';
-      else if (proxyModelType === '1')
-        values.proxyType = 'tree';
-      values.taskName = '表格数据分类';
-      values.taskTypeId = props.props.location.query.taskTypeId;
-      values.blackBoxAndProxyModelIdConfigList = [];
-      //console.log(xaiForm.getFieldsValue().users);
-      if (xaiForm.getFieldsValue().users !== undefined) {
-        try {
-          if (xaiForm.getFieldsValue().users.length !== 0) {
-            values.blackBoxAndProxyModelIdConfigList = xaiForm.getFieldsValue().users.map(item => {
-                return {
-                  "blackBoxModelId": Number(item.blackbox.split(',')[0]),
-                  "blackBoxModelUrl": item.blackbox.split(',')[1],
-                  "proxyModelId": Number(item.proxy.split(',')[0]),
-                  "proxyModelUrl": item.proxy.split(',')[1],
-                };
+    /*    interpretConfig: () => {
+          //console.log(evaModelType);
+          const values = {};
+          values.dataSetId = props.params;
+          values.evaModel = evaModelType.split(',')[0];
+          values.evaModelConfig = evaModelConfig;
+          values.evaModelId = Number(evaModelType.split(',')[1]);
+          if (proxyModelType === '0')
+            values.proxyType = 'rule';
+          else if (proxyModelType === '1')
+            values.proxyType = 'tree';
+          values.taskName = '表格数据分类';
+          values.taskTypeId = props.props.location.query.taskTypeId;
+          values.blackBoxAndProxyModelIdConfigList = [];
+          //console.log(xaiForm.getFieldsValue().users);
+          if (xaiForm.getFieldsValue().users !== undefined) {
+            try {
+              if (xaiForm.getFieldsValue().users.length !== 0) {
+                values.blackBoxAndProxyModelIdConfigList = xaiForm.getFieldsValue().users.map(item => {
+                    return {
+                      "blackBoxModelId": Number(item.blackbox.split(',')[0]),
+                      "blackBoxModelUrl": item.blackbox.split(',')[1],
+                      "proxyModelId": Number(item.proxy.split(',')[0]),
+                      "proxyModelUrl": item.proxy.split(',')[1],
+                    };
+                  }
+                );
               }
-            );
+            } catch {
+              message.error('请选择黑盒模型与代理模型');
+              return false;
+            }
           }
-        } catch {
-          message.error('请选择黑盒模型与代理模型');
-          return false;
-        }
-      }
-      ////console.log(xaiForm.getFieldValue());
-      try {
-        let pMI = xaiForm.getFieldValue('firstProxy').split(',')[0];
-        //console.log(typeof (pMI));
-        values.blackBoxAndProxyModelIdConfigList.push({
-          "blackBoxModelId": modelName.modelId,
-          "blackBoxModelUrl": modelName.modelUrl,
-          "proxyModelId": Number(pMI),
-          "proxyModelUrl": xaiForm.getFieldValue('firstProxy').split(',')[1],
-        })
-      } catch {
-
-      }
-
-      /!*      const values = {};
-            values.dataSetName = datasetSelect;
-            values.evaModel = evaModelType;
-            values.evaModelConfig = evaModelConfig;
-            values.evaModelId = 1;
-            values.proxyType = proxyModelType;
-            values.taskName = '图像分类';
-            values.taskTypeId = props.props.location.query.taskTypeId;
-            values.blackBoxAndProxyModelConfigList = xaiForm.getFieldsValue().users.map(item=>{
-              return     {
-                "blackBoxModelName": item.blackbox,
-                "proxyModelName": item.proxy,
-              };
-              }
-            );*!/
-      //console.log(values);
-      return values;
-    }*/
+          ////console.log(xaiForm.getFieldValue());
+          try {
+            let pMI = xaiForm.getFieldValue('firstProxy').split(',')[0];
+            //console.log(typeof (pMI));
+            values.blackBoxAndProxyModelIdConfigList.push({
+              "blackBoxModelId": modelName.modelId,
+              "blackBoxModelUrl": modelName.modelUrl,
+              "proxyModelId": Number(pMI),
+              "proxyModelUrl": xaiForm.getFieldValue('firstProxy').split(',')[1],
+            })
+          } catch {
+    
+          }
+    
+          /!*      const values = {};
+                values.dataSetName = datasetSelect;
+                values.evaModel = evaModelType;
+                values.evaModelConfig = evaModelConfig;
+                values.evaModelId = 1;
+                values.proxyType = proxyModelType;
+                values.taskName = '图像分类';
+                values.taskTypeId = props.props.location.query.taskTypeId;
+                values.blackBoxAndProxyModelConfigList = xaiForm.getFieldsValue().users.map(item=>{
+                  return     {
+                    "blackBoxModelName": item.blackbox,
+                    "proxyModelName": item.proxy,
+                  };
+                  }
+                );*!/
+          //console.log(values);
+          return values;
+        }*/
   }));
 
   return (
@@ -1135,7 +1135,7 @@ export default forwardRef((props, ref, params: any) => {
                   initialValue={100}
                   min={0}
                   max={dataSetNumber}
-                  fieldProps={{precision: 0}}
+                  fieldProps={{ precision: 0 }}
                   onChange={(e) => {
                     //console.log(e);
                     setDatasetNumber(e);
@@ -1162,10 +1162,10 @@ export default forwardRef((props, ref, params: any) => {
                     setDeviceType(e);
                   }}
                   options={[
-                    {label: 'cpu', value: 'cpu'},
-                    {label: 'cuda:0', value: 'cuda:0'},
+                    { label: 'cpu', value: 'cpu' },
+                    { label: 'cuda:0', value: 'cuda:0' },
                   ]
-                  }/>
+                  } />
 
               </ProForm>
             </ProCard>
@@ -1301,7 +1301,7 @@ export default forwardRef((props, ref, params: any) => {
                     initialValue={100}
                     min={0}
                     max={dataSetNumber}
-                    fieldProps={{precision: 0}}
+                    fieldProps={{ precision: 0 }}
                     onChange={(e) => {
                       //console.log(e);
                       setDatasetNumber(e);
@@ -1328,10 +1328,10 @@ export default forwardRef((props, ref, params: any) => {
                       setDeviceType(e);
                     }}
                     options={[
-                      {label: 'cpu', value: 'cpu'},
-                      {label: 'cuda:0', value: 'cuda:0'},
+                      { label: 'cpu', value: 'cpu' },
+                      { label: 'cuda:0', value: 'cuda:0' },
                     ]
-                    }/>
+                    } />
                 </ProForm>
               </ProCard>
             </ProCard>
@@ -1453,7 +1453,7 @@ export default forwardRef((props, ref, params: any) => {
                   initialValue={100}
                   min={0}
                   max={dataSetNumber}
-                  fieldProps={{precision: 0}}
+                  fieldProps={{ precision: 0 }}
                   onChange={(e) => {
                     //console.log(e);
                     setDatasetNumber(e);
@@ -1480,10 +1480,10 @@ export default forwardRef((props, ref, params: any) => {
                     setDeviceType(e);
                   }}
                   options={[
-                    {label: 'cpu', value: 'cpu'},
-                    {label: 'cuda:0', value: 'cuda:0'},
+                    { label: 'cpu', value: 'cpu' },
+                    { label: 'cuda:0', value: 'cuda:0' },
                   ]
-                  }/>
+                  } />
               </ProCard>
             </Row>
           </ProCard.TabPane>
@@ -1546,18 +1546,18 @@ export default forwardRef((props, ref, params: any) => {
                       return item;
                     })
                     console.log(data);
-/*                    for (let item of data[0].methodList) {
-                      console.log(item);
-                      console.log(JSON.parse(item.value));
-                      item.value = JSON.parse(item.value);
-                      console.log(item.value);
-                      delete item.value.method_name;
-                      item.value = JSON.stringify(item.value);
-
-                      item.value = item.value.split("{").join("{\n\t");
-                      item.value = item.value.split(",").join(",\n\t");
-                      item.value = item.value.split("}").join("\n}");
-                    }*/
+                    /*                    for (let item of data[0].methodList) {
+                                          console.log(item);
+                                          console.log(JSON.parse(item.value));
+                                          item.value = JSON.parse(item.value);
+                                          console.log(item.value);
+                                          delete item.value.method_name;
+                                          item.value = JSON.stringify(item.value);
+                    
+                                          item.value = item.value.split("{").join("{\n\t");
+                                          item.value = item.value.split(",").join(",\n\t");
+                                          item.value = item.value.split("}").join("\n}");
+                                        }*/
                     //console.log('hello');
                     console.log(data);
                     if (msg.code === '00000') {
@@ -1596,54 +1596,54 @@ export default forwardRef((props, ref, params: any) => {
                   width: 'auto',
                   //position: 'absolute',
                   //left: "0"
-                }}>待解释图片选择</div><Checkbox onChange={(e)=>{
+                }}>待解释图片选择</div><Checkbox onChange={(e) => {
                   console.log(e.target.checked);
-                  if(e.target.checked === true){
+                  if (e.target.checked === true) {
                     setInterpretImg(props.imgUrl);
                   }
-                  else{
+                  else {
                     setInterpretImg([]);
                   }
                 }}>全选</Checkbox>
-                <div>随机选择<InputNumber max={props.imgUrl.length} min={1} onChange={(e)=>{
-                  console.log(e, typeof(e));
+                <div>随机选择<InputNumber max={props.imgUrl.length} min={1} onChange={(e) => {
+                  console.log(e, typeof (e));
                   setRandomImgNumber(e);
-                }} style={{width: '100px'}}></InputNumber>张<Button onClick={(e)=>{
+                }} style={{ width: '100px' }}></InputNumber>张<Button onClick={(e) => {
                   const randomImg = myRandom(props.imgUrl, randomImgNumber);
                   console.log(randomImg);
                   setInterpretImg(randomImg);
                 }}>确定</Button></div>
-                  <Checkbox.Group style={{width: '100%'}} onChange={(e)=> {
-                    console.log(e);
-                    setInterpretImg(e);
-                  }}
+                <Checkbox.Group style={{ width: '100%' }} onChange={(e) => {
+                  console.log(e);
+                  setInterpretImg(e);
+                }}
                   value={interpretImg}
-                  >
-                    <Row>
-                      {
-                        props.imgUrl.map((item: string) => {
-                          return (
-                              <Col span={4}>
-                                <Checkbox
-                                  name={item}
-                                  value={item}
+                >
+                  <Row>
+                    {
+                      props.imgUrl.map((item: string) => {
+                        return (
+                          <Col span={4}>
+                            <Checkbox
+                              name={item}
+                              value={item}
 
-/*                                  onChange={(e)=>{
-                                    //console.log(e);
-                                    let Img = interpretImg;
-                                    Img[e.target.value] = e.target.checked;
-                                    setInterpretImg(Img);
-                                    //console.log(Img);
-                                  }}*/
-                                >
-                                  <Image src={item} height={150 * screenHeight / 785} width={150 * screenWidth / 1600} preview={false}></Image>
-                                </Checkbox>
-                              </Col>
-                          )
-                        })
-                      }
-                    </Row>
-                  </Checkbox.Group>
+                            /*                                  onChange={(e)=>{
+                                                                //console.log(e);
+                                                                let Img = interpretImg;
+                                                                Img[e.target.value] = e.target.checked;
+                                                                setInterpretImg(Img);
+                                                                //console.log(Img);
+                                                              }}*/
+                            >
+                              <Image src={item} height={150 * screenHeight / 785} width={150 * screenWidth / 1600} preview={false}></Image>
+                            </Checkbox>
+                          </Col>
+                        )
+                      })
+                    }
+                  </Row>
+                </Checkbox.Group>
               </ProCard>
             </Row>
           </ProCard.TabPane>

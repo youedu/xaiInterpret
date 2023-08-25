@@ -68,9 +68,9 @@ const columnsMP: ProColumns<TableListItem>[] = [
     dataIndex: 'tags',
     ellipsis: true,
 
-    render: (_, row) => {
-      return row.tags.join(',');
-    },
+    /*     render: (_, row) => {
+          return row.tags.join(',');
+        }, */
     align: 'center'
   },
   {

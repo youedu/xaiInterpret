@@ -107,17 +107,19 @@ export default (params) => {
   const [queryContent, setQueryContent] = useState('');
 
   const tokencookie = async () => {
+    if (token.get() === null) {
+      const data = await tokenByCookie();
+      console.log(JSON.parse(data.data));
+      const tokenInfo = JSON.parse(data.data).data.deploys[0].deployToken;
+      token.save(tokenInfo);
+      console.log(token.get());
+      ref.current?.reload();
+    }
 
-    const data = await tokenByCookie();
-    console.log(JSON.parse(data.data));
-    const tokenInfo = JSON.parse(data.data).data.deploys[0].deployToken;
-    token.save(tokenInfo);
-    console.log(token.get());
-    ref.current?.reload();
   }
   useEffect(() => {
-
-    tokencookie();
+    ref.current?.reload();
+    //tokencookie();
 
     setEvaConfig({});
     setRobustEvaluationConfig({});
@@ -351,26 +353,28 @@ export default (params) => {
           }
           //console.log(taskType);
           //console.log(token.get());
-          const msg = await evaluationRecordQuery(params, queryType, queryContent, taskType);
-          //console.log(msg);
-          if (msg.code === '00000') {
-            /*          for (let item of msg.data.records){
-                          let res = '';
-                          for (const method of item.methodName){
-                            res = res + method;
-                          }
-                          item.methodName = item.methodName.join(',');
-                      }*/
-            return {
-              data: msg.data.records,
-              // success 请返回 true，
-              // 不然 table 会停止解析数据，即使有数据
-              success: true,
-              // 不传会使用 data 的长度，如果是分页一定要传
-              total: msg.data.total,
-            };
-          } else
-            message.error(msg.message);
+          if (token.get() !== null) {
+            const msg = await evaluationRecordQuery(params, queryType, queryContent, taskType);
+            //console.log(msg);
+            if (msg.code === '00000') {
+              /*          for (let item of msg.data.records){
+                            let res = '';
+                            for (const method of item.methodName){
+                              res = res + method;
+                            }
+                            item.methodName = item.methodName.join(',');
+                        }*/
+              return {
+                data: msg.data.records,
+                // success 请返回 true，
+                // 不然 table 会停止解析数据，即使有数据
+                success: true,
+                // 不传会使用 data 的长度，如果是分页一定要传
+                total: msg.data.total,
+              };
+            } else
+              message.error(msg.message);
+          }
           return false;
         }}
 

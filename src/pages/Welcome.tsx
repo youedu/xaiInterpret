@@ -7,6 +7,7 @@ import { tokenByCookie } from '@/services/ant-design-pro/api';
 import token from '@/utils/token';
 import cookie from '@/utils/cookie';
 import taskId from '@/utils/taskId';
+import projectId from '@/utils/projectId';
 
 
 const CodePreview: React.FC = ({ children }) => (
@@ -20,6 +21,16 @@ const CodePreview: React.FC = ({ children }) => (
 const Welcome: React.FC = (params) => {
   // const intl = useIntl();
 
+  const tokencookie = async () => {
+
+    const data = await tokenByCookie();
+    console.log(data.data);
+    if (JSON.parse(data.data).data !== null) {
+      const tokenInfo = JSON.parse(data.data).data.deploys[0].deployToken;
+      token.save(tokenInfo);
+      console.log(token.get());
+    }
+  }
 
   useEffect(() => {
     if (params.location.query.MS_SESSION_ID !== undefined) {
@@ -31,7 +42,10 @@ const Welcome: React.FC = (params) => {
     if (params.location.query.taskId !== undefined) {
       taskId.save(params.location.query.taskId);
     }
-    //tokencookie();
+    if (params.location.query.projectId !== undefined) {
+      projectId.save(params.location.query.projectId);
+    }
+    tokencookie();
   })
 
   history.push('/evaluationrecord?MS_SESSION_ID=' + params.location.query.MS_SESSION_ID + '&taskId=' + params.location.query.taskId + '&projectId=' + params.location.query.projectId)

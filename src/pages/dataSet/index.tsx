@@ -313,17 +313,17 @@ export default (params: any) => {
             //console.log(taskType);
             //const msg = await dataSetQuery(params, queryType, queryContent, taskType);
             const data = await dataSetQueryMP(params, queryContent);
-            console.log(JSON.parse(data.data));
-            const dataInfo = JSON.parse(data.data);
+            console.log(data);
+            const dataInfo = data.data;
             //window.location.replace("http://101.200.198.205");
 
             //console.log(msg);
-            if (dataInfo.code === 200) {
-              console.log(1);
-              if (dataInfo.data.items !== null) {
+            if (data.code === '00000') {
+
+              if (dataInfo !== null) {
                 return {
-                  data: dataInfo.data.items,
-                  total: dataInfo.data.total,
+                  data: dataInfo,
+                  total: dataInfo.length,
                   //data: msg.data.records,
                   // success 请返回 true，
                   // 不然 table 会停止解析数据，即使有数据
@@ -336,12 +336,12 @@ export default (params: any) => {
                 console.log(1);
                 return {
                   data: [],
-                  total: dataInfo.data.total,
+                  total: 0,
                   success: true,
                 }
               }
             }
-            else message.error(msg.message);
+            else message.error(data.message);
             return false;
           }}
           /*      options={{

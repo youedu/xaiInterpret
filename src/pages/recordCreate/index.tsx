@@ -8,14 +8,15 @@ import { useModel } from "umi";
 import React, { useEffect, useRef, useState } from 'react';
 import DataSetTable from './dataSet';
 import ModelSetTable from './modelSet';
+import PyTable from './pySet';
 import EvaluationTable from "./evaluation";
 import {
   accEvaluation,
   robustEvaluation,
   adaptEvaluation,
-  evaluateTypesByDataType, imgInterpretEvaluation,
+  evaluateTypesByDataType, imgInterpretEvaluation, objectInterpretEvaluation
 } from "@/services/ant-design-pro/api";
-import { dataSetQueryById, modelQueryById } from "@/services/ant-design-pro/api";
+import { dataSetQueryById, modelQueryById, dataSetQueryMPByName, PYfileMPDownload } from "@/services/ant-design-pro/api";
 import { history } from "umi";
 import { QuestionCircleOutlined } from '@ant-design/icons';
 
@@ -28,7 +29,7 @@ const waitTime = (time: number = 100) => {
 };
 
 export default (params) => {
-
+  console.log(params);
 
   const { robustEvaluationConfig, setRobustEvaluationConfig } = useModel('robustConfig', (ret) => ({
     robustEvaluationConfig: ret.robustEvaluationConfig,
@@ -48,6 +49,8 @@ export default (params) => {
   const [evaMethod, setEvaMethod] = useState('INTERPRET');
 
   const [taskTypeId, setTaskTypeId] = useState(params.location.query.taskTypeId);
+
+  const [evaluationType, setEvaluationType] = useState(params.location.query.evaluationType);
 
   const config = async () => {
     //console.log(taskTypeId, typeof (taskTypeId));
@@ -71,6 +74,7 @@ export default (params) => {
   const formRef = useRef<ProFormInstance>();
 
   const dataSetRef = useRef(null);
+  const dataSetRef2 = useRef(null);
   const modelSetRef = useRef(null);
   const evaluationRef = useRef(null);
 
@@ -354,9 +358,9 @@ export default (params) => {
                 alert('请选择配置');
                 return false;
               }
-              imgUrls = imgUrls.map((item) => {
-                return item.substring(34);
-              })
+              /*               imgUrls = imgUrls.map((item) => {
+                              return item.substring(34);
+                            }) */
               const methodParamsContent = [];
               for (let i of interpretConfigKeys) {
                 let obj = {};
@@ -380,18 +384,40 @@ export default (params) => {
                               alert('请选择需要的测评数据量');
                               return false;
                             }*/
-
-              const value = {
-                "methodConfigList": methodParamsContent,
-                //"modelId": modelSetRef.current.openModal()[0],
-                "modelId": 1,
-                "dataSetId": 1,
-                "taskTypeId": params.location.query.taskTypeId,
-                //"dataSetId": dataSetRef.current.openModal()[0],
-                "taskName": '',
-                "deviceType": evaluationRef.current.accConfigNew().deviceType,
-                "imageUrls": imgUrls,
-                "datasetNumber": imgUrls.length,
+              let value;
+              //白盒测试，镜像模型文件
+              if (evaluationType === '2') {
+                console.log(modelSetRef.current.openModal());
+                value = {
+                  "methodConfigList": methodParamsContent,
+                  //"modelId": modelSetRef.current.openModal()[0],
+                  "modelId": 1,
+                  "dataSetId": 1,
+                  "fileName": modelSetRef.current.openModal()[0],
+                  "taskTypeId": params.location.query.taskTypeId,
+                  //"dataSetId": dataSetRef.current.openModal()[0],
+                  "taskName": '',
+                  "deviceType": evaluationRef.current.accConfigNew().deviceType,
+                  "imageUrls": imgUrls,
+                  "datasetNumber": imgUrls.length,
+                }
+              }
+              //黑盒测试,py模型文件
+              else if (evaluationType === '1') {
+                console.log(dataSetRef2.current.openModal());
+                value = {
+                  "methodConfigList": methodParamsContent,
+                  //"modelId": modelSetRef.current.openModal()[0],
+                  "modelId": 1,
+                  "fileName": dataSetRef2.current.openModal()[0],
+                  "dataSetId": 1,
+                  "taskTypeId": params.location.query.taskTypeId,
+                  //"dataSetId": dataSetRef.current.openModal()[0],
+                  "taskName": '',
+                  "deviceType": evaluationRef.current.accConfigNew().deviceType,
+                  "imageUrls": imgUrls,
+                  "datasetNumber": imgUrls.length,
+                }
               }
               /*            history.push('/evaluationrecord');
                           const msg = await robustEvaluation(value).then((e) => {
@@ -409,19 +435,28 @@ export default (params) => {
                             const dataSetName = dataSetInfo.data.dataName; */
               //console.log(dataSetName);
               //value.taskName = dataSetName + '数据集-' + modelName + '模型-' + '可解释性评测';
-              value.taskName = dataSetId + '数据集-' + value.modelId + '模型-' + '可解释性评测';
-              if (value.taskTypeId === 1)
-                value.taskName += '-图片分类'
-              else
-                value.taskName += '-目标检测'
-              console.log(value);
-
-              const msg = await imgInterpretEvaluation(value);
-              if (msg.code === '00000') {
-                message.success('提交成功');
-                setInterpretEvaluationConfig({});
+              value.taskName = dataSetId + '数据集-' + value.fileName + '模型-' + '可解释性评测';
+              if (value.taskTypeId === '1') {
+                value.taskName += '-图片分类';
+                console.log(value);
+                const msg = await imgInterpretEvaluation(value);
+                if (msg.code === '00000') {
+                  message.success('提交成功');
+                  setInterpretEvaluationConfig({});
+                }
+              }
+              else {
+                value.taskName += '-目标检测';
+                console.log(value);
+                const msg = await objectInterpretEvaluation(value);
+                if (msg.code === '00000') {
+                  message.success('提交成功');
+                  setInterpretEvaluationConfig({});
+                }
               }
               history.push('/evaluationrecord');
+
+
             }
 
             /*if (evaluationRef.current.openModal() === 'interpret') {
@@ -484,6 +519,7 @@ export default (params) => {
               description: '',
             }}
             onFinish={async () => {
+              console.log('yess');
               if (dataSetRef.current.openModal() === undefined) {
                 alert('请选择数据集');
                 return false;
@@ -495,22 +531,28 @@ export default (params) => {
               ]);
               console.log(dataSetRef.current.openModal()[0]);
               setDataSetId(dataSetRef.current.openModal()[0]);
-              /*               const datainfo = await dataSetQueryById(dataSetRef.current.openModal()[0]);
-                            console.log(datainfo);
-                            if (datainfo.data.isXai === 1) {
-                              let imgUrl = datainfo.data.dataUrl;
-                              imgUrl = imgUrl.split(',');
-                              imgUrl = imgUrl.map((item, index) => {
-                                item = 'http://120.53.91.149:9000/images/' + item;
-                                return item;
-                              })
-                              console.log(imgUrl);
-                              setImgUrl(imgUrl);
-                              setEvaMethod('INTERPRET');
-                            } else {
-                              setDataSetNumber(datainfo.data.dataLength);
-                            } */
-              modelSetRef.current.openModal();
+              const datainfo = await dataSetQueryMPByName(dataSetRef.current.openModal()[0]);
+              console.log(datainfo);
+              let imgUrl = datainfo.data.dataUrl;
+              imgUrl = imgUrl.split(',');
+              console.log(imgUrl);
+              setImgUrl(imgUrl);
+              /* const datainfo = await dataSetQueryById(dataSetRef.current.openModal()[0]);
+              console.log(datainfo);
+              if (datainfo.data.isXai === 1) {
+                let imgUrl = datainfo.data.dataUrl;
+                imgUrl = imgUrl.split(',');
+                imgUrl = imgUrl.map((item, index) => {
+                  item = 'http://120.53.91.149:9000/images/' + item;
+                  return item;
+                })
+                console.log(imgUrl);
+                setImgUrl(imgUrl);
+                setEvaMethod('INTERPRET');
+              } else {
+                setDataSetNumber(datainfo.data.dataLength);
+              } */
+
               return true;
 
               //modelSetRef.current.openModal();
@@ -522,7 +564,7 @@ export default (params) => {
             {/*// 第一步(引入数据集table)*/}
             <div style={{ width: '100%' }}>
               {/*            <div>数据集</div>*/}
-              <DataSetTable ref={dataSetRef} props={params}></DataSetTable>
+              <DataSetTable name={'old'} ref={dataSetRef} props={params}></DataSetTable>
             </div>
           </StepsForm.StepForm>
 
@@ -535,10 +577,23 @@ export default (params) => {
               description: '',
             }}
             onFinish={async () => {
-              if (modelSetRef.current.openModal() === undefined) {
-                alert('请选择模型');
-                return false;
+
+              if (evaluationType === '2') {
+                if (modelSetRef.current.openModal() === undefined) {
+                  alert('请选择模型');
+                  return false;
+                }
               }
+              else if (evaluationType === '1') {
+                console.log(dataSetRef2.current.openModal());
+                if (dataSetRef2.current.openModal() === undefined) {
+                  alert('请选择模型');
+                  return false;
+                }
+                const data = await PYfileMPDownload(dataSetRef2.current.openModal()[0]);
+                console.log(data);
+              }
+
               //console.log(modelSetRef.current.openModal()[0]);
               /*               const modelInfo = await modelQueryById(modelSetRef.current.openModal()[0]);
                             setModelName({
@@ -552,7 +607,9 @@ export default (params) => {
             {/*第二步 选择模型*/}
             <div style={{ width: '100%' }}>
               {/*            <div>模型</div>*/}
-              <ModelSetTable ref={modelSetRef} />
+              <div />
+              {evaluationType === '1' && <PyTable name={'new'} ref={dataSetRef2} props={params} />}
+              {evaluationType === '2' && <ModelSetTable ref={modelSetRef} />}
             </div>
 
 

@@ -4,7 +4,7 @@ import type { ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { Input, Select, Table } from 'antd';
 import React, { useRef, useState, forwardRef, useImperativeHandle, Key } from 'react';
 import type { TableRowSelection } from 'antd/es/table/interface';
-import { dataSetQuery, dataSetQueryMP } from "@/services/ant-design-pro/api";
+import { dataSetQuery, dataSetQueryMP, PYFileQueryMP } from "@/services/ant-design-pro/api";
 
 
 const { Search } = Input;
@@ -131,12 +131,12 @@ const columnsMP: ProColumns[] = [
 
 
 export default forwardRef((props, ref) => {
-
+  console.log(props);
   //配置当前选择项
   const [selectedRowKey, setSelectedRowKey] = useState<React.Key>();
 
   const onSelectChange = (newSelectedRowKey: React.Key) => {
-    //console.log('selectedRowKeys changed: ', newSelectedRowKey);
+    console.log('selectedRowKeys changed: ', newSelectedRowKey);
     setSelectedRowKey(newSelectedRowKey);
   };
 
@@ -225,15 +225,25 @@ export default forwardRef((props, ref) => {
                         } else
                           message.error(msg.message);
                         return false; */
-            const data = await dataSetQueryMP(params, queryContent);
-            console.log(JSON.parse(data.data));
-            const dataInfo = JSON.parse(data.data);
-            if (dataInfo.code === 200) {
+            let data;
+            let dataInfo;
+            if (props.fileType === 'py') {
+              data = await PYFileQueryMP(params, queryContent);
+              console.log(data.data);
+              dataInfo = data.data;
+            }
+            else {
+              data = await dataSetQueryMP(params, queryContent);
+              console.log(data.data);
+              dataInfo = data.data;
+            }
+
+            if (data.code === '00000') {
               console.log(1);
-              if (dataInfo.data.items !== null) {
+              if (dataInfo !== null) {
                 return {
-                  data: dataInfo.data.items,
-                  total: dataInfo.data.total,
+                  data: dataInfo,
+                  total: dataInfo.length,
                   //data: msg.data.records,
                   // success 请返回 true，
                   // 不然 table 会停止解析数据，即使有数据
@@ -246,7 +256,7 @@ export default forwardRef((props, ref) => {
                 console.log(1);
                 return {
                   data: [],
-                  total: dataInfo.data.total,
+                  total: 0,
                   success: true,
                 }
               }

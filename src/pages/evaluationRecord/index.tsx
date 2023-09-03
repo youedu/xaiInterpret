@@ -143,6 +143,9 @@ export default (params) => {
   //测评数据类型
   const [dataType, setDataType] = useState(1);
 
+  //测评类型
+  const [evaluationType, setEvaluationType] = useState(1);
+
   //外层modalForm
   const [modalForm] = Form.useForm();
   const modalRef = useRef<ProFormInstance>();
@@ -224,18 +227,18 @@ export default (params) => {
       },
       align: 'center',
     },
-    {
-      title: <b>测评子任务模型</b>,
-      dataIndex: 'modelName',
-      ellipsis: true,
-      align: 'center',
-    },
-    {
-      title: <b>测评子任务数据</b>,
-      dataIndex: 'dataSetName',
-      ellipsis: true,
-      align: 'center',
-    },
+    /*     {
+          title: <b>测评子任务模型</b>,
+          dataIndex: 'modelName',
+          ellipsis: true,
+          align: 'center',
+        },
+        {
+          title: <b>测评子任务数据</b>,
+          dataIndex: 'dataSetName',
+          ellipsis: true,
+          align: 'center',
+        }, */
     {
       title: <b>创建时间</b>,
       valueType: 'dateTime',
@@ -447,7 +450,8 @@ export default (params) => {
               history.push({
                 pathname: '/recordcreate',
                 query: {
-                  taskTypeId: taskTypeId,
+                  taskTypeId: String(taskTypeId),
+                  evaluationType: String(evaluationType)
                 },
               });
               return true;
@@ -498,7 +502,7 @@ export default (params) => {
                 request={() => {
                   return [
                     { value: 1, label: '图像分类' },
-                    { value: 2, label: '目标检测' }
+                    { value: 3, label: '目标检测' }
                   ];
                 }}
               />
@@ -580,7 +584,27 @@ export default (params) => {
               }
             }}
           />*/}
-
+            <ProFormRadio.Group
+              onChange={() => {
+                //setFirst(modalForm.getFieldValue('dataType'));
+                setEvaluationType(modalForm.getFieldValue('evaluationType'));
+              }}
+              initialValue={1}
+              //fieldProps={{ value: 1 }}
+              name="evaluationType"
+              label="测评类型"
+              radioType="button"
+              options={[
+                {
+                  label: '黑盒测评',
+                  value: 1,
+                },
+                {
+                  label: '白盒测评',
+                  value: 2,
+                },
+              ]}
+            />
           </ModalForm>
         ]
         }

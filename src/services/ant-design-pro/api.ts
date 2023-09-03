@@ -219,6 +219,22 @@ export async function dataSetQueryMP(params, keyWord) {
     },
   });
 }
+/*测试用，获取主平台py模型信息接口*/
+export async function PYFileQueryMP(params, keyWord) {
+  return request('/api/micro-model-dataset-service/dataset/getPYFileFromMP', {
+    method: 'GET',
+    headers: {
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),
+    },
+    params: {
+      prefix: keyWord,
+      pageSize: params.pageSize,
+      page: params.current,
+    },
+  });
+}
 
 /*测试用，通过id获取数据集信息接口*/
 export async function dataSetQueryById(id: number) {
@@ -229,6 +245,44 @@ export async function dataSetQueryById(id: number) {
     },
     data: {
       id: id,
+    }
+  });
+}
+
+
+
+/*测试用，通过数据集名称获取主平台csv文件内容接口*/
+export async function dataSetQueryMPByName(name: string) {
+  return request('/api/micro-model-dataset-service/dataset/downloadMPDataset', {
+    method: 'POST',
+    headers: {
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),
+    },
+    data: {
+      name: name,
+      lastModified: "",
+      md5Sum: "",
+      size: 0,
+    }
+  });
+}
+
+/*测试用，通过py文件名称下载主平台py文件接口*/
+export async function PYfileMPDownload(name: string) {
+  return request('/api/micro-model-dataset-service/dataset/downloadPYfile', {
+    method: 'POST',
+    headers: {
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),
+    },
+    data: {
+      name: name,
+      lastModified: "",
+      md5Sum: "",
+      size: 0,
     }
   });
 }
@@ -378,7 +432,7 @@ export async function evaluationRecordQuery(params, choose, keyWord, taskTypeId)
       project: projectId.get(),
     },
     params: {
-      userId: taskId.get(),
+      mainTaskId: taskId.get(),
       choose: choose,
       keyWord: keyWord,
       pageSize: params.pageSize,
@@ -542,7 +596,7 @@ export async function imgInterpretEvaluation(values) {
       Accept: '*/*',
     },
     data: {
-      "userId": taskId.get(),
+      "mainTaskId": taskId.get(),
       "dataSetId": values.dataSetId,
       "evaluateTypeId": 1,
       "methodConfigList": values.methodConfigList,
@@ -552,6 +606,35 @@ export async function imgInterpretEvaluation(values) {
       "device": values.deviceType,
       "imageUrls": values.imageUrls,
       "measureDataSize": values.datasetNumber,
+      "fileName": values.fileName,
+    },
+  });
+}
+
+/*测试用，新建目标检测可解释性评测接口*/
+export async function objectInterpretEvaluation(values) {
+  //console.log(values);
+  return request('/api/micro-evaluate-service/evaluateRecord/objectDetectioin/xai/upload', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),  
+      Accept: '*/*',
+    },
+    data: {
+      "mainTaskId": taskId.get(),
+      "dataSetId": values.dataSetId,
+      "evaluateTypeId": 1,
+      "methodConfigList": values.methodConfigList,
+      "modelId": values.modelId,
+      "taskName": values.taskName,
+      "taskTypeId": values.taskTypeId,
+      "device": values.deviceType,
+      "imageUrls": values.imageUrls,
+      "measureDataSize": values.datasetNumber,
+      "fileName": values.fileName,
     },
   });
 }
@@ -648,6 +731,8 @@ export async function evaluateImgList(evaluateResultId) {
     method: 'GET',
     headers: {
       Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),     
     },
     params: {
       "id": evaluateResultId,
@@ -661,7 +746,9 @@ export async function evaluateImgResult(evaluateResultId, imgId) {
   return request('/api/micro-evaluate-service/evaluateResult/imageClassifyXai/result/detail/' + evaluateResultId+'/'+imgId, {
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + token.get(),
+      Authorization: token.get(),
+      mid: 'MS_SESSION_ID=' + cookie.get(),
+      project: projectId.get(),   
     },
     params: {
       "evaluateRecordid": evaluateResultId,

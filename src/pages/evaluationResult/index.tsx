@@ -164,7 +164,7 @@ const interpretColumns: ProColumns<interpretTableListItem>[] = [
     render: (_, row) => {
       console.log(row.imageUrl);
 
-      return <><Image src={'http://120.53.91.149:9000/images/' + row.imageUrl} height={100} width={100}></Image></>;
+      return <><Image src={row.imageUrl} height={100} width={100}></Image></>;
     },
   },
   {
@@ -230,6 +230,8 @@ export default (params: object) => {
 
   //图片可解释性评测图片列表
   const [interpretImgList, setInterpretImgList] = useState([]);
+  //图片可解释性评测图片列表总指标
+  const [interpretImgListTotalIndex, setInterpretImgListTotalIndex] = useState({});
   //图片可解释性评测结果图片
   const [interpretImgResult, setInterpretImgResult] = useState([]);
   //图片可解释性评测结果方法列表
@@ -709,7 +711,14 @@ export default (params: object) => {
         console.log(1);
         const data = await evaluateImgList(params.location.query.resultId);
         console.log(data);
-        setInterpretImgList(data.data);
+        setInterpretImgList(data.data.list);
+        console.log(JSON.parse(data.data.totalIndex));
+        let lineindex = [];
+        for (let i of JSON.parse(data.data.totalIndex)[0]) {
+          lineindex.push({ Date: i[1], scales: i[0] })
+        }
+        console.log(lineindex);
+        setInterpretImgListTotalIndex({ lineindex: lineindex, AUC: JSON.parse(data.data.totalIndex)[1] });
         setEvaluateType('ImgListINTERPRET')
       } else {
         console.log(2);
@@ -725,8 +734,10 @@ export default (params: object) => {
             methodList.push({ label: i, value: i });
             final.push({
               methodName: i,
-              originalImg: 'http://120.53.91.149:9000/images/' + data.data.imageUrl,
-              Img: 'http://120.53.91.149:9000/images/' + result[i]
+              originalImg: data.data.imageUrl,
+              //Img: 'http://120.53.91.149:9000/images/' + result[i].pic,
+              deletion: result[i].deletion,
+              pic: result[i].pic
             });
           }
           console.log(final);
@@ -1834,19 +1845,7 @@ export default (params: object) => {
                         <Typography>（3）L∞失真度使用切比雪夫距离。</Typography>
                       </Typography>
                     </Typography>
-                    {/*<Typography>
-                      <ul>
-                        <li>
-                          平均L1失真度使用对抗样本与原始样本的平均曼哈顿距离衡量模型的鲁棒性，值越大说明需要改变更多原始样本上的像素才能生成对抗样本；
-                        </li>
-                        <li>
-                          平均L2失真度使用对抗样本与原始样本的平均欧式距离衡量模型的鲁棒性，值越大说明需要在原始样本上添加更多的扰动才能生成对抗样本，即对抗样本总体特征改变幅值越大；
-                        </li>
-                        <li>
-                          平均L∞失真度使用对抗样本与原始样本的平均切比雪夫距离衡量模型的鲁棒性，值越大表明对抗样本相较于原始样本的最大像素点改变值越大；
-                        </li>
-                      </ul>
-                    </Typography>*/}
+
 
                   </ProCard>
                   <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
@@ -1938,110 +1937,6 @@ export default (params: object) => {
                     <Typography style={{ textIndent: '1em', fontSize: '15px' }}>
                       峰值信噪比用于描述生成的图片对抗样本与原始图片样本的接近程度，该指标越大，对抗样本就越接近于原图。该指标实际上衡量两张图片中各个像素点的均方差，即两张图片中每一个像素点的差异大小。
                     </Typography>
-                    {/*                    峰值信噪比（Peak Signal-to-Noise
-                    Ratio，PSNR），是衡量图像质量的指标之一是，基于MSE(均方误差)定义，对给定一个大小为m*n的原始图像I和对其添加噪声后的噪声图像K，其MSE可定义为：
-                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                      <mi>M</mi>
-                      <mi>S</mi>
-                      <mi>E</mi>
-                      <mo>=</mo>
-                      <mfrac>
-                        <mn>1</mn>
-                        <mrow>
-                          <mi>m</mi>
-                          <mi>n</mi>
-                        </mrow>
-                      </mfrac>
-                      <munderover>
-                        <mo data-mjx-texclass="OP">&#x2211;</mo>
-                        <mrow>
-                          <mi>i</mi>
-                          <mo>=</mo>
-                          <mn>0</mn>
-                        </mrow>
-                        <mrow>
-                          <mi>m</mi>
-                          <mo>&#x2212;</mo>
-                          <mn>1</mn>
-                        </mrow>
-                      </munderover>
-                      <munderover>
-                        <mo data-mjx-texclass="OP">&#x2211;</mo>
-                        <mrow>
-                          <mi>j</mi>
-                          <mo>=</mo>
-                          <mn>0</mn>
-                        </mrow>
-                        <mrow>
-                          <mi>n</mi>
-                          <mo>&#x2212;</mo>
-                          <mn>1</mn>
-                        </mrow>
-                      </munderover>
-                      <mo stretchy="false">[</mo>
-                      <mo stretchy="false">(</mo>
-                      <mi>I</mi>
-                      <mo stretchy="false">(</mo>
-                      <mi>x</mi>
-                      <mo>,</mo>
-                      <mi>y</mi>
-                      <mo stretchy="false">)</mo>
-                      <mo>&#x2212;</mo>
-                      <mi>K</mi>
-                      <mo stretchy="false">(</mo>
-                      <mi>x</mi>
-                      <mo>,</mo>
-                      <mi>y</mi>
-                      <mo stretchy="false">)</mo>
-                      <msup>
-                        <mo stretchy="false">]</mo>
-                        <mrow>
-                          <mn>2</mn>
-                        </mrow>
-                      </msup>
-                    </math>
-                    PSNR可定义为：
-                    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                      <mi>P</mi>
-                      <mi>S</mi>
-                      <mi>N</mi>
-                      <mi>R</mi>
-                      <mo>=</mo>
-                      <mn>10</mn>
-                      <mo>&#xB7;</mo>
-                      <mi>l</mi>
-                      <mi>o</mi>
-                      <msub>
-                        <mi>g</mi>
-                        <mrow>
-                          <mn>10</mn>
-                        </mrow>
-                      </msub>
-                      <mo stretchy="false">(</mo>
-                      <mfrac>
-                        <mrow>
-                          <mi>M</mi>
-                          <mi>A</mi>
-                          <msubsup>
-                            <mi>X</mi>
-                            <mrow>
-                              <mi>I</mi>
-                            </mrow>
-                            <mrow>
-                              <mn>2</mn>
-                            </mrow>
-                          </msubsup>
-                        </mrow>
-                        <mrow>
-                          <mi>M</mi>
-                          <mi>S</mi>
-                          <mi>E</mi>
-                        </mrow>
-                      </mfrac>
-                      <mo stretchy="false">)</mo>
-                    </math>
-                    其中MAXI为图像的最大像素值，PSNR的单位为dB。若每个像素由8位二进制表示，则其值为2^8-1=255，
-                    若原始图像是彩色图像，可以由以下方法进行计算： 计算RGB图像三个通道每个通道的MSE值再求平均值，进而求PSNR。*/}
                   </ProCard>
                   <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <Column
@@ -2141,151 +2036,7 @@ export default (params: object) => {
                         <Typography>（3）L∞范数法，求最大的像素扰动大小。</Typography>
                       </Typography>
                     </Typography>
-                    {/*<Typography >
-                      平均扰动大小定义了对抗攻击中修改了每个像素的大小，这个大小可以使用不同的范数来度量，比较常用的范数是1范数、2范数和无穷范数：
-                      <ul>
-                        <li>
-                          1范数(L1 norm):所有修改像素值绝对值之和。在数学定义中，1范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display={"block"}>
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mn>1</mn>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mrow>
-                              <mstyle displaystyle="false" scriptlevel="0">
-                                <munderover>
-                                  <mo data-mjx-texclass="OP">&#x2211;</mo>
-                                  <mrow>
-                                    <mi>i</mi>
-                                  </mrow>
-                                  <mrow></mrow>
-                                </munderover>
-                              </mstyle>
-                            </mrow>
-                            <mrow data-mjx-texclass="INNER">
-                              <mo data-mjx-texclass="OPEN">|</mo>
-                              <msub>
-                                <mi>x</mi>
-                                <mrow>
-                                  <mi>i</mi>
-                                </mrow>
-                              </msub>
-                              <mo data-mjx-texclass="CLOSE">|</mo>
-                            </mrow>
-                          </math>
-                        </li>
-                        <li>
-                          2范数(L2 norm):误差向量的欧拉范数。在数学定义中，2范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mn>2</mn>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mo stretchy="false">(</mo>
-                            <mrow>
-                              <mstyle displaystyle="false" scriptlevel="0">
-                                <munderover>
-                                  <mo data-mjx-texclass="OP">&#x2211;</mo>
-                                  <mrow>
-                                    <mi>i</mi>
-                                  </mrow>
-                                  <mrow></mrow>
-                                </munderover>
-                              </mstyle>
-                            </mrow>
-                            <msubsup>
-                              <mi>x</mi>
-                              <mrow>
-                                <mi>i</mi>
-                              </mrow>
-                              <mrow>
-                                <mn>2</mn>
-                              </mrow>
-                            </msubsup>
-                            <msup>
-                              <mo stretchy="false">)</mo>
-                              <mrow>
-                                <mn>0.5</mn>
-                              </mrow>
-                            </msup>
-                          </math>
-                        </li>
-                        <li>
-                          无穷范数(L无穷 norm):所有修改像素值绝对值的最大值。在数学定义中，无穷范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mi mathvariant="normal">&#x221E;</mi>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mi>m</mi>
-                            <mi>a</mi>
-                            <msub>
-                              <mi>x</mi>
-                              <mrow>
-                                <mi>i</mi>
-                              </mrow>
-                            </msub>
-                            <mrow data-mjx-texclass="INNER">
-                              <mo data-mjx-texclass="OPEN">|</mo>
-                              <msub>
-                                <mi>x</mi>
-                                <mrow>
-                                  <mi>i</mi>
-                                </mrow>
-                              </msub>
-                              <mo data-mjx-texclass="CLOSE">|</mo>
-                            </mrow>
-                          </math>
-                        </li>
-                      </ul>
-                      其中
-                      <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mi>x</mi>
-                      </math>
-                      是修改图像后的差值，
-                      <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <msub>
-                          <mi>x</mi>
-                          <mrow>
-                            <mi>i</mi>
-                          </mrow>
-                        </msub>
-                      </math>
-                      是差值中的第像素。
-                    </Typography>*/}
+
                   </ProCard>
                   <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <ProCard bordered={false}>
@@ -2368,151 +2119,6 @@ export default (params: object) => {
                         <Typography>（3）L∞范数法，求最大的像素扰动大小。</Typography>
                       </Typography>
                     </Typography>
-                    {/*<Typography >
-                      平均扰动大小定义了对抗攻击中修改了每个像素的大小，这个大小可以使用不同的范数来度量，比较常用的范数是1范数、2范数和无穷范数：
-                      <ul>
-                        <li>
-                          1范数(L1 norm):所有修改像素值绝对值之和。在数学定义中，1范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display={"block"}>
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mn>1</mn>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mrow>
-                              <mstyle displaystyle="false" scriptlevel="0">
-                                <munderover>
-                                  <mo data-mjx-texclass="OP">&#x2211;</mo>
-                                  <mrow>
-                                    <mi>i</mi>
-                                  </mrow>
-                                  <mrow></mrow>
-                                </munderover>
-                              </mstyle>
-                            </mrow>
-                            <mrow data-mjx-texclass="INNER">
-                              <mo data-mjx-texclass="OPEN">|</mo>
-                              <msub>
-                                <mi>x</mi>
-                                <mrow>
-                                  <mi>i</mi>
-                                </mrow>
-                              </msub>
-                              <mo data-mjx-texclass="CLOSE">|</mo>
-                            </mrow>
-                          </math>
-                        </li>
-                        <li>
-                          2范数(L2 norm):误差向量的欧拉范数。在数学定义中，2范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mn>2</mn>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mo stretchy="false">(</mo>
-                            <mrow>
-                              <mstyle displaystyle="false" scriptlevel="0">
-                                <munderover>
-                                  <mo data-mjx-texclass="OP">&#x2211;</mo>
-                                  <mrow>
-                                    <mi>i</mi>
-                                  </mrow>
-                                  <mrow></mrow>
-                                </munderover>
-                              </mstyle>
-                            </mrow>
-                            <msubsup>
-                              <mi>x</mi>
-                              <mrow>
-                                <mi>i</mi>
-                              </mrow>
-                              <mrow>
-                                <mn>2</mn>
-                              </mrow>
-                            </msubsup>
-                            <msup>
-                              <mo stretchy="false">)</mo>
-                              <mrow>
-                                <mn>0.5</mn>
-                              </mrow>
-                            </msup>
-                          </math>
-                        </li>
-                        <li>
-                          无穷范数(L无穷 norm):所有修改像素值绝对值的最大值。在数学定义中，无穷范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mi mathvariant="normal">&#x221E;</mi>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mi>m</mi>
-                            <mi>a</mi>
-                            <msub>
-                              <mi>x</mi>
-                              <mrow>
-                                <mi>i</mi>
-                              </mrow>
-                            </msub>
-                            <mrow data-mjx-texclass="INNER">
-                              <mo data-mjx-texclass="OPEN">|</mo>
-                              <msub>
-                                <mi>x</mi>
-                                <mrow>
-                                  <mi>i</mi>
-                                </mrow>
-                              </msub>
-                              <mo data-mjx-texclass="CLOSE">|</mo>
-                            </mrow>
-                          </math>
-                        </li>
-                      </ul>
-                      其中
-                      <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mi>x</mi>
-                      </math>
-                      是修改图像后的差值，
-                      <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <msub>
-                          <mi>x</mi>
-                          <mrow>
-                            <mi>i</mi>
-                          </mrow>
-                        </msub>
-                      </math>
-                      是差值中的第像素。
-                    </Typography>*/}
                   </ProCard>
                   <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <ProCard bordered={false}>
@@ -2583,151 +2189,7 @@ export default (params: object) => {
                         <Typography>（3）L∞范数法，求最大的像素扰动大小。</Typography>
                       </Typography>
                     </Typography>
-                    {/*<Typography >
-                      平均扰动大小定义了对抗攻击中修改了每个像素的大小，这个大小可以使用不同的范数来度量，比较常用的范数是1范数、2范数和无穷范数：
-                      <ul>
-                        <li>
-                          1范数(L1 norm):所有修改像素值绝对值之和。在数学定义中，1范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display={"block"}>
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mn>1</mn>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mrow>
-                              <mstyle displaystyle="false" scriptlevel="0">
-                                <munderover>
-                                  <mo data-mjx-texclass="OP">&#x2211;</mo>
-                                  <mrow>
-                                    <mi>i</mi>
-                                  </mrow>
-                                  <mrow></mrow>
-                                </munderover>
-                              </mstyle>
-                            </mrow>
-                            <mrow data-mjx-texclass="INNER">
-                              <mo data-mjx-texclass="OPEN">|</mo>
-                              <msub>
-                                <mi>x</mi>
-                                <mrow>
-                                  <mi>i</mi>
-                                </mrow>
-                              </msub>
-                              <mo data-mjx-texclass="CLOSE">|</mo>
-                            </mrow>
-                          </math>
-                        </li>
-                        <li>
-                          2范数(L2 norm):误差向量的欧拉范数。在数学定义中，2范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mn>2</mn>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mo stretchy="false">(</mo>
-                            <mrow>
-                              <mstyle displaystyle="false" scriptlevel="0">
-                                <munderover>
-                                  <mo data-mjx-texclass="OP">&#x2211;</mo>
-                                  <mrow>
-                                    <mi>i</mi>
-                                  </mrow>
-                                  <mrow></mrow>
-                                </munderover>
-                              </mstyle>
-                            </mrow>
-                            <msubsup>
-                              <mi>x</mi>
-                              <mrow>
-                                <mi>i</mi>
-                              </mrow>
-                              <mrow>
-                                <mn>2</mn>
-                              </mrow>
-                            </msubsup>
-                            <msup>
-                              <mo stretchy="false">)</mo>
-                              <mrow>
-                                <mn>0.5</mn>
-                              </mrow>
-                            </msup>
-                          </math>
-                        </li>
-                        <li>
-                          无穷范数(L无穷 norm):所有修改像素值绝对值的最大值。在数学定义中，无穷范数为
-                          <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-                            <msub>
-                              <mrow data-mjx-texclass="INNER">
-                                <mo data-mjx-texclass="OPEN">|</mo>
-                                <mrow data-mjx-texclass="INNER">
-                                  <mo data-mjx-texclass="OPEN">|</mo>
-                                  <mi>x</mi>
-                                  <mo data-mjx-texclass="CLOSE">|</mo>
-                                </mrow>
-                                <mo data-mjx-texclass="CLOSE">|</mo>
-                              </mrow>
-                              <mrow>
-                                <mi mathvariant="normal">&#x221E;</mi>
-                              </mrow>
-                            </msub>
-                            <mo>=</mo>
-                            <mi>m</mi>
-                            <mi>a</mi>
-                            <msub>
-                              <mi>x</mi>
-                              <mrow>
-                                <mi>i</mi>
-                              </mrow>
-                            </msub>
-                            <mrow data-mjx-texclass="INNER">
-                              <mo data-mjx-texclass="OPEN">|</mo>
-                              <msub>
-                                <mi>x</mi>
-                                <mrow>
-                                  <mi>i</mi>
-                                </mrow>
-                              </msub>
-                              <mo data-mjx-texclass="CLOSE">|</mo>
-                            </mrow>
-                          </math>
-                        </li>
-                      </ul>
-                      其中
-                      <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <mi>x</mi>
-                      </math>
-                      是修改图像后的差值，
-                      <math xmlns="http://www.w3.org/1998/Math/MathML">
-                        <msub>
-                          <mi>x</mi>
-                          <mrow>
-                            <mi>i</mi>
-                          </mrow>
-                        </msub>
-                      </math>
-                      是差值中的第像素。
-                    </Typography>*/}
+
                   </ProCard>
                   <ProCard type={"inner"} style={{ height: '450px' }} bordered={true}>
                     <ProCard bordered={false}>
@@ -2888,96 +2350,13 @@ export default (params: object) => {
           <>
             <ProCard split='vertical'>
               <ProCard colSpan={8}>指标
-                <Line data={[{
-                  "Date": "1",
-                  "scales": 10
-                },
-                {
-                  "Date": "2",
-                  "scales": 20
-                },
-                {
-                  "Date": "3",
-                  "scales": 10
-                },
-                {
-                  "Date": "4",
-                  "scales": 20
-                },
-                {
-                  "Date": "5",
-                  "scales": 10
-                },
-                {
-                  "Date": "6",
-                  "scales": 20
-                },
-                {
-                  "Date": "7",
-                  "scales": 10
-                },
-                {
-                  "Date": "8",
-                  "scales": 20
-                },
-                {
-                  "Date": "9",
-                  "scales": 10
-                },
-                {
-                  "Date": "10",
-                  "scales": 20
-                },
-                {
-                  "Date": "11",
-                  "scales": 10
-                },
-                {
-                  "Date": "12",
-                  "scales": 20
-                },
-
-                {
-                  "Date": "13",
-                  "scales": 10
-                },
-                {
-                  "Date": "14",
-                  "scales": 20
-                },
-                {
-                  "Date": "15",
-                  "scales": 10
-                },
-                {
-                  "Date": "16",
-                  "scales": 20
-                },
-
-                {
-                  "Date": "17",
-                  "scales": 20
-                },
-
-                {
-                  "Date": "18",
-                  "scales": 20
-                },
-                {
-                  "Date": "19",
-                  "scales": 10
-                },
-                {
-                  "Date": "20",
-                  "scales": 20
-                },
-                ]}
+                <Line data={interpretImgListTotalIndex.lineindex}
                   padding='auto'
                   xField='Date'
                   yField='scales'
                 />
                 <Card title="精确性指标折线图的曲线下面积(AUC)">
-                  <p></p>
+                  <p>{interpretImgListTotalIndex.AUC}</p>
                 </Card>
                 <Card title="敏感性指标" >
                   <p></p>
@@ -3032,6 +2411,7 @@ export default (params: object) => {
               <ProCard colSpan={20}>
                 {
                   interpretImgResult.map((item) => {
+                    console.log(item.deletion);
                     return (
                       imgInterpretMethodType === item.methodName &&
                       (<ProCard split={"horizontal"}>
@@ -3040,17 +2420,55 @@ export default (params: object) => {
                           layout={"center"}>
                           <Space>
                             <Image src={item.originalImg} height={200} width={200}></Image>
-                            <Image src={item.Img} height={200} width={200}></Image>
+                            {/* <Image src={item.Img} height={200} width={200}></Image> */}
                           </Space>
                         </ProCard>
                         <ProCard layout={"center"}>
-                          <div>（左）输入实例；</div>
+                          <div>（上）输入实例；</div>
                           <br />
-                          <div>（右）{item.methodName}可解释性输出结果 右图色深部分表示模型在做出决策时更关注的部分</div>
+                          <div>（下）{item.methodName}目标检测可解释性输出结果 色深部分表示模型在做出决策时更关注的部分</div>
                         </ProCard>
-                        <ProCard split={"vertical"}
+
+                        {item.deletion.map((line, index) => {
+                          console.log(line);
+                          let lineData = [];
+                          line[0].map(item => {
+                            lineData.push({
+                              "Date": String(item[1]),
+                              "scales": item[0],
+                            })
+                          })
+                          console.log(lineData);
+                          return (
+                            <ProCard split='vertical'>
+                              <ProCard colSpan={4}>
+                                <Image src={'http://120.53.91.149:9000/images/' + item.pic[index]} height={200} width={200}></Image>
+                              </ProCard>
+                              <ProCard colSpan={14}>
+                                <Line data={lineData}
+                                  padding='auto'
+                                  xField='Date'
+                                  yField='scales'
+                                />
+                              </ProCard>
+                              <ProCard colSpan={8}>
+                                <Card title="精确性指标折线图的曲线下面积(AUC)">
+                                  <p>{line[1]}</p>
+                                </Card>
+                                <Card title="敏感性指标" >
+                                  <p></p>
+                                </Card>
+                                <Card title="一致性指标" >
+                                  <p></p>
+                                </Card>
+                              </ProCard>
+                            </ProCard>
+                          )
+                        })}
+                        {/*                         <ProCard split={"vertical"}
                           title={<Typography.Title level={3}>指标</Typography.Title>}
                           layout={"center"}>
+
                           <ProCard>
                             <Line data={[{
                               "Date": "1",
@@ -3076,7 +2494,7 @@ export default (params: object) => {
                               <p></p>
                             </Card>
                           </ProCard>
-                        </ProCard>
+                        </ProCard> */}
                       </ProCard>
                       )
                     )

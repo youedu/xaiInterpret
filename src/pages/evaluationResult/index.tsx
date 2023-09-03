@@ -715,7 +715,7 @@ export default (params: object) => {
         console.log(JSON.parse(data.data.totalIndex));
         let lineindex = [];
         for (let i of JSON.parse(data.data.totalIndex)[0]) {
-          lineindex.push({ Date: i[1], scales: i[0] })
+          lineindex.push({ Date: String(i[1]), scales: i[0] })
         }
         console.log(lineindex);
         setInterpretImgListTotalIndex({ lineindex: lineindex, AUC: JSON.parse(data.data.totalIndex)[1] });

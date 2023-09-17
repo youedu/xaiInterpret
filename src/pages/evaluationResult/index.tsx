@@ -181,7 +181,7 @@ const interpretColumns: ProColumns<interpretTableListItem>[] = [
     render: (_, row) => {
       return <><CheckCircleOutlined /><Link
         onClick={() => {
-          window.location.replace('/evaluationresult?resultId=' + row.evaluateRecordId.toString() + '&evaluateType=2&imgId=' + row.id.toString());
+          window.location.replace('/evaluationresult?resultId=' + row.evaluateRecordId.toString() + '&evaluateType=' + row.taskTypeId.toString() + '&imgId=' + row.id.toString());
         }}>查看解释</Link></>;
     },
   },
@@ -239,7 +239,8 @@ export default (params: object) => {
 
   //初始化评测结果的展示数据
   const presentResult = async () => {
-    if (params.location.query.evaluateType.toString() !== '2') {
+    //old result（no use）
+    if (params.location.query.evaluateType.toString() === '9999') {
       const data = await evaluateResult(params.location.query.resultId);
       const configRes = await evaluateConfigResult(params.location.query.resultId);
 
@@ -706,10 +707,59 @@ export default (params: object) => {
         history.push('/404');
         message.error("结果错误");
       }
-    } else {
+    }//图片分类可解释性结果 
+    else if (params.location.query.evaluateType.toString() === '1') {
       if (params.location.query.imgId === undefined) {
         console.log(1);
-        const data = await evaluateImgList(params.location.query.resultId);
+        const data = await evaluateImgList(params.location.query.resultId, "1");
+        console.log(data);
+        setInterpretImgList(data.data.list);
+        console.log(JSON.parse(data.data.totalIndex));
+        let lineindex = [];
+        if (JSON.parse(data.data.totalIndex) !== null) {
+          for (let i of JSON.parse(data.data.totalIndex)[0]) {
+            lineindex.push({ Date: String(i[1]), scales: i[0] })
+          }
+          console.log(lineindex);
+          setInterpretImgListTotalIndex({ lineindex: lineindex, AUC: JSON.parse(data.data.totalIndex)[1] });
+        }
+        else {
+          setInterpretImgListTotalIndex({ lineindex: lineindex, AUC: 0 });
+        }
+        setEvaluateType('ImgListINTERPRET')
+      } else {
+        console.log(2);
+        const data = await evaluateImgResult(params.location.query.resultId, params.location.query.imgId, "1");
+        console.log(data);
+        let result = JSON.parse(data.data.result);
+        console.log(result);
+        if (result !== null) {
+          let key = Object.keys(result);
+          const methodList = [];
+          let final = [];
+          for (let i of key) {
+            methodList.push({ label: i, value: i });
+            final.push({
+              methodName: i,
+              originalImg: data.data.imageUrl,
+              //Img: 'http://120.53.91.149:9000/images/' + result[i].pic,
+              deletion: result[i].deletion,
+              pic: result[i].pic
+            });
+          }
+          console.log(final);
+          setInterpretImgResult(final);
+          setInterpretImgMethodList(methodList);
+          setImgInterpretMethodType(methodList[0].label);
+          console.log(result);
+        }
+        setEvaluateType('ImgResultINTERPRET');
+      }
+    }//目标检测可解释性结果 
+    else if (params.location.query.evaluateType.toString() === '3') {
+      if (params.location.query.imgId === undefined) {
+        console.log(1);
+        const data = await evaluateImgList(params.location.query.resultId, "3");
         console.log(data);
         setInterpretImgList(data.data.list);
         console.log(JSON.parse(data.data.totalIndex));
@@ -722,7 +772,7 @@ export default (params: object) => {
         setEvaluateType('ImgListINTERPRET')
       } else {
         console.log(2);
-        const data = await evaluateImgResult(params.location.query.resultId, params.location.query.imgId);
+        const data = await evaluateImgResult(params.location.query.resultId, params.location.query.imgId, "3");
         console.log(data);
         let result = JSON.parse(data.data.result);
         console.log(result);
@@ -2426,10 +2476,10 @@ export default (params: object) => {
                         <ProCard layout={"center"}>
                           <div>（上）输入实例；</div>
                           <br />
-                          <div>（下）{item.methodName}目标检测可解释性输出结果 色深部分表示模型在做出决策时更关注的部分</div>
+                          <div>（下）{item.methodName}可解释性输出结果 色深部分表示模型在做出决策时更关注的部分</div>
                         </ProCard>
 
-                        {item.deletion.map((line, index) => {
+                        {item.deletion?.map((line, index) => {
                           console.log(line);
                           let lineData = [];
                           line[0].map(item => {
@@ -2442,7 +2492,7 @@ export default (params: object) => {
                           return (
                             <ProCard split='vertical'>
                               <ProCard colSpan={4}>
-                                <Image src={'http://120.53.91.149:9000/images/' + item.pic[index]} height={200} width={200}></Image>
+                                <Image src={item.pic[index]} height={200} width={200}></Image>
                               </ProCard>
                               <ProCard colSpan={14}>
                                 <Line data={lineData}

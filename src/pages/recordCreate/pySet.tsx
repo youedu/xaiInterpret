@@ -97,21 +97,21 @@ const columns: ProColumns[] = [
 
 const columnsMP: ProColumns[] = [
     {
-        title: <b>数据ID</b>,
+        title: <b>模型ID</b>,
         dataIndex: 'md5Sum',
         ellipsis: true,
         width: '40%',
         align: 'center',
     },
     {
-        title: <b>数据名称</b>,
+        title: <b>模型名称</b>,
         dataIndex: 'name',
         ellipsis: true,
 
         align: 'center',
     },
     {
-        title: <b>数据大小</b>,
+        title: <b>模型大小</b>,
         dataIndex: 'size',
         ellipsis: true,
 

@@ -438,6 +438,7 @@ export async function evaluationRecordQuery(params, choose, keyWord, taskTypeId)
       pageSize: params.pageSize,
       pageNum: params.current,
       evaluateTypeIds: taskTypeId,
+      
     },
   });
 }
@@ -725,7 +726,7 @@ export async function evaluateConfigResult(evaluateResultId) {
 }
 
 /*测试用，根据id获取可解释性评测图片列表接口*/
-export async function evaluateImgList(evaluateResultId) {
+export async function evaluateImgList(evaluateResultId, taskTypeId) {
   //console.log(evaluateResultId);
   return request('/api/micro-evaluate-service/evaluateResult/imageClassifyXai/record/' + evaluateResultId, {
     method: 'GET',
@@ -736,12 +737,13 @@ export async function evaluateImgList(evaluateResultId) {
     },
     params: {
       "id": evaluateResultId,
+      "taskTypeId": taskTypeId,
     },
   });
 }
 
 /*测试用，根据id获取可解释性评测图片评测结果接口*/
-export async function evaluateImgResult(evaluateResultId, imgId) {
+export async function evaluateImgResult(evaluateResultId, imgId, taskTypeId) {
   //console.log(evaluateResultId);
   return request('/api/micro-evaluate-service/evaluateResult/imageClassifyXai/result/detail/' + evaluateResultId+'/'+imgId, {
     method: 'GET',
@@ -753,6 +755,7 @@ export async function evaluateImgResult(evaluateResultId, imgId) {
     params: {
       "evaluateRecordid": evaluateResultId,
       "imgId": imgId,
+      "taskTypeId": taskTypeId,
     },
   });
 }

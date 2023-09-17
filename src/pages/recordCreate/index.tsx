@@ -445,7 +445,7 @@ export default (params) => {
                   setInterpretEvaluationConfig({});
                 }
               }
-              else {
+              else if (value.taskTypeId === '3') {
                 value.taskName += '-目标检测';
                 console.log(value);
                 const msg = await objectInterpretEvaluation(value);

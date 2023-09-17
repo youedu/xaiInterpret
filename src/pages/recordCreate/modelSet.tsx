@@ -180,7 +180,7 @@ export default forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     openModal: (newVal: boolean) => {
       actionRef.current?.reload();
-      return selectedRowKey;
+      return selectedRowKey[0];
     }
   }));
 
@@ -258,7 +258,7 @@ export default forwardRef((props, ref) => {
                   value: columnsStateMap,
                   onChange: setColumnsStateMap,
                 }}*/
-          rowKey="id"
+          rowKey="tags"
           toolbar={{
             search: (<Input.Group compact>
               {/*               <Select

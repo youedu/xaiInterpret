@@ -172,7 +172,7 @@ export default (params) => {
       valueEnum: {
         1: { text: '图像分类' },
         2: { text: '文本分类' },
-        3: { text: '表格分类' },
+        3: { text: '目标检测' },
       },
       align: 'center',
     },
@@ -259,7 +259,7 @@ export default (params) => {
           //return <><SyncOutlined spin/>测评中</>;
           return <Progress percent={Math.min(Math.round((percent - (new Date(row.updateTime)).valueOf()) / 250), 90)} />
         } else
-          return <><CheckCircleOutlined /><Link to={'/evaluationresult?resultId=' + row.id.toString() + '&evaluateType=' + row.evaluateTypeId.toString()}>测评成功</Link></>;
+          return <><CheckCircleOutlined /><Link to={'/evaluationresult?resultId=' + row.id.toString() + '&evaluateType=' + row.taskTypeId.toString()}>测评成功</Link></>;
       },
       align: 'center',
     },
@@ -358,7 +358,7 @@ export default (params) => {
           //console.log(token.get());
           if (token.get() !== null) {
             const msg = await evaluationRecordQuery(params, queryType, queryContent, taskType);
-            //console.log(msg);
+            console.log(msg);
             if (msg.code === '00000') {
               /*          for (let item of msg.data.records){
                             let res = '';

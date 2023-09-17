@@ -29,7 +29,7 @@ const Settings: LayoutSettings & {
     "headerHeight": 70,
     "splitMenus": false,
     "footerRender": false,
-    "title": 'AI可信测试平台',
+    "title": '深度学习可解释工具',
     //"title": false,
     menu: {
       locale: false,
